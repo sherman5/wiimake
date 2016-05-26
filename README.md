@@ -13,7 +13,7 @@ The final goal is to have the user input,
 4. put C source code in SourceCode/ directory
 
 and have the output be the original .iso file with
-the _main() function injected at the starting point and
+the main() function injected at the starting point and
 only overwrite the given memory in regions.txt
 
 To acheive this goal, the critical steps are:
