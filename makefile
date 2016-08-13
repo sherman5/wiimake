@@ -14,6 +14,6 @@ build/TextFileParser.o: src/TextFileParser.cpp
 	$(CXX) $(CFLAGS) src/TextFileParser.cpp -o build/TextFileParser.o 
 
 clean:
-	rm *~ *.o
+	rm src/*~ build/*.o GCI
 
 
