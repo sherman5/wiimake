@@ -29,8 +29,4 @@
 
 *~
 *.iso
-CodeRegions/*
-!CodeRegions/regions.txt
-ISOhandler/ISObuilder
-ISOhandler/OriginalCodeGenerator
 
