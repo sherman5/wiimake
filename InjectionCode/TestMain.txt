@@ -1,0 +1,50 @@
+
+InjectionCode/TestMain.o:     file format elf32-powerpc
+
+
+Disassembly of section .text:
+
+00000000 <timesThree>:
+   0:	94 21 ff e8 	stwu    r1,-24(r1)
+   4:	93 e1 00 14 	stw     r31,20(r1)
+   8:	7c 3f 0b 78 	mr      r31,r1
+   c:	90 7f 00 08 	stw     r3,8(r31)
+  10:	81 3f 00 08 	lwz     r9,8(r31)
+  14:	1d 29 00 03 	mulli   r9,r9,3
+  18:	7d 23 4b 78 	mr      r3,r9
+  1c:	39 7f 00 18 	addi    r11,r31,24
+  20:	83 eb ff fc 	lwz     r31,-4(r11)
+  24:	7d 61 5b 78 	mr      r1,r11
+  28:	4e 80 00 20 	blr
+
+0000002c <_main>:
+  2c:	94 21 ff f0 	stwu    r1,-16(r1)
+  30:	7c 08 02 a6 	mflr    r0
+  34:	90 01 00 14 	stw     r0,20(r1)
+  38:	93 c1 00 08 	stw     r30,8(r1)
+  3c:	93 e1 00 0c 	stw     r31,12(r1)
+  40:	7c 3f 0b 78 	mr      r31,r1
+  44:	3d 20 80 00 	lis     r9,-32768
+  48:	61 29 18 00 	ori     r9,r9,6144
+  4c:	39 40 00 04 	li      r10,4
+  50:	91 49 00 00 	stw     r10,0(r9)
+  54:	3d 20 80 00 	lis     r9,-32768
+  58:	61 3e 18 04 	ori     r30,r9,6148
+  5c:	38 60 00 04 	li      r3,4
+  60:	48 00 00 01 	bl      60 <_main+0x34>
+  64:	7c 69 1b 78 	mr      r9,r3
+  68:	91 3e 00 00 	stw     r9,0(r30)
+  6c:	3d 20 80 00 	lis     r9,-32768
+  70:	61 3e 18 08 	ori     r30,r9,6152
+  74:	38 60 00 04 	li      r3,4
+  78:	48 00 00 01 	bl      78 <_main+0x4c>
+  7c:	7c 69 1b 78 	mr      r9,r3
+  80:	91 3e 00 00 	stw     r9,0(r30)
+  84:	7d 23 4b 78 	mr      r3,r9
+  88:	39 7f 00 10 	addi    r11,r31,16
+  8c:	80 0b 00 04 	lwz     r0,4(r11)
+  90:	7c 08 03 a6 	mtlr    r0
+  94:	83 cb ff f8 	lwz     r30,-8(r11)
+  98:	83 eb ff fc 	lwz     r31,-4(r11)
+  9c:	7d 61 5b 78 	mr      r1,r11
+  a0:	4e 80 00 20 	blr

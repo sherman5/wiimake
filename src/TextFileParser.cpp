@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <fstream>
 #include <utility>
+#include <iostream>
+#include <exception>
 
 #include "TextFileParser.h"
 
@@ -24,6 +26,31 @@ uint32_t TextFileParser::GetInjectionPoint() {
     std::string addr;
     file_stream >> addr;
     return stoul(addr, nullptr, 16);
+
+}
+
+unsigned int TextFileParser::GetNumberOfLines() {
+
+    std::ifstream infile (m_file_path);
+    std::string line;
+    uint32_t current;
+
+    while (infile >> line) {
+
+        if (line.find(":") != std::string::npos) {
+            
+            line = line.substr(0, line.find(":"));
+            try {
+
+                current = stoul(line, nullptr, 16);
+
+            } catch (std::exception& e) {//not line of code - use this info for iterator}
+
+        }
+
+    }
+
+    return current;
 
 }
 

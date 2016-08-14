@@ -2,6 +2,7 @@
 #include <argp.h>
 
 #include "ISOhandler.h"
+#include "CodeAssembler.h"
 
 const char* argp_program_version = "GamecubeCodeInjector 0.1";
 static char doc[] = "GCI early development version";
@@ -63,7 +64,7 @@ static struct argp argp = { options, parse_opt, args_doc, doc };
 
 int main(int argc, char* argv[]) {
 
-    struct arguments arguments;
+/*    struct arguments arguments;
 
     arguments.inject = 0;
     arguments.save = 0;
@@ -99,5 +100,17 @@ int main(int argc, char* argv[]) {
         
         return 0;
 
+    }*/
+    if (argc < 2) {
+        
+        std::cout << "too few arguments" << std::endl;
+        return 1;
+   
+    } else {
+
+        CodeAssembler code (argv[1]);
+        code.Compile();
+
     }
+  
 }

@@ -11,7 +11,8 @@ typedef std::pair<uint32_t, uint32_t> MemSlot;
 enum FileType {
 
     injectionFile,
-    regionFile
+    regionFile,
+    objdumpFile
 
 };
 
@@ -55,6 +56,7 @@ public:
     iterator begin();
 
     uint32_t GetInjectionPoint();
+    unsigned int GetNumberOfLines();
 
 };
 

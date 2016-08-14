@@ -1,0 +1,18 @@
+
+InjectionCode/TestLibrary.o:     file format elf32-powerpc
+
+
+Disassembly of section .text:
+
+00000000 <timesTwo>:
+   0:	94 21 ff e8 	stwu    r1,-24(r1)
+   4:	93 e1 00 14 	stw     r31,20(r1)
+   8:	7c 3f 0b 78 	mr      r31,r1
+   c:	90 7f 00 08 	stw     r3,8(r31)
+  10:	81 3f 00 08 	lwz     r9,8(r31)
+  14:	55 29 08 3c 	rlwinm  r9,r9,1,0,30
+  18:	7d 23 4b 78 	mr      r3,r9
+  1c:	39 7f 00 18 	addi    r11,r31,24
+  20:	83 eb ff fc 	lwz     r31,-4(r11)
+  24:	7d 61 5b 78 	mr      r1,r11
+  28:	4e 80 00 20 	blr
