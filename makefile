@@ -12,7 +12,10 @@ build/ISOhandler.o: src/ISOhandler.cpp
 	$(CXX) $(CFLAGS) src/ISOhandler.cpp -o build/ISOhandler.o 
 
 build/TextFileParser.o: src/TextFileParser.cpp
-	$(CXX) $(CFLAGS) src/TextFileParser.cpp -o build/TextFileParser.o 
+	$(CXX) $(CFLAGS) src/TextFileParser.cpp -o build/TextFileParser.o
+
+build/CodeAssembler.o: src/CodeAssembler.cpp
+	$(CXX) $(CFLAGS) src/CodeAssembler.cpp -o build/CodeAssembler.o  
 
 clean:
 	rm src/*~ build/*.o GCI

@@ -1,3 +1,6 @@
+#ifndef ISO_HANDLER_H
+#define ISO_HANDLER_H
+
 #include <stdint.h>
 #include <utility>
 #include <string>
@@ -39,3 +42,5 @@ public:
     void InjectFile(std::string);
 
 };
+
+#endif

@@ -1,6 +1,6 @@
 # GamecubeCodeInjector
 
-## Basic Overview
+## Installation
 
 Since this is still so early in development I'll use this section 
 to outline to goals of the project and the issue tracker for specific tasks.
