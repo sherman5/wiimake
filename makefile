@@ -1,11 +1,12 @@
 CXX = g++
 CFLAGS = -c -Wall -Wextra -pedantic -std=c++11
+ARGPFLAGS = -Wno-unused-function -Wno-missing-field-initializers
 
 GCI: build/GCI.o build/ISOhandler.o build/TextFileParser.o
 	$(CXX) build/GCI.o build/ISOhandler.o build/TextFileParser.o -o GCI
 
 build/GCI.o: src/GCI.cpp
-	$(CXX) $(CFLAGS) src/GCI.cpp -o build/GCI.o 
+	$(CXX) $(CFLAGS) $(ARGPFLAGS) src/GCI.cpp -o build/GCI.o 
 
 build/ISOhandler.o: src/ISOhandler.cpp
 	$(CXX) $(CFLAGS) src/ISOhandler.cpp -o build/ISOhandler.o 
