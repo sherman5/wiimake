@@ -3,8 +3,12 @@
 #include <stdint.h>
 #include <endian.h>
 #include <utility>
+#include <string>
+
+#include <iostream>
 
 #include "ISOhandler.h"
+#include "TextFileParser.h"
 
 ISOhandler::ISOhandler(std::string path_to_iso) {
 
@@ -54,37 +58,50 @@ uint32_t ISOhandler::IsoRead(uint32_t addr) {
 
 void ISOhandler::CreateRestorePoint(std::string region_file_path, std::string save_file_path) {
 
-    MemoryList restore_point;
-    std::ifstream region_file(region_file_path);
+    std::vector<uint32_t> data;
+    TextFileParser parser (region_file_path, regionFile);
 
-    std::string line, first_addr, last_addr;
-    uint32_t addr;
+    uint32_t addr = parser.GetInjectionPoint();
+    data.push_back(addr);
+    data.push_back(IsoRead(addr));
 
-    region_file >> line;
-    addr = std::stoul(line, nullptr, 16);
-    restore_point.push_back(std::make_pair(addr, IsoRead(addr)));
+    TextFileParser::iterator it = parser.begin();
+    for (; !it.atEnd(); ++it) {
+    
+        addr = (*it).first;
+        while (addr <= (*it).second) {
 
-    while (region_file >> line) {
-
-        first_addr = line.substr(0, line.find('-'));
-        last_addr = line.substr(line.find('-') + 1, line.length());
-
-        addr = std::stoul(first_addr, nullptr, 16);
-
-        while (addr <= std::stoul(last_addr, nullptr, 16)) {
-                
-            restore_point.push_back(std::make_pair(addr, IsoRead(addr)));
+            data.push_back(addr);
+            data.push_back(IsoRead(addr));
             addr += 0x04;
 
-        }
+        }            
 
     }
 
-    std::ofstream outfile (save_file_path);
+    std::ofstream outfile(save_file_path, std::ios::out | std::ios::binary);
+    outfile.write(reinterpret_cast<char *> (&data[0]), data.size() * sizeof(uint32_t));
 
 }
 
-void ISOhandler::Restore() {
+void ISOhandler::Restore(std::string load_file_path) {
+
+    std::ifstream infile(load_file_path, std::ios::in | std::ios::binary);
+
+    infile.seekg(0, infile.end);
+    unsigned int length = infile.tellg() * sizeof(char) / sizeof(uint32_t);
+    infile.seekg(0, infile.beg);
+
+    uint32_t addr, value;
+
+    for (unsigned int i = 0; i < length; ++i) {
+
+        infile.read(reinterpret_cast<char *>(&addr), sizeof(addr));
+        infile.read(reinterpret_cast<char *>(&value), sizeof(addr));
+        IsoWrite(addr, value);
+        ++i;
+
+    }
 
 }
 

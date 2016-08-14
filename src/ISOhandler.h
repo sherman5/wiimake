@@ -3,8 +3,6 @@
 #include <string>
 #include <vector>
 
-typedef std::vector< std::pair<uint32_t, uint32_t> > MemoryList;
-
 class ISOhandler {
 
 private:
@@ -36,6 +34,6 @@ public:
     uint32_t IsoRead(uint32_t);
 
     void CreateRestorePoint(std::string, std::string);
-    void Restore();
+    void Restore(std::string);
 
 };
