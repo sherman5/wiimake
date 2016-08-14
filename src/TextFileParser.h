@@ -29,6 +29,7 @@ class TextFileParser {
         FileType m_type;
         std::string m_current_line;
         std::ifstream* m_file_stream;
+        uint32_t m_line_addr; 
 
     public:
 

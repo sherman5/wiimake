@@ -1,3 +1,4 @@
+#include <sstream>
 #include <string>
 #include <cstdint>
 #include <fstream>
@@ -44,7 +45,7 @@ unsigned int TextFileParser::GetNumberOfLines() {
 
                 current = stoul(line, nullptr, 16);
 
-            } catch (std::exception& e) {//not line of code - use this info for iterator}
+            } catch (std::exception& e) {}
 
         }
 
@@ -64,12 +65,56 @@ TextFileParser::iterator::iterator(TextFileParser* parser) {
     *m_file_stream >> m_current_line;
 
     if (m_type == regionFile) { *m_file_stream >> m_current_line;}
+    if (m_type == objdumpFile) { ++(*this);}
 
 }
 
 TextFileParser::iterator TextFileParser::iterator::operator++() {
 
     *m_file_stream >> m_current_line;
+
+    if (m_type == objdumpFile) {
+
+        bool found_line = false;
+
+        while (!found_line) {
+
+            if (m_current_line.find(":") != std::string::npos) {
+            
+                m_current_line = m_current_line.substr(0, m_current_line.find(":"));
+                found_line = true;
+
+                try {
+
+                    m_line_addr = stoul(m_current_line, nullptr, 16);
+
+                } catch (std::exception& e) {
+
+                    
+                    found_line = false;
+
+                }   
+
+            } else {
+
+                *m_file_stream >> m_current_line;
+                if (atEnd()) {break;}
+
+            }
+
+        }
+
+        std::string temp;
+        *m_file_stream >> m_current_line;    
+        for (unsigned int i = 0; i < 3; ++i) {
+
+            *m_file_stream >> temp;
+            m_current_line += temp;
+
+        }            
+
+    }
+
     return *this;
 
 }
@@ -92,8 +137,19 @@ MemSlot TextFileParser::iterator::operator*() {
 
     std::string first, second;
 
-    first = m_current_line.substr(0, m_current_line.find('-'));
-    second = m_current_line.substr(m_current_line.find('-') + 1, m_current_line.length());
+    if (m_type == objdumpFile) {
+    
+        std::stringstream ss;
+        ss << std::hex << m_line_addr;
+        first = ss.str();
+        second = m_current_line;    
+
+    } else {
+
+        first = m_current_line.substr(0, m_current_line.find('-'));
+        second = m_current_line.substr(m_current_line.find('-') + 1, m_current_line.length());
+    
+    }
 
     return std::make_pair(std::stoul(first, nullptr, 16), std::stoul(second, nullptr, 16));
 

@@ -3,6 +3,8 @@
 
 #include "ISOhandler.h"
 #include "CodeAssembler.h"
+#include "TextFileParser.h"
+
 
 const char* argp_program_version = "GamecubeCodeInjector 0.1";
 static char doc[] = "GCI early development version";
@@ -108,8 +110,16 @@ int main(int argc, char* argv[]) {
    
     } else {
 
-        CodeAssembler code (argv[1]);
-        code.Compile();
+//        CodeAssembler code (argv[1]);
+//        code.Compile();
+        TextFileParser parser (argv[1], objdumpFile);
+        TextFileParser::iterator it = parser.begin();
+
+        for (; !it.atEnd(); ++it) {
+
+            std::cout << std::hex << (*it).first << "-" << (*it).second << std::endl;
+
+        }
 
     }
   
