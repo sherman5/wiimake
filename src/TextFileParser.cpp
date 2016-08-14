@@ -18,12 +18,6 @@ TextFileParser::iterator TextFileParser::begin() {
 
 }
 
-TextFileParser::iterator TextFileParser::end() {
-
-    return TextFileParser::iterator(this, true);
-
-}
-
 uint32_t TextFileParser::GetInjectionPoint() {
 
     std::ifstream file_stream (m_file_path);
@@ -36,15 +30,13 @@ uint32_t TextFileParser::GetInjectionPoint() {
 /********************* ITERATOR CLASS **********************/
 
 
-TextFileParser::iterator::iterator(TextFileParser* parser, bool end) {
+TextFileParser::iterator::iterator(TextFileParser* parser) {
         
     m_type = parser->m_file_type;
     m_file_stream = new std::ifstream(parser->m_file_path);
     *m_file_stream >> m_current_line;
 
     if (m_type == regionFile) { *m_file_stream >> m_current_line;}
-
-    if (end) { while (*m_file_stream >> m_current_line) {} }
 
 }
 

@@ -31,7 +31,7 @@ class TextFileParser {
 
     public:
 
-        iterator(TextFileParser*, bool = false);
+        iterator(TextFileParser*);
         //TODO: should have a destructor
     
         iterator operator++();
@@ -53,7 +53,6 @@ public:
     TextFileParser(std::string, FileType);
 
     iterator begin();
-    iterator end();
 
     uint32_t GetInjectionPoint();
 
