@@ -36,4 +36,6 @@ public:
     void CreateRestorePoint(std::string, std::string);
     void Restore(std::string);
 
+    void InjectFile(std::string);
+
 };

@@ -105,4 +105,17 @@ void ISOhandler::Restore(std::string load_file_path) {
 
 }
 
+void ISOhandler::InjectFile(std::string file_path) {
+
+    TextFileParser parser (file_path, injectionFile);
+    TextFileParser::iterator it = parser.begin();
+
+    for (; !it.atEnd(); ++it) {
+
+        IsoWrite((*it).first, (*it).second);
+
+    }
+
+}
+
 
