@@ -1,3 +1,5 @@
+/* structure adapted from https://www.gnu.org/software/libc/manual/html_node/Argp-Example-3.html#Argp-Example-3 */
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
