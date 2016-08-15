@@ -89,6 +89,7 @@ int main(int argc, char* argv[]) {
     
         if (arguments.inject) {
 
+            //TODO: allow user to pass directory containing libraries
             std::vector<std::string> libs;
             std::string dir = std::string(arguments.inject_dir);
             if (dir.back() == '/') {dir.pop_back();}
