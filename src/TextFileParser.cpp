@@ -55,6 +55,8 @@ unsigned int TextFileParser::GetNumberOfLines() {
 
 }
 
+//TODO: implement this function so GCI can check if non-default address is used
+//and a different asm instruction needs to be overwritten
 uint32_t TextFileParser::GetMainInjectAddress() {
 
     return 0;
