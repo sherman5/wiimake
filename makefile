@@ -1,3 +1,4 @@
+prefix=/usr/local
 CXX = g++
 CFLAGS = -c -Wall -Wextra -pedantic -std=c++11
 ARGPFLAGS = -Wno-unused-function -Wno-missing-field-initializers
@@ -22,4 +23,7 @@ build/CodeAssembler.o: src/CodeAssembler.cpp
 clean:
 	rm src/*~ build/*.o GCI
 
-
+install: GCI
+	install GCI $(prefix)/bin
+    
+.PHONY: install
