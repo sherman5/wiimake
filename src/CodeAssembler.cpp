@@ -37,7 +37,6 @@ CodeAssembler::CodeAssembler(std::string path, std::string regions, std::vector<
 
     if (path.back() == '/') {path.pop_back();}
     m_dir = path;
-    m_region_file = regions;
     
     GetSourceFiles();
     
@@ -48,6 +47,20 @@ CodeAssembler::CodeAssembler(std::string path, std::string regions, std::vector<
 
     }
 
+    TextFileParser parser (regions, regionFile);
+
+    TextFileParser::iterator iter = parser.begin();
+    for (; !iter.atEnd(); ++iter) {
+
+        m_regions.push_back(std::make_pair((*iter).first, (*iter).second));
+
+    }
+ 
+    m_stack_setup_addr = m_regions[0].first;       
+    m_regions[0].first += 0xC; //leave room for call stack    
+
+    m_inject_addr = parser.GetInjectionPoint();
+
 }
 
 std::vector< std::pair<uint32_t, uint32_t> > CodeAssembler::GetRawASM() {
@@ -57,18 +70,10 @@ std::vector< std::pair<uint32_t, uint32_t> > CodeAssembler::GetRawASM() {
     StoreRawCodeAsText();
     GetObjectFileLengths();
     FindCodeAllocation();    
+    CreateStackSetupFiles(); 
     CreateRealLinkerScript();
     Link();
     StoreExecutableAsText();
-/*
-    popen("rm linker_script.txt", "r");
-    popen("rm RawCode.txt", "r");
-    popen("rm a.out", "r");
-    popen("rm exec.txt", "r");
-    std::string cmd = "rm " + m_dir + "/*.o";
-    popen(cmd.c_str(), "r");
-*/
-
     return GetCodeToInject();    
 
 }
@@ -92,6 +97,7 @@ void CodeAssembler::GetSourceFiles() {
         m_obj_files.push_back(std::make_pair(change_ext(file, "o"), 0));
 
     }
+    pclose(file_list);
     
 }
 
@@ -111,6 +117,8 @@ void CodeAssembler::CompileSourceFiles() {
             std::cout << c;
         }
         std::cout << std::endl;
+
+        pclose(compiler);
 
     }
 
@@ -150,8 +158,8 @@ void CodeAssembler::StoreRawCodeAsText() {
 
     m_linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + objs;
     FILE* linker = popen(m_linker_cmd.c_str(), "r");
-    while (std::getc(linker) != EOF) {}
-
+    pclose(linker);
+    
     std::string cmd = "powerpc-eabi-objdump -d a.out";
     FILE* objdump = popen(cmd.c_str(), "r");
 
@@ -161,6 +169,7 @@ void CodeAssembler::StoreRawCodeAsText() {
         outfile << c;
     }
     outfile.close();
+    pclose(objdump);
 
 }
 
@@ -192,29 +201,46 @@ void CodeAssembler::GetObjectFileLengths() {
 }
 
 void CodeAssembler::FindCodeAllocation() {
-
-    std::vector< std::pair<uint32_t, uint32_t> > regions;
-    TextFileParser parser (m_region_file, regionFile);
-
-    TextFileParser::iterator it = parser.begin();
-    for (; !it.atEnd(); ++it) {
-
-        regions.push_back(std::make_pair((*it).first, (*it).second));
-
-    }
     
-    std::sort (regions.begin(), regions.end(), region_comp);
+    std::sort (m_regions.begin(), m_regions.end(), region_comp);
     std::sort (m_obj_files.begin(), m_obj_files.end(), code_comp);
 
     for (unsigned int i = 0; i < m_obj_files.size(); ++i) {
 
         int length = m_obj_files[i].second;
-        m_obj_files[i].second = regions[0].first;
-        regions[0].first += length;
-        std::sort (regions.begin(), regions.end(), region_comp);
+        m_obj_files[i].second = m_regions[0].first;
+        m_regions[0].first += length;
+        std::sort (m_regions.begin(), m_regions.end(), region_comp);
 
     }
     
+}
+
+void CodeAssembler::CreateStackSetupFiles() {
+
+    std::ofstream stack_setup ("stack_setup.s");
+
+    stack_setup << ".global stack_setup" << std::endl;
+    stack_setup << "stack_setup:" << std::endl;
+    stack_setup << "bl _main" << std::endl;
+    stack_setup << "mr 3, 23" << std::endl; //TODO: hardcoded instruction at inject point
+    stack_setup << "b inject_point + 0x04" << std::endl;
+
+    stack_setup.close();
+
+    std::ofstream inject_point ("inject_point.s");
+
+    inject_point << ".global inject_point" << std::endl;
+    inject_point << "inject_point:" << std::endl;
+    inject_point << "bl stack_setup" << std::endl;
+
+    inject_point.close();
+
+    FILE* assmbl = popen("powerpc-eabi-as stack_setup.s -o stack_setup.o", "r");
+    pclose(assmbl);
+    assmbl = popen("powerpc-eabi-as inject_point.s -o inject_point.o", "r");
+    pclose(assmbl);
+
 }
 
 void CodeAssembler::CreateRealLinkerScript() {
@@ -223,15 +249,20 @@ void CodeAssembler::CreateRealLinkerScript() {
 
     script << "SECTIONS {" << std::endl;
 
-    for (unsigned int i = 0; i < m_obj_files.size(); ++i) {
+    unsigned int i = 0;
+    for (; i < m_obj_files.size(); ++i) {
 
         script << "section" << i + 1 << " 0x" << std::hex << m_obj_files[i].second << " :" << std::endl;
-        script << "{" << std::endl;
-        script << m_obj_files[i].first << " (.text)" << std::endl;
-        script << m_obj_files[i].first << " (.rodata)" << std::endl;
-        script << "}" << std::endl;
+        script << "{\n" << m_obj_files[i].first << " (.text)" << std::endl;
+        script << m_obj_files[i].first << " (.rodata)\n}" << std::endl;
         
     }
+
+    script << "section" << i++ + 1 << " 0x" << std::hex << m_inject_addr << " :" << std::endl;
+    script << "{\ninject_point.o\n}" << std::endl;
+    
+    script << "section" << i++ + 1 << " 0x" << std::hex << m_stack_setup_addr << " :" << std::endl;
+    script << "{\nstack_setup.o\n}" << std::endl;
 
     script << "}" << std::endl;
 
@@ -241,7 +272,9 @@ void CodeAssembler::CreateRealLinkerScript() {
 
 void CodeAssembler::Link() {
 
+    m_linker_cmd += "stack_setup.o inject_point.o";
     FILE* linker = popen(m_linker_cmd.c_str(), "r");
+    pclose(linker);
     
 }
 
@@ -255,6 +288,8 @@ void CodeAssembler::StoreExecutableAsText() {
         outfile << c;
     }
     outfile.close();
+    
+    pclose(exec_out);
 
 }
 
@@ -271,7 +306,41 @@ std::vector< std::pair<uint32_t, uint32_t> > CodeAssembler::GetCodeToInject() {
 
     }
 
-
     return ret_val;
 
 }
+
+uint32_t CodeAssembler::GetMainAddress() {
+
+    TextFileParser parser ("exec.txt", objdumpFile);
+
+    return parser.GetMainInjectAddress();
+
+}
+
+void CodeAssembler::CleanDirectory() {
+
+    FILE* rm_call;
+    std::vector<std::string> files = {
+        "rm linker_script.txt",
+        "rm RawCode.txt",
+        "rm a.out",
+        "rm exec.txt",
+        "rm inject_point.s",
+        "rm inject_point.o",
+        "rm stack_setup.s",
+        "rm stack_setup.o",
+        "rm " + m_dir + "/*.o"
+    };
+
+    std::vector<std::string>::iterator it = files.begin();
+    for (; it != files.end(); ++it) {
+
+        rm_call = popen((*it).c_str(), "r");
+        pclose(rm_call);
+
+    }
+    
+}
+
+
