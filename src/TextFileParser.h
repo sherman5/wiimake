@@ -10,7 +10,6 @@ typedef std::pair<uint32_t, uint32_t> MemSlot;
 
 enum FileType {
 
-    injectionFile,
     regionFile,
     objdumpFile
 
@@ -30,6 +29,7 @@ class TextFileParser {
         std::string m_current_line;
         std::ifstream* m_file_stream;
         uint32_t m_line_addr; 
+        bool new_section;
 
     public:
 
@@ -40,6 +40,7 @@ class TextFileParser {
         iterator operator++(int);
         MemSlot operator*();
         bool atEnd();
+        bool newSection();
 
     };
 

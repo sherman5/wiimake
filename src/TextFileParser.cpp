@@ -76,6 +76,7 @@ TextFileParser::iterator TextFileParser::iterator::operator++() {
     if (m_type == objdumpFile) {
 
         bool found_line = false;
+        new_section = false;
 
         while (!found_line) {
 
@@ -92,6 +93,7 @@ TextFileParser::iterator TextFileParser::iterator::operator++() {
 
                     
                     found_line = false;
+                    new_section = true;
 
                 }   
 
@@ -116,6 +118,12 @@ TextFileParser::iterator TextFileParser::iterator::operator++() {
     }
 
     return *this;
+
+}
+
+bool TextFileParser::iterator::newSection() {
+
+    return new_section;
 
 }
 

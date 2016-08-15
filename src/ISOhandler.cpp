@@ -105,12 +105,10 @@ void ISOhandler::Restore(std::string load_file_path) {
 
 }
 
-void ISOhandler::InjectFile(std::string file_path) {
+void ISOhandler::InjectCode(std::vector< std::pair<uint32_t, uint32_t> > code) {
 
-    TextFileParser parser (file_path, injectionFile);
-    TextFileParser::iterator it = parser.begin();
-
-    for (; !it.atEnd(); ++it) {
+    std::vector< std::pair<uint32_t, uint32_t> >::iterator it = code.begin();
+    for (; it != code.end(); ++it) {
 
         IsoWrite((*it).first, (*it).second);
 

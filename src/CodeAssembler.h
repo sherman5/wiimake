@@ -3,29 +3,45 @@
 
 #include <string>
 #include <vector>
+#include <utility>
+
+/*
+First field (string) stores path to file.
+Second field (uint32_t) stores length of file 
+until FindCodeAllocation() is called. It then holds
+    the address where to code is injected.
+*/ 
+
+typedef std::vector< std::pair<std::string, uint32_t> > FileList;
 
 class CodeAssembler {
 
 private:
 
-    std::string m_dir_path;
-    std::vector<std::string> m_file_names;
+    std::string m_dir;
+    std::string m_region_file;  
+    std::string m_linker_cmd;
 
-    //length of section needed. add 0x04 to the length
-    //to get next available address
-    std::vector<unsigned int> m_file_lengths;
+    std::vector<std::string> m_c_files;
+    FileList m_obj_files;
+    
+    void GetSourceFiles();
+    void CompileSourceFiles();
+    void CreateDummyLinkerScript();
+    void StoreRawCodeAsText();
+    void GetObjectFileLengths();
+    void FindCodeAllocation();    
+    void CreateRealLinkerScript();
+    void Link();
+    void StoreExecutableAsText();
+    std::vector< std::pair<uint32_t, uint32_t> > GetCodeToInject();
 
 public:
 
-    CodeAssembler(std::string);
+    CodeAssembler(std::string, std::string, std::vector<std::string>);
 
-    void Compile();
-    void Link();
+    std::vector< std::pair<uint32_t, uint32_t> > GetRawASM();
     
-    void StoreFileNames();
-    void StoreObjdump();
-    void StoreFileLengths();
-
 };
 
 #endif

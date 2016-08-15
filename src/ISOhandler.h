@@ -39,7 +39,7 @@ public:
     void CreateRestorePoint(std::string, std::string);
     void Restore(std::string);
 
-    void InjectFile(std::string);
+    void InjectCode(std::vector< std::pair<uint32_t, uint32_t> >);
 
 };
 

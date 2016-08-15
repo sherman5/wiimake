@@ -1,3 +1,5 @@
+#include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <argp.h>
 
@@ -109,17 +111,33 @@ int main(int argc, char* argv[]) {
         return 1;
    
     } else {
+    
+        ISOhandler iso (argv[1]);
+    
+        std::vector<std::string> libs;
+        std::string cmd = "ls InjectionCode/libs/*.a";
+        FILE* file_list = popen(cmd.c_str(), "r");
+        
+        char file[500], *pos;    
 
-//        CodeAssembler code (argv[1]);
-//        code.Compile();
-        TextFileParser parser (argv[1], objdumpFile);
-        TextFileParser::iterator it = parser.begin();
+        while (std::fgets(file, 500, file_list)) {
 
-        for (; !it.atEnd(); ++it) {
+            if ((pos = strchr(file, '\n')) != NULL) {
+            
+                *pos = '\0';
 
-            std::cout << std::hex << (*it).first << "-" << (*it).second << std::endl;
+            }
+
+            libs.push_back(file);
 
         }
+
+        CodeAssembler code (argv[2], argv[3], libs);
+        iso.InjectCode(code.GetRawASM());
+        iso.IsoWrite(0x80377998, 0x4BE19748);
+        iso.IsoWrite(0x801910E0, 0x4800000D);
+        iso.IsoWrite(0x801910E4, 0x7EE3BB78);
+        iso.IsoWrite(0x801910E8, 0x481E68B4);
 
     }
   
