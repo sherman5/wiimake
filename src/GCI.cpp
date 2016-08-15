@@ -7,13 +7,12 @@
 #include "CodeAssembler.h"
 #include "TextFileParser.h"
 
-
-const char* argp_program_version = "GamecubeCodeInjector 0.1";
-static char doc[] = "GCI early development version";
+const char* argp_program_version = "GamecubeCodeInjector v0.2";
+static char doc[] = "GCI working CLI for linux. Only basic features implemented";
 static char args_doc[] = "ISOFILE REGIONFILE";
 
 static struct argp_option options[] = {
-    {"inject", 'i', "FILE", 0, "inject code in FILE"},
+    {"inject", 'i', "DIR", 0, "compile and inject code in DIR"},
     {"save", 's', "FILE", 0, "save state of ISOFILE to FILE"},
     {"load", 'l', "FILE", 0, "restore ISOFILE to state saved in FILE"},
     {0}
@@ -23,7 +22,7 @@ struct arguments {
 
     char* args[2];
     int inject, save, load;
-    char *inject_file, *save_file, *load_file;
+    char *inject_dir, *save_file, *load_file;
 
 };
 
@@ -35,7 +34,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
 
         case 'i':
             arguments->inject = 1;
-            arguments->inject_file = arg;
+            arguments->inject_dir = arg;
             break;
         case 's':
             arguments->save = 1;
@@ -68,7 +67,7 @@ static struct argp argp = { options, parse_opt, args_doc, doc };
 
 int main(int argc, char* argv[]) {
 
-/*    struct arguments arguments;
+    struct arguments arguments;
 
     arguments.inject = 0;
     arguments.save = 0;
@@ -90,7 +89,33 @@ int main(int argc, char* argv[]) {
     
         if (arguments.inject) {
 
-            iso.InjectFile(arguments.inject_file);
+            std::vector<std::string> libs;
+            std::string dir = std::string(arguments.inject_dir);
+            if (dir.back() == '/') {dir.pop_back();}
+            std::string cmd = "ls " + dir + "/libs/*.a";
+            FILE* file_list = popen(cmd.c_str(), "r");
+            
+            char file[500], *pos;    
+
+            while (std::fgets(file, 500, file_list)) {
+
+                if ((pos = strchr(file, '\n')) != NULL) {
+                
+                    *pos = '\0';
+
+                }
+
+                libs.push_back(file);
+
+            }
+        
+            pclose(file_list);
+
+            CodeAssembler code (arguments.inject_dir, region_file, libs);
+
+            iso.InjectCode(code.GetRawASM());
+
+            code.CleanDirectory();
 
         } else if (arguments.save) {
 
@@ -104,41 +129,6 @@ int main(int argc, char* argv[]) {
         
         return 0;
 
-    }*/
-    if (argc < 2) {
-        
-        std::cout << "too few arguments" << std::endl;
-        return 1;
-   
-    } else {
-    
-        ISOhandler iso (argv[1]);
-    
-        std::vector<std::string> libs;
-        std::string cmd = "ls InjectionCode/libs/*.a";
-        FILE* file_list = popen(cmd.c_str(), "r");
-        
-        char file[500], *pos;    
-
-        while (std::fgets(file, 500, file_list)) {
-
-            if ((pos = strchr(file, '\n')) != NULL) {
-            
-                *pos = '\0';
-
-            }
-
-            libs.push_back(file);
-
-        }
-
-        CodeAssembler code (argv[2], argv[3], libs);
-        iso.InjectCode(code.GetRawASM());
-        iso.IsoWrite(0x80377998, 0x4BE19748);
-        iso.IsoWrite(0x801910E0, 0x4800000D);
-        iso.IsoWrite(0x801910E4, 0x7EE3BB78);
-        iso.IsoWrite(0x801910E8, 0x481E68B4);
-
     }
-  
+
 }
