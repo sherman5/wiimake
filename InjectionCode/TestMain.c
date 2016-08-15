@@ -6,8 +6,9 @@
 
 int _main(void) {
 
+//    *((uint32_t*) 0x80001800) = 0xABC;
     *((uint32_t*) 0x80001800) = timesTwo(0x04);
-//    *((uint32_t*) 0x80001804) = timesThree(0x04);
+    *((uint32_t*) 0x80001804) = timesThree(0x04);
     *((uint32_t*) 0x80001808) = timesFour(0x04);
     *((float*) 0x8000180C) = 1.5f;
 
