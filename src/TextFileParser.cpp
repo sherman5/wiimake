@@ -55,6 +55,12 @@ unsigned int TextFileParser::GetNumberOfLines() {
 
 }
 
+uint32_t TextFileParser::GetMainInjectAddress() {
+
+    return 0;
+
+}
+
 /********************* ITERATOR CLASS **********************/
 
 
@@ -75,37 +81,7 @@ TextFileParser::iterator TextFileParser::iterator::operator++() {
 
     if (m_type == objdumpFile) {
 
-        bool found_line = false;
-        new_section = false;
-
-        while (!found_line) {
-
-            if (m_current_line.find(":") != std::string::npos) {
-            
-                m_current_line = m_current_line.substr(0, m_current_line.find(":"));
-                found_line = true;
-
-                try {
-
-                    m_line_addr = stoul(m_current_line, nullptr, 16);
-
-                } catch (std::exception& e) {
-
-                    
-                    found_line = false;
-                    new_section = true;
-
-                }   
-
-            } else {
-
-                *m_file_stream >> m_current_line;
-                if (atEnd()) {break;}
-
-            }
-
-        }
-
+        FindLine();
         std::string temp;
         *m_file_stream >> m_current_line;    
         for (unsigned int i = 0; i < 3; ++i) {
@@ -118,6 +94,45 @@ TextFileParser::iterator TextFileParser::iterator::operator++() {
     }
 
     return *this;
+
+}
+
+void TextFileParser::iterator::FindLine() {
+
+    bool found_line = false;
+    new_section = false;
+
+    while (!found_line) {
+
+        if (m_current_line.find(":") != std::string::npos) {
+            
+            m_current_line = m_current_line.substr(0, m_current_line.find(":"));
+            found_line = true;
+
+            try {
+
+                m_line_addr = stoul(m_current_line, nullptr, 16);
+
+            } catch (std::exception& e) {
+
+                
+                found_line = false;
+                if (m_current_line.find(">") == std::string::npos) {
+
+                    new_section = true;
+
+                }
+
+            }   
+
+        } else {
+
+            *m_file_stream >> m_current_line;
+            if (atEnd()) {break;}
+
+        }
+
+    }
 
 }
 

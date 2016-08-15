@@ -31,6 +31,8 @@ class TextFileParser {
         uint32_t m_line_addr; 
         bool new_section;
 
+        void FindLine();
+
     public:
 
         iterator(TextFileParser*);
@@ -59,6 +61,7 @@ public:
 
     uint32_t GetInjectionPoint();
     unsigned int GetNumberOfLines();
+    uint32_t GetMainInjectAddress();
 
 };
 
