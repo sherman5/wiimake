@@ -21,7 +21,7 @@ build/CodeAssembler.o: src/CodeAssembler.cpp
 	$(CXX) $(CFLAGS) src/CodeAssembler.cpp -o build/CodeAssembler.o  
 
 clean:
-	rm src/*~ build/*.o GCI
+	rm -f src/*~ build/*.o GCI
 
 install: GCI
 	install GCI $(prefix)/bin
