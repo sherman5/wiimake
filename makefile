@@ -7,7 +7,9 @@ OBJECTS = build/GCI.o build/ISOhandler.o build/RegionFileParser.o build/CodeAsse
 
 AROBJECTS = build/GCI-ar.o build/FileOperations.o build/ObjdumpFileParser.o
 
-all: GCI GCI-ar
+ITOBJECTS = build/GCI-isotool.o build/ISOhandler.o build/RegionFileParser.o
+
+all: GCI GCI-ar GCI-isotool
 
 GCI: $(OBJECTS)
 	$(CXX) $(OBJECTS) -o GCI
@@ -15,11 +17,17 @@ GCI: $(OBJECTS)
 GCI-ar: $(AROBJECTS)
 	$(CXX) $(AROBJECTS) -o GCI-ar
 
+GCI-isotool: $(ITOBJECTS)
+	$(CXX) $(ITOBJECTS) -o GCI-isotool
+
 build/GCI.o: src/GCI.cpp
 	$(CXX) $(CFLAGS) $(ARGPFLAGS) src/GCI.cpp -o build/GCI.o 
 
 build/GCI-ar.o: src/GCI-ar.cpp
 	$(CXX) $(CFLAGS) src/GCI-ar.cpp -o build/GCI-ar.o 
+
+build/GCI-isotool.o: src/GCI-isotool.cpp
+	$(CXX) $(CFLAGS) src/GCI-isotool.cpp -o build/GCI-isotool.o 
 
 build/ISOhandler.o: src/ISOhandler.cpp
 	$(CXX) $(CFLAGS) src/ISOhandler.cpp -o build/ISOhandler.o 
@@ -39,7 +47,8 @@ build/FileOperations.o: src/FileOperations.cpp
 clean:
 	rm -f src/*~ build/*.o GCI GCI-ar
 
-install: GCI GCI-ar
+install: GCI GCI-ar GCI-isotool
+	install GCI-isotool $(prefix)/bin
 	install GCI-ar $(prefix)/bin
 	install GCI $(prefix)/bin
     
