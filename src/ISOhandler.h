@@ -6,10 +6,13 @@
 #include <string>
 #include <vector>
 
+#define DOL_START 0x1E800
+
 class ISOhandler {
 
 private:
 
+    /* map of DOL - RAM */
     std::pair<uint32_t, uint32_t> addr_key[10] = {
 
         {0x000100, 0x80003100},
@@ -25,20 +28,30 @@ private:
 
     };
 
+    /* path to iso file */
     std::string m_iso_path;
 
 public:
 
+    /* constructor, store path to iso file */
     ISOhandler(std::string);
 
+    /* get the DOL offset of a 32-bit RAM address */
     uint32_t GetDOLoffset(uint32_t);
 
+    /* write 32-bit value to RAM address */
     void IsoWrite(uint32_t, uint32_t);
+
+    /* read 32-bit value from RAM address */
     uint32_t IsoRead(uint32_t);
 
+    /* save the current code in the regions provided */
     void CreateRestorePoint(std::string, std::string);
+
+    /* load code from save file */
     void Restore(std::string);
 
+    /* inject code into iso */
     void InjectCode(std::vector< std::pair<uint32_t, uint32_t> >);
 
 };
