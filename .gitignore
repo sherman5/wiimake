@@ -31,4 +31,6 @@
 *.iso
 
 GCI
+GCI-ar
+GCI-isotool
 *.data
