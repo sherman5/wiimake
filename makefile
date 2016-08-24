@@ -5,13 +5,15 @@ ARGPFLAGS = -Wno-unused-function -Wno-missing-field-initializers
 
 OBJECTS = build/GCI.o build/ISOhandler.o build/RegionFileParser.o build/CodeAssembler.o build/ObjdumpFileParser.o build/FileOperations.o
 
+AROBJECTS = build/GCI-ar.o build/FileOperations.o build/ObjdumpFileParser.o
+
 all: GCI GCI-ar
 
 GCI: $(OBJECTS)
 	$(CXX) $(OBJECTS) -o GCI
 
-GCI-ar: build/GCI-ar.o
-	$(CXX) build/GCI-ar.o -o GCI-ar
+GCI-ar: $(AROBJECTS)
+	$(CXX) $(AROBJECTS) -o GCI-ar
 
 build/GCI.o: src/GCI.cpp
 	$(CXX) $(CFLAGS) $(ARGPFLAGS) src/GCI.cpp -o build/GCI.o 

@@ -121,16 +121,16 @@ std::string concat_vector(std::vector<std::string> vec, std::string prefix) {
 
 }
 
-/* rename sections in object file since sections with '.' are ignored */
-void rename_sections(std::string file) {
+/* rename sections in object file since sections with '.' are ignored, ident makes names unique */
+void rename_sections(std::string file, std::string ident) {
 
     /* create objcopy command */
     std::string cmd = "powerpc-eabi-objcopy";
-    cmd += " --rename-section .text=text";
-    cmd += " --rename-section .rodata=rodata";
-    cmd += " --rename-section .sdata=sdata";
-    cmd += " --rename-section .data=data";
-    cmd += " --rename-section .gnu.attributes=attr";
+    cmd += " --rename-section .text=text" + ident;
+    cmd += " --rename-section .rodata=rodata" + ident;
+    cmd += " --rename-section .sdata=sdata" + ident;
+    cmd += " --rename-section .data=data" + ident;
+    cmd += " --rename-section .gnu.attributes=attr" + ident;
     cmd += " " + file;
 
     /* execute command */

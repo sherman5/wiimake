@@ -21,6 +21,6 @@ std::vector<std::string> get_named_sections(std::string);
 std::string concat_vector(std::vector<std::string>, std::string="");
 
 /* rename sections in object file since sections with '.' are ignored */
-void rename_sections(std::string file);
+void rename_sections(std::string, std::string="");
 
 #endif

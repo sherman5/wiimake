@@ -8,52 +8,31 @@
 
 typedef std::vector<std::string> FileList;
 
-FileList GetSources(std::string dir) {
-
-    FileList sources;
-
-    std::string cmd = "ls " + dir + "/*.c";
-    FILE* file_list = popen(cmd.c_str(), "r");
-    
-    char file[500], *pos;    
-
-    while (std::fgets(file, 500, file_list)) {
-
-        if ((pos = strchr(file, '\n')) != NULL) {
-        
-            *pos = '\0';
-
-        }
-
-        sources.push_back(file);
-        
-    }
-
-    pclose(file_list);
-    return sources;
-
-}
-
+/* compile c files and return list of object files */
 FileList GetObjects(std::string dir) {
 
-    FileList sources = GetSources(dir);
+    /* get a list of all c files */
+    FileList sources = get_files(dir, "c");
     FileList objects;
 
+    /* iterate through c files */
     FileList::iterator it = sources.begin();
     for (; it != sources.end(); ++it) {
 
-        std::string compile_cmd = "powerpc-eabi-gcc -c " + *it;
-        compile_cmd += " -o " + (*it).substr(0, (*it).length() - 1) + "o";
+        /* run compile command */
+        std::string compile_cmd = "powerpc-eabi-gcc -c " + *it + " -o " + change_ext(*it, "o");
         FILE* compiler = popen(compile_cmd.c_str(), "r");
 
+        /* output compiler output */
         char c;
         while ((c = std::getc(compiler)) != EOF) {
             std::cout << c;
         }
         std::cout << std::endl;
 
+        /* close compile command, add object file */
         pclose(compiler);
-        objects.push_back((*it).substr(0,(*it).length() - 1) + "o");
+        objects.push_back(change_ext(*it, "o"));
 
     }
 
@@ -61,34 +40,18 @@ FileList GetObjects(std::string dir) {
 
 }
 
-void RenameSections(FileList objs) {
-
-    for (unsigned int i = 0; i < objs.size(); ++i) {
-
-        std::string cmd = "powerpc-eabi-objcopy";
-        cmd += " --rename-section .text=section" + std::to_string(i) + "_start";
-        cmd += " --rename-section .rodata=rodata" + std::to_string(i);
-        cmd += " --rename-section .data=data" + std::to_string(i);
-        cmd += " --rename-section .sdata=sdata" + std::to_string(i);
-        cmd += " --rename-section .gnu.attributes=attr" + std::to_string(i);
-        cmd += " " + objs[i];
-        std::cout << cmd << std::endl;
-        FILE* obj_cpy = popen(cmd.c_str(), "r");
-        pclose(obj_cpy);
-
-    }
-
-}
-
+/* create static library from files with given name */
 void CreateLibrary(std::string name, FileList files) {
     
+    /* add all files to archive command */
     std::string ar_cmd = "powerpc-eabi-ar -cvr " + name;
-    for (unsigned int i = 0; i < files.size(); ++i) {
+    for (auto it = files.begin(); it != files.end(); ++it) {
 
-        ar_cmd += " " + files[i];
+        ar_cmd += " " + *it;
 
     }
 
+    /* run archive command to create static library */
     FILE* ar = popen(ar_cmd.c_str(), "r");
     pclose(ar);
 
@@ -96,6 +59,7 @@ void CreateLibrary(std::string name, FileList files) {
 
 int main(int argc, char* argv[]) {
 
+    /* must provide 2 arguments */
     if (argc != 3) {
 
         std::cout << "ERROR: expected exactly 2 arguments" << std::endl;
@@ -103,14 +67,22 @@ int main(int argc, char* argv[]) {
 
     } else {
 
+        /* normalize source path and record argument values */
         std::string lib_name = argv[1];
         std::string source_path = argv[2];
         if (source_path.back() == '/') {source_path.pop_back();}
 
+        /* get object files */
         std::vector<std::string> obj_files = GetObjects(source_path);
 
-        RenameSections(obj_files);
+        /* rename sections in a unique way to differentiate between object files */
+        for (unsigned int i = 0; i < obj_files.size(); ++i) {
 
+            rename_sections(obj_files[i], std::to_string(i));
+
+        }
+
+        /* create the static library */
         CreateLibrary(lib_name, obj_files);
 
     }
