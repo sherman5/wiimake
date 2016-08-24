@@ -1,21 +1,14 @@
-#ifndef TEXT_FILE_PARSER_H
-#define TEXT_FILE_PARSER_H
+#ifndef REGION_FILE_PARSER_H
+#define REGION_FILE_PARSER_H
 
 #include <string>
 #include <cstdint>
 #include <fstream>
 #include <utility>
 
-typedef std::pair<uint32_t, uint32_t> MemSlot;
+typedef std::pair<uint32_t, uint32_t> MemRegion;
 
-enum FileType {
-
-    regionFile,
-    objdumpFile
-
-};
-
-class TextFileParser {
+class RegionFileParser {
 
     /********************* ITERATOR CLASS **********************/
 
@@ -25,24 +18,18 @@ class TextFileParser {
 
     private:
 
-        FileType m_type;
         std::string m_current_line;
         std::ifstream* m_file_stream;
-        uint32_t m_line_addr; 
-        bool new_section;
-
-        void FindLine();
 
     public:
 
-        iterator(TextFileParser*);
+        iterator(RegionFileParser*);
         //TODO: should have a destructor
     
         iterator operator++();
         iterator operator++(int);
-        MemSlot operator*();
+        MemRegion operator*();
         bool atEnd();
-        bool newSection();
 
     };
 
@@ -50,18 +37,14 @@ class TextFileParser {
 
 private:
 
-    FileType m_file_type;
     std::string m_file_path;
 
 public:
 
-    TextFileParser(std::string, FileType);
+    RegionFileParser(std::string);
 
     iterator begin();
-
     uint32_t GetInjectionPoint();
-    unsigned int GetNumberOfLines();
-    uint32_t GetMainInjectAddress();
 
 };
 

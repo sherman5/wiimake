@@ -1,11 +1,13 @@
 #include <stdint.h>
 
-#include <ExampleLibrary.h>
+#include <mml/Controller.h>
+#include <mml/MeleeMath.h>
 
 int _main(void) {
 
     *((uint32_t*) 0x80001800) = 0xABC;
-    *((uint32_t*) 0x80001804) = timesTwo(0x04);
-    *((float*) 0x80001808) = 1.5f;
+    *((float*) 0x80001808) = mml_sin(30.0);
+    button_addr = ((uint32_t*) 0x80003f00);
+    Press('A');
 
 }

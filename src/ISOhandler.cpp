@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "ISOhandler.h"
-#include "TextFileParser.h"
+#include "RegionFileParser.h"
 
 ISOhandler::ISOhandler(std::string path_to_iso) {
 
@@ -59,13 +59,13 @@ uint32_t ISOhandler::IsoRead(uint32_t addr) {
 void ISOhandler::CreateRestorePoint(std::string region_file_path, std::string save_file_path) {
 
     std::vector<uint32_t> data;
-    TextFileParser parser (region_file_path, regionFile);
+    RegionFileParser parser (region_file_path);
 
     uint32_t addr = parser.GetInjectionPoint();
     data.push_back(addr);
     data.push_back(IsoRead(addr));
 
-    TextFileParser::iterator it = parser.begin();
+    RegionFileParser::iterator it = parser.begin();
     for (; !it.atEnd(); ++it) {
     
         addr = (*it).first;

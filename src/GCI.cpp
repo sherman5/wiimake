@@ -7,24 +7,27 @@
 
 #include "ISOhandler.h"
 #include "CodeAssembler.h"
-#include "TextFileParser.h"
+#include "RegionFileParser.h"
 
-const char* argp_program_version = "GamecubeCodeInjector v0.2";
-static char doc[] = "GCI working CLI for linux. Only basic features implemented";
+const char* argp_program_version = "GamecubeCodeInjector v0.3";
+static char doc[] = "GCI working CLI for linux. All core features implemented.";
 static char args_doc[] = "ISOFILE REGIONFILE";
 
 static struct argp_option options[] = {
-    {"inject", 'i', "DIR", 0, "compile and inject code in DIR"},
-    {"save", 's', "FILE", 0, "save state of ISOFILE to FILE"},
-    {"load", 'l', "FILE", 0, "restore ISOFILE to state saved in FILE"},
+    {"inject", 1, "DIR", 0, "compile and inject code in DIR"},
+    {"save", 2, "FILE", 0, "save state of ISOFILE to FILE"},
+    {"load", 3, "FILE", 0, "restore ISOFILE to state saved in FILE"},
+    {"lib", 'l', "DIR", 0, "link against libraries in DIR"},
+    {"include", 'I', "DIR", 0, "search for header files in DIR"},
     {0}
 };
 
 struct arguments {
 
-    char* args[2];
+    std::string args[2];
     int inject, save, load;
-    char *inject_dir, *save_file, *load_file;
+    std::string inject_dir, save_file, load_file;
+    std::vector<std::string> libs, include_dirs;
 
 };
 
@@ -34,17 +37,23 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
 
     switch (key) {
 
-        case 'i':
+        case 1:
             arguments->inject = 1;
             arguments->inject_dir = arg;
             break;
-        case 's':
+        case 2:
             arguments->save = 1;
             arguments->save_file = arg;
             break;
-        case 'l':
+        case 3:
             arguments->load = 1;
             arguments->load_file = arg;
+            break;
+        case 'l':
+            arguments->libs.push_back(arg);
+            break;
+        case 'I':
+            arguments->include_dirs.push_back(arg);
             break;
         case ARGP_KEY_ARG:
             if (state->arg_num >= 2)
@@ -81,43 +90,21 @@ int main(int argc, char* argv[]) {
 
     if (third_arg != 1) {
         
-        std::cout << "invalid number of arguments: must exactly one of --inject, --save, or --load" << std::endl;
+        std::cout << "invalid number of arguments: must have exactly one of --inject, --save, or --load" << std::endl;
         return 1;
 
     } else {
 
         ISOhandler iso (arguments.args[0]);
         std::string region_file = arguments.args[1];
-    
+
         if (arguments.inject) {
 
-            //TODO: allow user to pass directory containing libraries
-            std::vector<std::string> libs;
-            std::string dir = std::string(arguments.inject_dir);
-            if (dir.back() == '/') {dir.pop_back();}
-            std::string cmd = "ls " + dir + "/libs/*.a";
-            FILE* file_list = popen(cmd.c_str(), "r");
-            
-            char file[500], *pos;    
-
-            while (std::fgets(file, 500, file_list)) {
-
-                if ((pos = strchr(file, '\n')) != NULL) {
-                
-                    *pos = '\0';
-
-                }
-
-                libs.push_back(file);
-
-            }
-        
-            pclose(file_list);
-
-            CodeAssembler code (arguments.inject_dir, region_file, libs);
-
+            CodeAssembler code (arguments.inject_dir,
+                                region_file,
+                                arguments.include_dirs,
+                                arguments.libs);
             iso.InjectCode(code.GetRawASM());
-
             code.CleanDirectory();
 
         } else if (arguments.save) {
