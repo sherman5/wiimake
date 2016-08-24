@@ -22,7 +22,16 @@ uint32_t RegionFileParser::GetInjectionPoint() {
     std::ifstream file_stream (m_file_path);
     std::string addr;
     file_stream >> addr;
-    return stoul(addr, nullptr, 16);
+    return stoul(addr.substr(0,addr.find('-')), nullptr, 16);
+
+}
+
+uint32_t RegionFileParser::GetInjectionInstruction() {
+
+    std::ifstream file_stream (m_file_path);
+    std::string addr;
+    file_stream >> addr;
+    return stoul(addr.substr(addr.find('-') + 1, addr.length()), nullptr, 16);
 
 }
 

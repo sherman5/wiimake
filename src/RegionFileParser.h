@@ -45,6 +45,7 @@ public:
 
     iterator begin();
     uint32_t GetInjectionPoint();
+    uint32_t GetInjectionInstruction();
 
 };
 

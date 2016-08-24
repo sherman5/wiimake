@@ -104,8 +104,13 @@ int main(int argc, char* argv[]) {
                                 region_file,
                                 arguments.include_dirs,
                                 arguments.libs);
+
             iso.InjectCode(code.GetRawASM());
             code.CleanDirectory();
+
+            RegionFileParser parser (region_file);
+            uint32_t replace_addr = (*parser.begin()).first + 0x04;
+            iso.IsoWrite(replace_addr, parser.GetInjectionInstruction());
 
         } else if (arguments.save) {
 
