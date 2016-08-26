@@ -142,7 +142,7 @@ void ISOhandler::Restore(std::string load_file_path) {
 void ISOhandler::InjectCode(std::vector< std::pair<uint32_t, uint32_t> > code) {
 
     /* loop through code and write each (addr, value) pair */
-    for (auto it = code.begin();; it != code.end(); ++it) {
+    for (auto it = code.begin(); it != code.end(); ++it) {
 
         IsoWrite((*it).first, (*it).second);
 

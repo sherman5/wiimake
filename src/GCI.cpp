@@ -9,8 +9,8 @@
 #include "CodeAssembler.h"
 #include "RegionFileParser.h"
 
-/* current program version */
-const char* argp_program_version = "GamecubeCodeInjector v0.3";
+/* current program version, provided in configure.ac */
+const char* argp_program_version = PACKAGE_STRING;
 
 /* description of software */
 static char doc[] = "GCI working CLI for linux. All core features implemented.";
