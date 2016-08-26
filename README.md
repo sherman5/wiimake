@@ -5,12 +5,15 @@
 ## Installation 
 
 1. clone the repository
-   `git clone https://github.com/tsherma4/GamecubeCodeInjector.git`
+
+   \t`git clone https://github.com/tsherma4/GamecubeCodeInjector.git`
 
 2. move into directory
+
    `cd GamecubeCodeInjector`
 
 3. install GamecubeCodeInjector
+
    `sudo make install`
 
 ## Usage

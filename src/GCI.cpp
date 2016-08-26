@@ -13,7 +13,7 @@
 const char* argp_program_version = PACKAGE_STRING;
 
 /* description of software */
-static char doc[] = "GCI working CLI for linux. All core features implemented.";
+static char doc[] = "\nGCI is an automated tool for compiling, allocating, linking, and injecting C code into games for the Wii/Gamecube. The main use of this program is with the \"--inject\" flag, which tells the program to do the following 4 steps: 1) compile code in the directory provided 2) find an arrangement of the code that will fit inside the memory regions provided 3) link the code 4) inject the code into the iso file provided. In one command the user can take their raw C files and produce a runnable iso file that has their _main() function injected at a specified address";
 
 /* required arguments */
 static char args_doc[] = "ISOFILE REGIONFILE";

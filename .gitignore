@@ -31,8 +31,8 @@
 *.iso
 
 GCI
-GCI-ar
-GCI-isotool
+GCI_ar
+GCI_isotool
 *.data
 
 *.m4
