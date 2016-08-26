@@ -6,7 +6,7 @@
 
 1. clone the repository
 
-   \t`git clone https://github.com/tsherma4/GamecubeCodeInjector.git`
+   `git clone https://github.com/tsherma4/GamecubeCodeInjector.git`
 
 2. move into directory
 
