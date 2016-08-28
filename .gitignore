@@ -48,3 +48,5 @@ README.html
 autom4te.cache/*
 *.deps
 *.dirstamp
+
+build/*
