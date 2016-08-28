@@ -1,0 +1,26 @@
+# The set of languages for which implicit dependencies are needed:
+set(CMAKE_DEPENDS_LANGUAGES
+  "CXX"
+  )
+# The set of files for implicit dependencies of each language:
+set(CMAKE_DEPENDS_CHECK_CXX
+  "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/src/CodeAssembler.cpp" "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir/CodeAssembler.cpp.obj"
+  "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/src/FileOperations.cpp" "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir/FileOperations.cpp.obj"
+  "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/src/GCI_boost.cpp" "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir/GCI_boost.cpp.obj"
+  "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/src/ISOhandler.cpp" "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir/ISOhandler.cpp.obj"
+  "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/src/ObjdumpFileParser.cpp" "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir/ObjdumpFileParser.cpp.obj"
+  "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/src/RegionFileParser.cpp" "C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir/RegionFileParser.cpp.obj"
+  )
+set(CMAKE_CXX_COMPILER_ID "GNU")
+
+# The include file search paths:
+set(CMAKE_CXX_TARGET_INCLUDE_PATH
+  "C:/MinGW/include"
+  )
+
+# Targets to which this target links.
+set(CMAKE_TARGET_LINKED_INFO_FILES
+  )
+
+# Fortran module output directory.
+set(CMAKE_Fortran_TARGET_MODULE_DIR "")

@@ -1,0 +1,15 @@
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/CMakeFiles/edit_cache.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/CMakeFiles/install.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/CMakeFiles/install/local.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/CMakeFiles/rebuild_cache.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/CMakeFiles/list_install_components.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/CMakeFiles/install/strip.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI-ar.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/edit_cache.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/GCI-isotool.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/install.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/install/local.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/rebuild_cache.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/list_install_components.dir
+C:/Users/Tom/Documents/MeleeMods/GCI/Repo/build/src/CMakeFiles/install/strip.dir

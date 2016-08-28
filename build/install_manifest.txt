@@ -1,0 +1,3 @@
+C:/Program Files/GCI/GCI.exe
+C:/Program Files/GCI/GCI-ar.exe
+C:/Program Files/GCI/GCI-isotool.exe
