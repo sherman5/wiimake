@@ -1,5 +1,6 @@
 #include <string>
 #include <iostream>
+#include <vector>
 #include <exception>
 #include <stdint.h>
 #include <boost/program_options.hpp>
@@ -11,7 +12,7 @@
 
 namespace po = boost::program_options;
 
-const std::string usage_message = "Usage: GCI [-IDIR, --include=DIR] [-lDIR, --lib=DIR] [--inject=DIR] [--load=FILE] [--save=FILE] [--save-temps] [-v, --verbose] [-H, --help] [-V, --version] [--usage] ISOFILE REGIONFILE";
+const std::string usage_message = "Usage: GCI [-Iarg, --include arg] [-larg, --lib arg] [--inject arg] [--load arg] [--save arg] [--save-temps] [-v, --verbose] [-H, --help] [-V, --version] [--usage] ISOFILE REGIONFILE";
 
 int main(int argc, char* argv[]) {
 
@@ -34,8 +35,10 @@ int main(int argc, char* argv[]) {
             ("lib,l", po::value< std::vector<std::string> >(), "link against library") 
             ("save", po::value<std::string>(), "save iso state to file (arg = file name)")
             ("load", po::value<std::string>(), "load iso state from file (arg = file name)")
-            ("verbose,v", po::value<bool>(), "verbose output")
-            ("save-temps", po::value<bool>(), "don't delete temporary files created by build process")
+            ("verbose,v", "verbose output")
+            ("save-temps", "don't delete temporary files created by build process")
+            ("iso_file", po::value<std::string>(), "")
+            ("region_file", po::value<std::string>(), "")
         ;
 
         /* parse command line */
@@ -44,12 +47,24 @@ int main(int argc, char* argv[]) {
 
         if (vm.count("help")) {
             
-            std::cout << usage_message << std::endl;        
-            std::cout << program_doc << std::endl;
-            std::cout << desc << std::endl;
+            std::cout << "\n" << usage_message << std::endl;        
+            std::cout << "\n" << program_doc << std::endl;
+            std::cout << "\n" << desc << std::endl;
+            return 0;
+
+        } else if (vm.count("version")) {
+
+            std::cout << program_version << std::endl;
+            return 0;
+
+        } else if (vm.count("usage")) {
+
+            std::cout << "\n" << usage_message << std::endl;
             return 0;
 
         }
+
+        po::notify(vm);
 
         if (!vm.count("iso_file") || !vm.count("region_file")) {
 
@@ -57,20 +72,12 @@ int main(int argc, char* argv[]) {
         
         }
 
-        po::notify(vm);
+        
 
         /* get iso file */
         ISOhandler iso (vm["iso_file"].as<std::string>());
-        
-        if (vm.count("version")) {
-
-            std::cout << program_version << std::endl;
-
-        } else if (vm.count("usage")) {
-
-            std::cout << usage_message << std::endl;
-
-        } else if (vm.count("inject") + vm.count("save") + vm.count("load") != 1) {
+           
+        if (vm.count("inject") + vm.count("save") + vm.count("load") != 1) {
 
             throw std::invalid_argument("need to specify exactly one of --inject, --save, --load");
 
@@ -86,19 +93,35 @@ int main(int argc, char* argv[]) {
 
             if (vm.count("verbose")) {}
     
+            std::vector<std::string> include_paths;
+            if (vm.count("include")) {
+
+                include_paths = vm["include"].as< std::vector<std::string> >();
+
+            }
+
+            std::vector<std::string> libs;
+            if (vm.count("lib")) {
+
+                libs = vm["lib"].as< std::vector<std::string> >();
+
+            }
+            
             /* create object to handle compiling, allocation, and linking */
             CodeAssembler code (vm["inject"].as<std::string>(),
                                 vm["region_file"].as<std::string>(),
-                                vm["include"].as< std::vector<std::string> >(),
-                                vm["lib"].as< std::vector<std::string> >());
+                                include_paths,
+                                libs);
+                                
 
             /* inject the code */
-            iso.InjectCode(code.GetRawASM());
+            //iso.InjectCode(code.GetRawASM());
+            code.GetRawASM();
 
             /* remove temp files */
             if (!vm.count("save-temps")) {
                 
-                code.CleanDirectory();
+                //code.CleanDirectory();
 
             }
 
@@ -112,13 +135,13 @@ int main(int argc, char* argv[]) {
 
     } catch (std::exception& e) {
     
-        std::cout << usage_message << std::endl;
-        std::cerr << "error: " << e.what() << std::endl;
+        std::cout << "\n" << usage_message << std::endl;
+        std::cerr << "\nerror: " << e.what() << std::endl;
 
     } catch (...) {
 
-        std::cout << usage_message << std::endl;
-        std::cerr << "error: unknown exception" << std::endl;
+        std::cout << "\n" << usage_message << std::endl;
+        std::cerr << "\nerror: unknown exception" << std::endl;
 
     }
 

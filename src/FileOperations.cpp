@@ -20,59 +20,30 @@ std::vector<std::string> get_files(std::string dir, std::string ext) {
     std::vector<std::string> files;
 
     /* list files with ls */
-    std::string cmd = "ls " + dir + "/*." + ext;
-    FILE* file_list = popen(cmd.c_str(), "r");
+    std::string cmd = "ls " + dir + "/*." + ext + " > files.txt";
+    run_cmd(cmd.c_str());
 
-    /* store each string as a file name */
-    char file[256], *pos;    
+    /* parse output of ls */
+    std::ifstream file_list ("files.txt");
+    std::string file;
 
-    while (std::fgets(file, 256, file_list)) {
-
-        /* delete newline character at end of string */
-        if ((pos = strchr(file, '\n')) != NULL) {
-        
-            *pos = '\0';
-
-        }
+    /* store each file name */
+    while (file_list >> file) {
 
         files.push_back(file);
 
     }
 
-    /* close the ls command */
-    pclose(file_list);
-
     return files;
         
-}
-
-/* create a text file from a file stream */
-void create_text_file(FILE* in_file, std::string name) {
-
-    /* open up text file */
-    std::ofstream text_file (name);
-
-    /* write every character until end-of-file */
-    char c;
-    while ((c = std::getc(in_file)) != EOF) {
-
-        text_file << c;
-
-    }
-    text_file.close();
-
 }
 
 /* return a list of named (no '.') sections in the object file */
 std::vector<std::string> get_named_sections(std::string lib) {
 
     /* get object dump of object file */
-    std::string cmd = "powerpc-eabi-objdump -D " + lib;
-    FILE* objdump = popen(cmd.c_str(), "r");
-    
-    /* store object dump in text file and close command */
-    create_text_file(objdump, "objdump.txt");
-    pclose(objdump);
+    std::string cmd = "powerpc-eabi-objdump -D " + lib + " > objdump.txt";
+    run_cmd(cmd.c_str());
 
     /* parse the text file */
     ObjdumpFileParser parser ("objdump.txt");
@@ -87,18 +58,15 @@ std::vector<std::string> get_named_sections(std::string lib) {
     /* record the names of each section */
     for (; !it.atEnd(); ++it) {
 
+        /* new section with no '.' */
         if (it.getSection().find(".") == std::string::npos
-            && it.getSection() != sections.back()) { //new section, no '.'
+            && it.getSection() != sections.back()) {
        
             sections.push_back(it.getSection());
 
         }
 
     }
-
-    /* delete text file */
-    FILE* rm = popen("rm objdump.txt", "r");
-    pclose(rm);
 
     return sections;
 
@@ -134,8 +102,28 @@ void rename_sections(std::string file, std::string ident) {
     cmd += " " + file;
 
     /* execute command */
-    FILE* obj_cpy = popen(cmd.c_str(), "r");
-    pclose(obj_cpy);
+    run_cmd(cmd.c_str());
 
 }
+
+/* runs cmd and waits for it to finish */
+int run_cmd(std::string cmd) {
+  
+    //#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
+
+    
+    //#else
+
+        FILE* cmd_ex = popen(cmd.c_str(), "r");
+        fclose(cmd_ex);
+
+    //#endif
+
+}
+
+
+
+
+
+
 

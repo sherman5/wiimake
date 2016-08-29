@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <vector>
 #include <string>
@@ -36,7 +37,7 @@ CodeAssembler::CodeAssembler(std::string source_dir,
                              std::vector<std::string> libs) {
 
     /* get source files */
-    if (source_dir.back() == '/') {source_dir.pop_back();}
+    if (source_dir.back() == '/' || source_dir.back() == '\\') {source_dir.pop_back();}
     m_c_files = get_files(source_dir, "c");
 
     /* store include directories */
@@ -78,17 +79,17 @@ CodeAssembler::CodeAssembler(std::string source_dir,
 /* provides the logic for the main function of this class:
    call the steps to compile, allocate, and link the code
    in m_source_dir */
-ASMcode CodeAssembler::GetRawASM() {
+void CodeAssembler::GetRawASM() {
 
     CompileSourceFiles();
     CreateDummyLinkerScript();
     StoreRawCodeAsText();
-    GetSectionLengths();
+    /*GetSectionLengths();
     FindCodeAllocation();    
     CreateBranchFiles(); 
     CreateRealLinkerScript();
     Link();
-    return GetCodeToInject(); 
+    return GetCodeToInject();*/
 
 }
 
@@ -103,16 +104,7 @@ void CodeAssembler::CompileSourceFiles() {
 
         /* display and run compile command */
         std::cout << compile_cmd << std::endl;
-        FILE* compiler = popen(compile_cmd.c_str(), "r");
-
-        /* display compiler output */
-        char c;
-        while ((c = std::getc(compiler)) != EOF) {
-            std::cout << c;
-        }
-
-        /* close compile command */
-        pclose(compiler);
+        run_cmd(compile_cmd.c_str());
 
         /* add object file to list of files to be linked */
         m_linked_files += change_ext(*it, "o") + " ";
@@ -165,14 +157,11 @@ void CodeAssembler::StoreRawCodeAsText() {
     /* link files with dummy script */
     std::string linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + m_linked_files;
     std::cout << linker_cmd << std::endl;
-    FILE* linker = popen(linker_cmd.c_str(), "r");
-    pclose(linker);
+    run_cmd(linker_cmd.c_str());
     
     /* store objdump in text file */    
-    std::string cmd = "powerpc-eabi-objdump -D a.out";
-    FILE* objdump = popen(cmd.c_str(), "r");
-    create_text_file(objdump, "RawCode.txt");
-    pclose(objdump);
+    std::string cmd = "powerpc-eabi-objdump -D a.out > RawCode.txt";
+    run_cmd(cmd.c_str());
     
 }
 
@@ -193,8 +182,8 @@ void CodeAssembler::GetSectionLengths() {
         /* new section is found */
         if (it.getSection() != "gci_" + std::to_string(m_sections.size() - sect_ndx)) {
 
-            /* record size, reset reference address */
-            m_sections[sect_ndx].second = addr - prev_addr;
+            /* record size (plus buffer), reset reference address */
+            m_sections[sect_ndx].second = addr - prev_addr + 0x04;
             prev_addr = addr;
 
             /* get the index of the next section if its not the end */
@@ -257,14 +246,9 @@ void CodeAssembler::CreateBranchFiles() {
     inject_point << ".global inject_point\ninject_point:\nbl stack_setup\n";
     inject_point.close();
 
-    /* Assemble the two previous files */
-    FILE* assmbler;
-
-    assmbler = popen("powerpc-eabi-as stack_setup.s -o stack_setup.o", "r");
-    pclose(assmbler);
-
-    assmbler = popen("powerpc-eabi-as inject_point.s -o inject_point.o", "r");
-    pclose(assmbler);
+    /* assemble both files */
+    run_cmd("powerpc-eabi-as stack_setup.s -o stack_setup.o");
+    run_cmd("powerpc-eabi-as inject_point.s -o inject_point.o");
 
 }
 
@@ -308,12 +292,12 @@ void CodeAssembler::Link() {
 
     /* run linker */
     std::string linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + m_linked_files;
-    FILE* linker = popen(linker_cmd.c_str(), "r");
-    pclose(linker);
+    run_cmd(linker_cmd.c_str());
     
     /* store resulting executable as text file */
-    FILE* exec_out = popen("powerpc-eabi-objdump -D a.out", "r");
-    create_text_file(exec_out, "exec.txt");
+    run_cmd("powerpc-eabi-objdump -D a.out > exec.txt");
+
+    /* remove a.out */
 
 }
 

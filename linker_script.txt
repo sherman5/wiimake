@@ -1,0 +1,47 @@
+SECTIONS {
+gci_1 :
+{
+	ExampleCode/ExampleMain.o (.text)
+}
+. = ADDR(gci_1) + SIZEOF(gci_1);
+gci_2 :
+{
+	ExampleCode/ExampleFunction.o (attr1)
+}
+. = ADDR(gci_2) + SIZEOF(gci_2);
+gci_3 :
+{
+	ExampleCode/ExampleFunction.o (rodata1)
+}
+. = ADDR(gci_3) + SIZEOF(gci_3);
+gci_4 :
+{
+	ExampleCode/ExampleFunction.o (text1)
+}
+. = ADDR(gci_4) + SIZEOF(gci_4);
+gci_5 :
+{
+	ExampleCode/ExampleFunction.o (attr0)
+}
+. = ADDR(gci_5) + SIZEOF(gci_5);
+gci_6 :
+{
+	ExampleCode/ExampleFunction.o (rodata0)
+}
+. = ADDR(gci_6) + SIZEOF(gci_6);
+gci_7 :
+{
+	ExampleCode/ExampleFunction.o (data0)
+}
+. = ADDR(gci_7) + SIZEOF(gci_7);
+gci_8 :
+{
+	ExampleCode/ExampleFunction.o (text0)
+}
+. = ADDR(gci_8) + SIZEOF(gci_8);
+gci_9 :
+{
+	ExampleCode\libs\libmml.a ()
+}
+. = ADDR(gci_9) + SIZEOF(gci_9);
+}

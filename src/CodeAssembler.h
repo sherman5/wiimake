@@ -79,7 +79,7 @@ public:
     /* provides the logic for the main function of this class:
        call the steps to compile, allocate, and link the code
        in m_source_dir */
-    ASMcode GetRawASM();
+    void GetRawASM();
 
     /* delete all temp files created in the process */
     void CleanDirectory();

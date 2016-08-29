@@ -23,4 +23,7 @@ std::string concat_vector(std::vector<std::string>, std::string="");
 /* rename sections in object file since sections with '.' are ignored */
 void rename_sections(std::string, std::string="");
 
+/* runs cmd and waits for it to finish */
+int run_cmd(std::string);
+
 #endif
