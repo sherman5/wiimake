@@ -79,17 +79,17 @@ CodeAssembler::CodeAssembler(std::string source_dir,
 /* provides the logic for the main function of this class:
    call the steps to compile, allocate, and link the code
    in m_source_dir */
-void CodeAssembler::GetRawASM() {
+ASMcode CodeAssembler::GetRawASM() {
 
     CompileSourceFiles();
     CreateDummyLinkerScript();
     StoreRawCodeAsText();
-    /*GetSectionLengths();
+    GetSectionLengths();
     FindCodeAllocation();    
     CreateBranchFiles(); 
     CreateRealLinkerScript();
     Link();
-    return GetCodeToInject();*/
+    return GetCodeToInject();
 
 }
 
@@ -104,7 +104,7 @@ void CodeAssembler::CompileSourceFiles() {
 
         /* display and run compile command */
         std::cout << compile_cmd << std::endl;
-        run_cmd(compile_cmd.c_str());
+        run_cmd(compile_cmd);
 
         /* add object file to list of files to be linked */
         m_linked_files += change_ext(*it, "o") + " ";
@@ -119,7 +119,7 @@ void CodeAssembler::CompileSourceFiles() {
             m_sections.push_back(std::make_pair(change_ext(*it, "o") + " (" + *sect_it + ")", 0));
 
         }
-
+        
     }
 
 }
@@ -157,11 +157,14 @@ void CodeAssembler::StoreRawCodeAsText() {
     /* link files with dummy script */
     std::string linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + m_linked_files;
     std::cout << linker_cmd << std::endl;
-    run_cmd(linker_cmd.c_str());
+    run_cmd(linker_cmd);
     
     /* store objdump in text file */    
     std::string cmd = "powerpc-eabi-objdump -D a.out > RawCode.txt";
-    run_cmd(cmd.c_str());
+    run_cmd(cmd);
+    
+    /* remove a.out */
+    run_cmd(rm_cmd + " a.out");
     
 }
 
@@ -201,6 +204,9 @@ void CodeAssembler::GetSectionLengths() {
 
     /* end loop once named sections run out */
     } while (it.getSection().find("gci") != std::string::npos);
+
+    /* close file parser */
+    it.close();
 
 }
 
@@ -292,12 +298,13 @@ void CodeAssembler::Link() {
 
     /* run linker */
     std::string linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + m_linked_files;
-    run_cmd(linker_cmd.c_str());
+    run_cmd(linker_cmd);
     
     /* store resulting executable as text file */
     run_cmd("powerpc-eabi-objdump -D a.out > exec.txt");
 
     /* remove a.out */
+    run_cmd(rm_cmd + " a.out");
 
 }
 
@@ -319,6 +326,9 @@ ASMcode CodeAssembler::GetCodeToInject() {
 
     }
 
+    /* close file parser */
+    it.close();
+
     return ret_val;
 
 }
@@ -327,24 +337,21 @@ ASMcode CodeAssembler::GetCodeToInject() {
 void CodeAssembler::CleanDirectory() {
 
     /* put all file names in vector */
-    FILE* rm_call;
     std::vector<std::string> files = {
-        "rm linker_script.txt",
-        "rm RawCode.txt",
-        "rm a.out",
-        "rm exec.txt",
-        "rm inject_point.s",
-        "rm inject_point.o",
-        "rm stack_setup.s",
-        "rm stack_setup.o"
+        rm_cmd + " linker_script.txt",
+        rm_cmd + " RawCode.txt",
+        rm_cmd + " exec.txt",
+        rm_cmd + " inject_point.s",
+        rm_cmd + " inject_point.o",
+        rm_cmd + " stack_setup.s",
+        rm_cmd + " stack_setup.o"
     };
 
     /* iterate through the vector and delete each one */
     std::vector<std::string>::iterator it = files.begin();
     for (; it != files.end(); ++it) {
 
-        rm_call = popen((*it).c_str(), "r");
-        pclose(rm_call);
+        run_cmd(*it);
 
     }
     

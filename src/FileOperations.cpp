@@ -1,19 +1,71 @@
+#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(GCI_WINDOWS)
+
+    #define GCI_WINDOWS
+    #include <windows.h>
+    #include <process.h>
+    #include <stdio.h>
+    
+#endif
+
 #include <string>
 #include <vector>
 #include <cstring>
 #include <fstream>
 
+#ifdef GCI_WINDOWS
+
+    const std::string rm_cmd = "del";
+
+#else
+
+    const std::string rm_cmd = "rm";
+
+#endif
+
 #include "ObjdumpFileParser.h"
 #include "FileOperations.h"
 
-/* change extenstion of file */
-std::string change_ext(std::string file, std::string ext) {
+#ifdef GCI_WINDOWS
 
-    return file.substr(0, file.find('.') + 1) + ext;
+/* return list of all files in a directory with given extension - windows version */
+std::vector<std::string> get_files(std::string dir, std::string ext) {
 
+    /* list of files to return */
+    std::vector<std::string> files;
+
+    /* structs to store return values from file search (see windows.h) */
+    WIN32_FIND_DATA fdFile;
+    HANDLE hFind = NULL;
+
+    /* only searcg for c source files */
+    std::string search = dir + "\\*.c"; 
+
+    /* check if path exists */
+    if ((hFind = FindFirstFile(search.c_str(), &fdFile)) == INVALID_HANDLE_VALUE) {
+        
+        throw std::invalid_argument(dir + " directory not found");
+
+    }
+
+    /* if dir exists add all c files to return vector */
+    do {
+                     
+        // add file name with dir appended to the front */
+        files.push_back(dir + '\\' + fdFile.cFileName);
+    
+    /* find next file */
+    } while(FindNextFile(hFind, &fdFile)); 
+
+    /* cleanup */
+    FindClose(hFind);
+    
+    return files;
+        
 }
 
-/* return list of all files in a directory with given extension */
+#else
+
+/* return list of all files in a directory with given extension - linux version */
 std::vector<std::string> get_files(std::string dir, std::string ext) {
 
     /* list of files to return */
@@ -21,7 +73,7 @@ std::vector<std::string> get_files(std::string dir, std::string ext) {
 
     /* list files with ls */
     std::string cmd = "ls " + dir + "/*." + ext + " > files.txt";
-    run_cmd(cmd.c_str());
+    run_cmd(cmd);
 
     /* parse output of ls */
     std::ifstream file_list ("files.txt");
@@ -38,12 +90,21 @@ std::vector<std::string> get_files(std::string dir, std::string ext) {
         
 }
 
+#endif
+
+/* change extenstion of file */
+std::string change_ext(std::string file, std::string ext) {
+
+    return file.substr(0, file.find('.') + 1) + ext;
+
+}
+
 /* return a list of named (no '.') sections in the object file */
 std::vector<std::string> get_named_sections(std::string lib) {
 
     /* get object dump of object file */
     std::string cmd = "powerpc-eabi-objdump -D " + lib + " > objdump.txt";
-    run_cmd(cmd.c_str());
+    run_cmd(cmd);
 
     /* parse the text file */
     ObjdumpFileParser parser ("objdump.txt");
@@ -68,6 +129,12 @@ std::vector<std::string> get_named_sections(std::string lib) {
 
     }
 
+    /* close the file parser */
+    it.close();
+
+    /* remove the text file */
+    run_cmd(rm_cmd + " objdump.txt");
+
     return sections;
 
 }
@@ -90,15 +157,15 @@ std::string concat_vector(std::vector<std::string> vec, std::string prefix) {
 }
 
 /* rename sections in object file since sections with '.' are ignored, ident makes names unique */
-void rename_sections(std::string file, std::string ident) {
+void rename_sections(std::string file, std::string id) {
 
     /* create objcopy command */
     std::string cmd = "powerpc-eabi-objcopy";
-    cmd += " --rename-section .text=text" + ident;
-    cmd += " --rename-section .rodata=rodata" + ident;
-    cmd += " --rename-section .sdata=sdata" + ident;
-    cmd += " --rename-section .data=data" + ident;
-    cmd += " --rename-section .gnu.attributes=attr" + ident;
+    cmd += " --rename-section .text=text" + id;
+    cmd += " --rename-section .rodata=rodata" + id;
+    cmd += " --rename-section .sdata=sdata" + id;
+    cmd += " --rename-section .data=data" + id;
+    cmd += " --rename-section .gnu.attributes=attr" + id;
     cmd += " " + file;
 
     /* execute command */
@@ -108,16 +175,9 @@ void rename_sections(std::string file, std::string ident) {
 
 /* runs cmd and waits for it to finish */
 int run_cmd(std::string cmd) {
-  
-    //#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
-
     
-    //#else
-
-        FILE* cmd_ex = popen(cmd.c_str(), "r");
-        fclose(cmd_ex);
-
-    //#endif
+    FILE* cmd_ex = popen(cmd.c_str(), "r");
+    pclose(cmd_ex);
 
 }
 

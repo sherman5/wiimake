@@ -123,5 +123,12 @@ std::string ObjdumpFileParser::iterator::getSection() {
 
 }
 
+/* close the file stream */
+void ObjdumpFileParser::iterator::close() {
+
+    m_file_stream->close();
+
+}
+
 /********************* END OF ITERATOR CLASS ***************/
 

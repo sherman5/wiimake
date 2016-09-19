@@ -1,9 +1,28 @@
 #ifndef CODE_ASSEMBLER_H
 #define CODE_ASSEMBLER_H
 
+#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(GCI_WINDOWS)
+
+    #define GCI_WINDOWS
+    #include <windows.h>
+    #include <process.h>
+    #include <stdio.h>
+        
+#endif
+
 #include <string>
 #include <vector>
 #include <utility>
+
+#ifdef GCI_WINDOWS
+
+    const std::string rm_cmd = "del";
+
+#else
+
+    const std::string rm_cmd = "rm";
+
+#endif
 
 /*
 string stores path to file (section).
@@ -79,7 +98,7 @@ public:
     /* provides the logic for the main function of this class:
        call the steps to compile, allocate, and link the code
        in m_source_dir */
-    void GetRawASM();
+    ASMcode GetRawASM();
 
     /* delete all temp files created in the process */
     void CleanDirectory();

@@ -52,7 +52,10 @@ class ObjdumpFileParser {
         
         /* return the name of the section in the binary file that contains the current line */
         std::string getSection();
-        
+
+        /* close the file stream */
+        void close();
+
     };
 
     /********************* END OF ITERATOR CLASS ***************/

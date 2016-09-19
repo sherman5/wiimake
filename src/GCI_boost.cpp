@@ -115,13 +115,12 @@ int main(int argc, char* argv[]) {
                                 
 
             /* inject the code */
-            //iso.InjectCode(code.GetRawASM());
-            code.GetRawASM();
-
+            iso.InjectCode(code.GetRawASM());
+            
             /* remove temp files */
             if (!vm.count("save-temps")) {
                 
-                //code.CleanDirectory();
+                code.CleanDirectory();
 
             }
 
