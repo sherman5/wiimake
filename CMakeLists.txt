@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 
 # set compiler flags
-set (CMAKE_CXX_FLAGS "-std=c++11" ${CMAKE_CXX_FLAGS})
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # project name
 project (GCI)
