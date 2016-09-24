@@ -130,7 +130,7 @@ void GUIwindow::RunProgram() {
     ISOhandler iso (iso_file);
     CodeAssembler code (source_dir, region_file, include_dirs, libs);
     iso.InjectCode(code.GetRawASM());
-//    code.CleanDirectory();
+    code.CleanDirectory();
 
     RegionFileParser parser (region_file);
     uint32_t replace_addr = (*parser.begin()).first + 0x04;
