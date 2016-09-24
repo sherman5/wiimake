@@ -31,10 +31,10 @@ To check if you can run the program try typing `powerpc-eabi-gcc` is your termin
 
    `mkdir gci-0.3/build && cd gci-0.3/build`
    
-4. run standard installation commands
+4. run these commands to build the program with cmake
 
    ```
-   ../configure
+   ../cmake
    make
    make install
    ```
