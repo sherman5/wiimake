@@ -26,3 +26,21 @@ else ()
     install (TARGETS GCI GCI-ar GCI-isotool RUNTIME DESTINATION "/usr/local/bin/" )
 
 endif ()
+
+if (USE_QT)
+
+    add_executable (GCI-GUI GCI-GUI.cpp GUIwindow.cpp CodeAssembler.cpp FileOperations.cpp ISOhandler.cpp ObjdumpFileParser.cpp RegionFileParser.cpp)
+    target_link_libraries (GCI-GUI Qt5::Widgets)
+    
+    if (WIN32)
+
+        install (TARGETS GCI-GUI RUNTIME DESTINATION "C:/Program Files/GCI")
+
+    else ()
+
+        install (TARGETS GCI-GUI RUNTIME DESTINATION "/usr/local/bin/")
+
+    endif()
+
+endif ()
+

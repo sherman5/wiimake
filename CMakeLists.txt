@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.11)
 
 # set compiler flags
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
@@ -20,6 +20,20 @@ elseif (WIN32)
 else ()
 
     set (USE_BOOST FALSE)
+
+endif()
+
+# look for qt (don't build GUI if qt not available)
+find_package (Qt5Widgets)
+
+if (Qt5Widgets_FOUND)
+
+    set (CMAKE_AUTOMOC ON)
+    set (USE_QT TRUE)
+
+else ()
+
+    set (USE_QT FALSE)
 
 endif()
 
