@@ -34,7 +34,7 @@ To check if you can run the program try typing `powerpc-eabi-gcc` is your termin
 4. run these commands to build the program with cmake
 
    ```
-   ../cmake
+   cmake ..
    make
    make install
    ```
