@@ -24,6 +24,8 @@
 
 #endif
 
+#include "MemoryConfig.h"
+
 /*
 string stores path to file (section).
 uint32_t stores length of file 
@@ -46,8 +48,8 @@ private:
     /* string of all object files and static libraries */
     std::string m_linked_files;
 
-    /* list of source files */
-    std::vector<std::string> m_c_files;
+    /* source directory */
+    std::string m_source_dir;
 
     /* sections of the final binary */
     SectionList m_sections;   
@@ -60,7 +62,7 @@ private:
     uint32_t m_stack_setup_addr;
     
     /* compile all .c files, store .o files */
-    void CompileSourceFiles();
+    void StoreObjectFiles();
 
     /* create a linker script that includes all files, but not
        at the correct addresses */
@@ -91,9 +93,12 @@ public:
 
     /* constructor */
     CodeAssembler(std::string,
-                  std::string,
+                  MemoryConfig,
                   std::vector<std::string>,
                   std::vector<std::string>);
+
+    /* compile all .c files, return .o files */
+    std::vector<std::string> CompileSourceFiles();
 
     /* provides the logic for the main function of this class:
        call the steps to compile, allocate, and link the code

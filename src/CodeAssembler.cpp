@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "CodeAssembler.h"
-#include "RegionFileParser.h"
+#include "MemoryConfig.h"
 #include "ObjdumpFileParser.h"
 #include "FileOperations.h"
 
@@ -32,27 +32,27 @@ bool code_comp(std::pair<std::string, uint32_t> a, std::pair<std::string, uint32
 
 /* constructor for CodeAssembler class */
 CodeAssembler::CodeAssembler(std::string source_dir,
-                             std::string region_file,
+                             MemoryConfig mem_config,
                              std::vector<std::string> include_dirs,
                              std::vector<std::string> libs) {
 
     /* get source files */
     if (source_dir.back() == '/' || source_dir.back() == '\\') {source_dir.pop_back();}
-    m_c_files = get_files(source_dir, "c");
+    m_source_dir = source_dir;
 
     /* store include directories */
     m_include_dirs = concat_vector(include_dirs, "-I");
 
     /* get available memory regions */
-    RegionFileParser parser (region_file);
-    for (RegionFileParser::iterator it = parser.begin(); !it.atEnd(); ++it) {
+    auto it = mem_config.begin();
+    for (; it != mem_config.end(); ++it) {
 
         m_regions.push_back(std::make_pair((*it).first, (*it).second));
 
     }
 
     /* get injection addresses for main and the stack setup */
-    m_inject_addr = parser.GetInjectionPoint();
+    m_inject_addr = mem_config.GetInjectAddress();
     m_stack_setup_addr = m_regions[0].first;       
 
     /* leave enough room for stack setup */
@@ -81,7 +81,7 @@ CodeAssembler::CodeAssembler(std::string source_dir,
    in m_source_dir */
 ASMcode CodeAssembler::GetRawASM() {
 
-    CompileSourceFiles();
+    StoreObjectFiles();
     CreateDummyLinkerScript();
     StoreRawCodeAsText();
     GetSectionLengths();
@@ -94,33 +94,58 @@ ASMcode CodeAssembler::GetRawASM() {
 }
 
 /* compile all .c files, store .o files */
-void CodeAssembler::CompileSourceFiles() {
+void CodeAssembler::StoreObjectFiles() {
+
+    auto objects = CompileSourceFiles();
+    m_linked_files = concat_vector(objects);
     
-    /* iterate through all .c files */
-    for (auto it = m_c_files.begin(); it != m_c_files.end(); ++it) {
+    for (auto it = objects.begin(); it != objects.end(); ++it) {
 
-        /* command to compile each .c file */
-        std::string compile_cmd = "powerpc-eabi-gcc -c "+ m_include_dirs + *it + " -o " + change_ext(*it, "o");
-
-        /* display and run compile command */
-        std::cout << compile_cmd << std::endl;
-        run_cmd(compile_cmd);
-
-        /* add object file to list of files to be linked */
-        m_linked_files += change_ext(*it, "o") + " ";
-        
         /* rename relevent sections in object file */
-        rename_sections(change_ext(*it, "o"));
+        rename_sections(*it);
 
         /* get sections from object file and store them */
-        auto sections = get_named_sections(change_ext(*it, "o"));
+        auto sections = get_named_sections(*it);
         for (auto sect_it = sections.begin(); sect_it != sections.end(); ++sect_it) {
 
-            m_sections.push_back(std::make_pair(change_ext(*it, "o") + " (" + *sect_it + ")", 0));
+            m_sections.push_back(std::make_pair(*it + " (" + *sect_it + ")", 0));
 
         }
-        
+
+
     }
+
+
+}
+
+/* compile c files and return list of object file names */
+std::vector<std::string> CodeAssembler::CompileSourceFiles() {
+    
+    /* get a list of all c files */
+    auto sources = get_files(m_source_dir, "c");
+    std::vector<std::string> objects;
+
+    /* iterate through c files */
+    for (auto it = sources.begin(); it != sources.end(); ++it) {
+
+        /* run compile command */
+        std::string compile_cmd = "powerpc-eabi-gcc -c " + *it + " -o " + change_ext(*it, "o");
+        FILE* compiler = popen(compile_cmd.c_str(), "r");
+
+        /* output compiler output */
+        char c;
+        while ((c = std::getc(compiler)) != EOF) {
+            std::cout << c;
+        }
+        std::cout << std::endl;
+
+        /* close compile command, add object file */
+        pclose(compiler);
+        objects.push_back(change_ext(*it, "o"));
+
+    }
+
+    return objects;
 
 }
 

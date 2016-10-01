@@ -1,6 +1,8 @@
 #ifndef ISO_HANDLER_H
 #define ISO_HANDLER_H
 
+#include "MemoryConfig.h"
+
 #include <stdint.h>
 #include <utility>
 #include <string>
@@ -46,7 +48,7 @@ public:
     uint32_t IsoRead(uint32_t);
 
     /* save the current code in the regions provided */
-    void CreateRestorePoint(std::string, std::string);
+    void CreateRestorePoint(MemoryConfig, std::string);
 
     /* load code from save file */
     void Restore(std::string);

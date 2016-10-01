@@ -31,7 +31,7 @@
 #include <iostream>
 
 #include "ISOhandler.h"
-#include "RegionFileParser.h"
+#include "MemoryConfig.h"
 
 /* constructor, store path to iso file */
 ISOhandler::ISOhandler(std::string path_to_iso) {
@@ -95,23 +95,21 @@ uint32_t ISOhandler::IsoRead(uint32_t addr) {
 
 }
 
-/* save the current code in the regions provided */
-void ISOhandler::CreateRestorePoint(std::string region_file_path, std::string save_file_path) {
+
+/* save the current code in the regions provided */ 
+void ISOhandler::CreateRestorePoint(MemoryConfig mem_config, std::string save_file_path) {
 
     /* data vector to write to file */
     std::vector<uint32_t> data;
 
-    /* parse region file to find address of interest */
-    RegionFileParser parser (region_file_path);
-
     /* add the address and instruction at injection point */
-    uint32_t addr = parser.GetInjectionPoint();
+    uint32_t addr = mem_config.GetInjectAddress();
     data.push_back(addr);
     data.push_back(IsoRead(addr));
 
     /* loop through remaining memory regions */
-    RegionFileParser::iterator it = parser.begin();
-    for (; !it.atEnd(); ++it) {
+    MemoryConfig::iterator it = mem_config.begin();
+    for (; it != mem_config.end(); ++it) {
     
         addr = (*it).first;
         while (addr <= (*it).second) {
