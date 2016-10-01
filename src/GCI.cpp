@@ -1,160 +1,81 @@
-/* structure adapted from https://www.gnu.org/software/libc/manual/html_node/Argp-Example-3.html#Argp-Example-3 */
+#include "GCI.h"
 
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <argp.h>
+#include <exception>
+#include <sstream>
 
-#include "ISOhandler.h"
-#include "CodeAssembler.h"
-#include "RegionFileParser.h"
-#include "ProgramInfo.h"
+void CreateISO(ISOhandler& iso,
+               MemoryConfig& mem_config,
+               CodeAssembler& code_asmblr,
+               bool save_temps) {
 
-/* required arguments */
-static char args_doc[] = "ISOFILE REGIONFILE";
+    /* inject the code */
+    iso.InjectCode(code_asmblr.GetRawASM());
 
-/* get program version from ProgramInfo.h */
-const char* argp_program_version = program_version;
+    /* remove temp files */
+    if (!save_temps) { code_asmblr.CleanDirectory();}
 
-/* command line options */
-static struct argp_option options[] = {
-    {"inject", 1, "DIR", 0, "compile C code in DIR and inject into ISOFILE, only overwriting memory regions specified in REGIONFILE"},
-    {"save", 2, "FILE", 0, "save state of ISOFILE to FILE"},
-    {"load", 3, "FILE", 0, "restore ISOFILE to state saved in FILE"},
-    {"lib", 'l', "DIR", 0, "link against libraries in DIR"},
-    {"include", 'I', "DIR", 0, "search for header files in DIR"},
-    {0}
-};
-
-/* user provided arguments are stored here */
-struct arguments {
-
-    /* iso and region file */
-    std::string args[2];
-    
-    /* T/F values if flag is present */
-    int inject, save, load;
-    
-    /* source directory and file names */
-    std::string inject_dir, save_file, load_file;
-
-    /* libraries and include files */
-    std::vector<std::string> libs, include_dirs;
-
-};
-
-/* function to parse command line arguments */
-static error_t parse_opt (int key, char *arg, struct argp_state *state) {
-
-    struct arguments *arguments = (struct arguments*) state->input;
-
-    /* switch on current flag */
-    switch (key) {
-
-        /* --inject */
-        case 1:
-            arguments->inject = 1;
-            arguments->inject_dir = arg;
-            break;
-        /* --save */
-        case 2:
-            arguments->save = 1;
-            arguments->save_file = arg;
-            break;
-        /* --load */
-        case 3:
-            arguments->load = 1;
-            arguments->load_file = arg;
-            break;
-        /* --lib, -l */
-        case 'l':
-            arguments->libs.push_back(arg);
-            break;
-        /* --include, -I */
-        case 'I':
-            arguments->include_dirs.push_back(arg);
-            break;
-        case ARGP_KEY_ARG:
-            if (state->arg_num >= 2)
-            /* Too many arguments. */
-            argp_usage (state);
-            arguments->args[state->arg_num] = arg;
-            break;
-        case ARGP_KEY_END:
-            if (state->arg_num < 2)
-            /* Not enough arguments. */
-            argp_usage (state);
-            break;
-        default:
-            return ARGP_ERR_UNKNOWN;
-    }
-
-    return 0;
+    /* overwrite injection command */
+    uint32_t replace_addr = (*mem_config.begin()).first + 0x04;
+    iso.IsoWrite(replace_addr, mem_config.GetInjectInstruction());
 
 }
 
-/* struct containing all data and functions for the CLI */
-static struct argp argp = { options, parse_opt, args_doc, program_doc };
+void SaveISO(ISOhandler& iso, MemoryConfig& mem_config, std::string file_name) {
 
-int main(int argc, char* argv[]) {
+    iso.CreateRestorePoint(mem_config, file_name);
 
-    struct arguments arguments;
+}
 
-    /* initialize to false */
-    arguments.inject = 0;
-    arguments.save = 0;
-    arguments.load = 0;
+void LoadISO(ISOhandler& iso, std::string file_name) {
 
-    /* parse all comand line arguments */
-    argp_parse(&argp, argc, argv, 0, 0, &arguments);
+    iso.Restore(file_name);
 
-    /* make sure only one argument is provided in addition to iso and region file */
-    int third_arg = arguments.inject + arguments.save + arguments.load;
-    if (third_arg != 1) {
-        
-        std::cout << "invalid number of arguments: must have exactly one of --inject, --save, or --load" << std::endl;
-        return 1;
+}
 
-    } else {
+std::string ReadAddr(ISOhandler& iso, uint32_t addr) {
 
-        /* get iso file and region file */
-        ISOhandler iso (arguments.args[0]);
-        std::string region_file = arguments.args[1];
+    //TODO: throw error if not 32-bit address
+    uint32_t val = iso.IsoRead(addr);
+    std::stringstream ss;
+    ss << std::hex << val;
+    return ss.str();
 
-        /* inject code */
-        if (arguments.inject) {
+}
 
-            /* create class to handle compiling, allocation, and linking */
-            CodeAssembler code (arguments.inject_dir,
-                                region_file,
-                                arguments.include_dirs,
-                                arguments.libs);
+std::string ReadAddr(ISOhandler& iso, std::string addr) {
 
-            /* inject the code */
-            iso.InjectCode(code.GetRawASM());
+    //TODO: throw error if not 32-bit address
+    uint32_t val = iso.IsoRead(std::stoul(addr,nullptr,16));
+    std::stringstream ss;
+    ss << std::hex << val;
+    return ss.str();
 
-            /* remove temp files */
-            code.CleanDirectory();
+}
 
-            /* overwrite injection command */
-            RegionFileParser parser (region_file);
-            uint32_t replace_addr = (*parser.begin()).first + 0x04;
-            iso.IsoWrite(replace_addr, parser.GetInjectionInstruction());
+/* create static library from files in given directory */
+void CreateLibrary(std::string name, std::string dir) {
+    
+    /* add all files to archive command */
+    std::string ar_cmd = "powerpc-eabi-ar -cvr " + name;
+    CodeAssembler code (dir, MemoryConfig(), std::vector<std::string>(), std::vector<std::string>());
+    auto objects = code.CompileSourceFiles();
 
-        /* save ISO state */
-        } else if (arguments.save) {
+    for (auto it = objects.begin(); it != objects.end(); ++it) {
 
-            iso.CreateRestorePoint(region_file, arguments.save_file);
-
-        /* load ISO state */
-        } else if (arguments.load) {
-
-            iso.Restore(arguments.load_file);
-
-        }
-        
-        return 0;
+        ar_cmd += " " + *it;
 
     }
 
+    /* run archive command to create static library */
+    run_cmd(ar_cmd);
+
+    /* rename sections in a unique way to differentiate between object files */
+    for (unsigned int i = 0; i < objects.size(); ++i) {
+
+        rename_sections(obj_files[i], std::to_string(i));
+
+    }
+
+
 }
+

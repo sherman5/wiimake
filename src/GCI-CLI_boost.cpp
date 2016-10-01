@@ -7,7 +7,7 @@
 
 #include "ISOhandler.h"
 #include "CodeAssembler.h"
-#include "RegionFileParser.h"
+#include "MemoryConfig.h"
 #include "ProgramInfo.h"
 
 namespace po = boost::program_options;
@@ -76,14 +76,15 @@ int main(int argc, char* argv[]) {
 
         /* get iso file */
         ISOhandler iso (vm["iso_file"].as<std::string>());
-           
+        MemoryConfig mem_config (vm["region_file"].as<std::string>());           
+
         if (vm.count("inject") + vm.count("save") + vm.count("load") != 1) {
 
             throw std::invalid_argument("need to specify exactly one of --inject, --save, --load");
 
         } else if (vm.count("save")) {
 
-            iso.CreateRestorePoint(vm["region_file"].as<std::string>(), vm["save"].as<std::string>());
+            iso.CreateRestorePoint(mem_config, vm["save"].as<std::string>());
 
         } else if (vm.count("load")) {
 
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]) {
             
             /* create object to handle compiling, allocation, and linking */
             CodeAssembler code (vm["inject"].as<std::string>(),
-                                vm["region_file"].as<std::string>(),
+                                mem_config,
                                 include_paths,
                                 libs);
                                 
@@ -125,9 +126,8 @@ int main(int argc, char* argv[]) {
             }
 
             /* overwrite injection command */
-            RegionFileParser parser (vm["region_file"].as<std::string>());
-            uint32_t replace_addr = (*parser.begin()).first + 0x04;
-            iso.IsoWrite(replace_addr, parser.GetInjectionInstruction());
+            uint32_t replace_addr = (*mem_config.begin()).first + 0x04;
+            iso.IsoWrite(replace_addr, mem_config.GetInjectInstruction());
 
         }
 

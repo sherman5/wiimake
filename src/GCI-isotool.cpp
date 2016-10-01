@@ -2,6 +2,7 @@
 #include <string>
 
 #include "ISOhandler.h"
+#include "GCI.h"
 
 int main(int argc, char* argv[]) {
 
@@ -15,7 +16,7 @@ int main(int argc, char* argv[]) {
 
         /* print 32-bit instruction at address READ_ADDRESS in file ISO_FILE */
         ISOhandler iso (argv[1]);
-        std::cout << std::hex << iso.IsoRead(std::stoul(argv[2],nullptr,16)) << std::endl;
+        std::cout << ReadAddr(iso, argv[2]) << std::endl;
 
     }
 
