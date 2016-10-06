@@ -3,10 +3,11 @@
 #include <exception>
 #include <sstream>
 
-void CreateISO(ISOhandler& iso,
-               MemoryConfig& mem_config,
-               CodeAssembler& code_asmblr,
-               bool save_temps) {
+/* inject code into iso */
+void GCI::CreateISO(ISOhandler& iso,
+                   MemoryConfig& mem_config,
+                   CodeAssembler& code_asmblr,
+                   bool save_temps) {
 
     /* inject the code */
     iso.InjectCode(code_asmblr.GetRawASM());
@@ -20,32 +21,44 @@ void CreateISO(ISOhandler& iso,
 
 }
 
-void SaveISO(ISOhandler& iso, MemoryConfig& mem_config, std::string file_name) {
+/* save iso state, only save addresses in regions contained in mem_config */
+void GCI::SaveISO(ISOhandler& iso, MemoryConfig& mem_config, std::string file_name) {
 
+    /* create save file */
     iso.CreateRestorePoint(mem_config, file_name);
 
 }
 
-void LoadISO(ISOhandler& iso, std::string file_name) {
+/* load iso state from file */
+void GCI::LoadISO(ISOhandler& iso, std::string file_name) {
 
+    /* load state */
     iso.Restore(file_name);
 
 }
 
-std::string ReadAddr(ISOhandler& iso, uint32_t addr) {
+/* read address (32-bit unsigned int) from iso */
+std::string GCI::ReadAddr(ISOhandler& iso, uint32_t addr) {
 
+    /* read from address */
     //TODO: throw error if not 32-bit address
     uint32_t val = iso.IsoRead(addr);
+
+    /* convert output to string */
     std::stringstream ss;
     ss << std::hex << val;
     return ss.str();
 
 }
 
-std::string ReadAddr(ISOhandler& iso, std::string addr) {
+/* read address (string version of 32-bit unsigned int) from iso */
+std::string GCI::ReadAddr(ISOhandler& iso, std::string addr) {
 
+    /* read from address, make conversion to uint32_t */
     //TODO: throw error if not 32-bit address
     uint32_t val = iso.IsoRead(std::stoul(addr,nullptr,16));
+
+    /* convert output to string */
     std::stringstream ss;
     ss << std::hex << val;
     return ss.str();
@@ -53,10 +66,12 @@ std::string ReadAddr(ISOhandler& iso, std::string addr) {
 }
 
 /* create static library from files in given directory */
-void CreateLibrary(std::string name, std::string dir) {
+void GCI::CreateLibrary(std::string name, std::string dir) {
     
-    /* add all files to archive command */
+    /* create archive command */
     std::string ar_cmd = "powerpc-eabi-ar -cvr " + name;
+
+    /* compile source files and get objects */
     CodeAssembler code (dir, MemoryConfig(), std::vector<std::string>(), std::vector<std::string>());
     auto objects = code.CompileSourceFiles();
 
@@ -66,9 +81,6 @@ void CreateLibrary(std::string name, std::string dir) {
 
     }
 
-    /* run archive command to create static library */
-    run_cmd(ar_cmd);
-
     /* rename sections in a unique way to differentiate between object files */
     for (unsigned int i = 0; i < objects.size(); ++i) {
 
@@ -76,6 +88,8 @@ void CreateLibrary(std::string name, std::string dir) {
 
     }
 
+    /* run archive command to create static library */
+    run_cmd(ar_cmd);
 
 }
 
