@@ -21,24 +21,7 @@ if (USE_BOOST)
 
 else ()
 
-    add_executable (GCI-CLI GCI-CLI.cpp ${CORE_SRCS})
-
-endif ()
-
-add_executable (GCI-ar GCI-ar.cpp ${CORE_SRCS})
-add_executable (GCI-isotool GCI-isotool.cpp ${CORE_SRCS})
-
-if (WIN32)
-    target_link_libraries (GCI-isotool wsock32 ws2_32)
-endif ()
-
-if (WIN32)
-
-    install (TARGETS GCI-CLI GCI-ar GCI-isotool RUNTIME DESTINATION "C:/Program Files/GCI" )
-
-else ()
-
-    install (TARGETS GCI-CLI GCI-ar GCI-isotool RUNTIME DESTINATION "/usr/local/bin/" )
+    add_executable (GCI-CLI GCI-CLI_argp.cpp ${CORE_SRCS})
 
 endif ()
 
@@ -46,16 +29,34 @@ if (USE_QT)
 
     add_executable (GCI-GUI GCI-GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
     target_link_libraries (GCI-GUI Qt5::Widgets)
-    
-    if (WIN32)
+
+endif ()
+
+if (WIN32)
+
+    target_link_libraries (GCI-CLI wsock32 ws2_32)
+    target_link_libraries (GCI-GUI wsock32 ws2_32)
+
+endif()
+
+if (WIN32)
+
+    if (USE_QT)
 
         install (TARGETS GCI-GUI RUNTIME DESTINATION "C:/Program Files/GCI")
 
-    else ()
+    endif()        
+
+    install (TARGETS GCI-CLI RUNTIME DESTINATION "C:/Program Files/GCI" )
+
+else ()
+
+    if (USE_QT)
 
         install (TARGETS GCI-GUI RUNTIME DESTINATION "/usr/local/bin/")
 
     endif()
 
-endif ()
+    install (TARGETS GCI-CLI RUNTIME DESTINATION "/usr/local/bin/" )
 
+endif()

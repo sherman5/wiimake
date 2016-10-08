@@ -40,7 +40,7 @@ void IsotoolTab::ReadAddress() {
     try {
 
         ISOhandler iso(m_iso_path->text());
-        std::string val = ReadAddr(iso, m_addr_input->text().toStdString()); 
+        std::string val = GCI::ReadAddr(iso, m_addr_input->text().toStdString()); 
         m_addr_value->setPlaceholderText(QString::fromStdString(val));
    
     } catch (std::invalid_argument& e) {

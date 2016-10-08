@@ -35,6 +35,9 @@ private:
 
 public:
 
+    /* default constructor */
+    ISOhandler() {}
+
     /* constructor, store path to iso file */
     ISOhandler(std::string);
 

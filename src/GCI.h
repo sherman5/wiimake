@@ -23,7 +23,7 @@ namespace GCI {
     std::string ReadAddr(ISOhandler&, std::string);
 
     /* create static library from files in given directory */    
-    void CreateLibrary(std::string, std::string) {
+    void CreateLibrary(std::string, std::string);
 
 }
 

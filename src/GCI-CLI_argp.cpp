@@ -3,6 +3,7 @@
 #include <cstdio>
 #include <cstring>
 #include <iostream>
+#include <stdexcept>
 #include <argp.h>
 
 #include "ISOhandler.h"
@@ -101,20 +102,7 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
         case 'I':
             arguments->include_dirs.push_back(arg);
             break;
-        /* included from tutorial */
-        case ARGP_KEY_ARG:
-            if (state->arg_num >= 2)
-            /* Too many arguments. */
-            argp_usage (state);
-            arguments->args[state->arg_num] = arg;
-            break;
-        /* included from tutorial */
-        case ARGP_KEY_END:
-            if (state->arg_num < 2)
-            /* Not enough arguments. */
-            argp_usage (state);
-            break;
-        /* included from tutorial */
+        /* unknown option */
         default:
             return ARGP_ERR_UNKNOWN;
 
@@ -125,14 +113,14 @@ static error_t parse_opt (int key, char *arg, struct argp_state *state) {
 }
 
 /* struct containing all data and functions for the CLI */
-static struct argp argp = { options, parse_opt, args_doc, program_doc };
+static struct argp argp = { options, parse_opt, program_doc };
 
 /* check if argument is present, throw error otherwise */
 void Require(std::string arg, std::string message) {
 
     if (arg.empty()) {
 
-        throw::invalid_argument(message);
+        throw std::invalid_argument(message);
 
     }
 
@@ -168,11 +156,14 @@ int main(int argc, char* argv[]) {
     /* only one command given */
     } else {
 
+        MemoryConfig mem_config;
+        ISOhandler iso_handler;
+
         /* check if memory configuration file is given */
         if (!arguments.config_file.empty()) {
 
             /* create object to store configuration */
-            MemoryConfig mem_config (arguments.config_file);
+             mem_config = MemoryConfig(arguments.config_file);
 
         }
 
@@ -180,7 +171,7 @@ int main(int argc, char* argv[]) {
         if (!arguments.iso_file.empty()) {
 
             /* create iso handler for given iso file */
-            ISOhandler iso_handler (arguments.iso_file);
+            iso_handler = ISOhandler(arguments.iso_file);
     
         }
 
@@ -202,7 +193,7 @@ int main(int argc, char* argv[]) {
             Require(arguments.iso_file, "missing iso file, use --iso-file");
         
             /* display value at address given */
-            std::cout << GCI::ReadAddr(iso, arguments.address) << std::endl;
+            std::cout << GCI::ReadAddr(iso_handler, arguments.address) << std::endl;
 
         /* command: --inject */
         } else if (arguments.inject) {

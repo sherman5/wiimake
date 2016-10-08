@@ -3,6 +3,8 @@
 #include <exception>
 #include <sstream>
 
+#include "FileOperations.h"
+
 /* inject code into iso */
 void GCI::CreateISO(ISOhandler& iso,
                    MemoryConfig& mem_config,
@@ -84,7 +86,7 @@ void GCI::CreateLibrary(std::string name, std::string dir) {
     /* rename sections in a unique way to differentiate between object files */
     for (unsigned int i = 0; i < objects.size(); ++i) {
 
-        rename_sections(obj_files[i], std::to_string(i));
+        rename_sections(objects[i], std::to_string(i));
 
     }
 
