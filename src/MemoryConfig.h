@@ -53,9 +53,9 @@ public:
     MemoryConfig();
     MemoryConfig(std::string);
 
-    void SetInjectAddress(uint32_t);
-    void SetInjectInstruction(uint32_t);
-    void AddRegion(uint32_t, uint32_t);
+    void SetInjectAddress(std::string);
+    void SetInjectInstruction(std::string);
+    void AddRegion(std::string, std::string);
 
     uint32_t GetInjectAddress();
     uint32_t GetInjectInstruction();

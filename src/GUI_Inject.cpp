@@ -1,9 +1,11 @@
 #include "GUI_Inject.h"
 
 #include <QMessageBox>
+
 #include "MemoryConfig.h"
 #include "ISOhandler.h"
 #include "CodeAssembler.h"
+#include "GCI.h"
 
 /* constructor */
 InjectTab::InjectTab(PathInput* iso, MemConfigTab* mem, QWidget* parent) : QWidget(parent) {
@@ -75,13 +77,17 @@ void InjectTab::AddIncludeDir() {
 
 }
 
+/* inject the code into the iso */
 void InjectTab::CreateISO() {
 
+    /* get code source directory */
     std::string source_dir = m_source_dir->text();
     std::vector<std::string> libs, include_dirs;
 
+    /* get library names */
     for (auto it = m_libraries.begin(); it != m_libraries.end(); ++it) {
 
+        /* only consider fields that contain content */        
         if ((*it)->text().length() > 0) {
 
             libs.push_back((*it)->text());
@@ -90,8 +96,10 @@ void InjectTab::CreateISO() {
 
     }
 
+    /* get include directories */
     for (auto it = m_include_dirs.begin(); it != m_include_dirs.end(); ++it) {
 
+        /* only consider fields that contain content */
         if ((*it)->text().length() > 0) {
 
             include_dirs.push_back((*it)->text());
@@ -100,15 +108,16 @@ void InjectTab::CreateISO() {
 
     }
 
+    /* declare objects that handle injection process */
     ISOhandler iso (m_iso_path->text());
     MemoryConfig mem_config = m_mem_config_tab->getConfig();
     CodeAssembler code (source_dir, mem_config, include_dirs, libs);
-    iso.InjectCode(code.GetRawASM());
-    code.CleanDirectory();
 
-    uint32_t replace_addr = (*mem_config.begin()).first + 0x04;
-    iso.IsoWrite(replace_addr, mem_config.GetInjectInstruction());
+    /* call function to compile and inject code */    
+    GCI::CreateISO(iso, mem_config, code);
 
+    //TODO: handle failure
+    /* pop up message box for success */
     QMessageBox mb (QMessageBox::Information, "GCI", "ISO Succesfully Created!");
     mb.exec();    
 

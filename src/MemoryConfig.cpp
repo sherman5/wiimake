@@ -67,21 +67,21 @@ MemoryConfig::MemoryConfig(std::string path) {
 
 }
 
-void MemoryConfig::SetInjectAddress(uint32_t addr) {
+void MemoryConfig::SetInjectAddress(std::string addr) {
 
-    m_inject_addr = addr;
-
-}
-
-void MemoryConfig::SetInjectInstruction(uint32_t inst) {
-
-    m_inject_instruction = inst;
+    m_inject_addr = stoul(addr, nullptr, 16);
 
 }
 
-void MemoryConfig::AddRegion(uint32_t begin, uint32_t end) {
+void MemoryConfig::SetInjectInstruction(std::string inst) {
 
-    m_regions.push_back(std::make_pair(begin, end));
+    m_inject_instruction = stoul(inst, nullptr, 16);
+
+}
+
+void MemoryConfig::AddRegion(std::string begin, std::string end) {
+
+    m_regions.push_back(std::make_pair(stoul(begin, nullptr, 16), stoul(end, nullptr, 16)));
    
 }
 

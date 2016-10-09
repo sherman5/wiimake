@@ -42,6 +42,18 @@ public:
 
     }
 
+    std::string getBegin() {
+
+        return m_begin->text().toStdString();
+    
+    }
+
+    std::string getEnd() {
+
+        return m_end->text().toStdString();
+
+    }
+
 };
 
 /* tab - manages the memory layout of the iso */

@@ -64,6 +64,17 @@ MemConfigTab::MemConfigTab(QWidget* parent) : QWidget(parent) {
 
 MemoryConfig MemConfigTab::getConfig() {
 
+    MemoryConfig mem_config;
+    mem_config.SetInjectAddress(m_inject_addr->text().toStdString());
+    mem_config.SetInjectInstruction(m_inject_inst->text().toStdString());
+    
+    for (auto it = m_regions.begin(); it != m_regions.end(); ++it) {
+
+        mem_config.AddRegion((*it)->getBegin(), (*it)->getEnd());
+
+    }
+    
+    return mem_config;
 
 }
 

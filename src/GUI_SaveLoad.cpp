@@ -4,6 +4,7 @@
 #include <QVBoxLayout>
 
 #include "ISOhandler.h"
+#include "GCI.h"
 
 SaveLoadTab::SaveLoadTab(PathInput* iso, MemConfigTab* mem, QWidget* parent) : QWidget(parent) {
 
@@ -34,8 +35,7 @@ void SaveLoadTab::SaveFile() {
     dialog.setNameFilter("Data File (*.data)");
     dialog.setViewMode(QFileDialog::Detail);
     std::string file_name = dialog.selectedFiles().at(0).toStdString();
-    ISOhandler iso(m_iso_path->text());
-    iso.CreateRestorePoint(m_mem_config->getConfig(), file_name);
+    GCI::SaveISO(m_iso_path->text(), m_mem_config->getConfig(), file_name);
 
 }
 
@@ -46,7 +46,6 @@ void SaveLoadTab::LoadFile() {
     dialog.setNameFilter("Data File (*.data)");
     dialog.setViewMode(QFileDialog::Detail);
     std::string file_name = dialog.selectedFiles().at(0).toStdString();
-    ISOhandler iso(m_iso_path->text());
-    iso.Restore(file_name);
+    GCI::LoadISO(m_iso_path->text(), file_name);
 
 }

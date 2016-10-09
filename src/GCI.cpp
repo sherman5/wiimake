@@ -6,9 +6,9 @@
 #include "FileOperations.h"
 
 /* inject code into iso */
-void GCI::CreateISO(ISOhandler& iso,
-                   MemoryConfig& mem_config,
-                   CodeAssembler& code_asmblr,
+void GCI::CreateISO(ISOhandler iso,
+                   MemoryConfig mem_config,
+                   CodeAssembler code_asmblr,
                    bool save_temps) {
 
     /* inject the code */
@@ -24,7 +24,7 @@ void GCI::CreateISO(ISOhandler& iso,
 }
 
 /* save iso state, only save addresses in regions contained in mem_config */
-void GCI::SaveISO(ISOhandler& iso, MemoryConfig& mem_config, std::string file_name) {
+void GCI::SaveISO(ISOhandler iso, MemoryConfig mem_config, std::string file_name) {
 
     /* create save file */
     iso.CreateRestorePoint(mem_config, file_name);
@@ -32,7 +32,7 @@ void GCI::SaveISO(ISOhandler& iso, MemoryConfig& mem_config, std::string file_na
 }
 
 /* load iso state from file */
-void GCI::LoadISO(ISOhandler& iso, std::string file_name) {
+void GCI::LoadISO(ISOhandler iso, std::string file_name) {
 
     /* load state */
     iso.Restore(file_name);
@@ -40,7 +40,7 @@ void GCI::LoadISO(ISOhandler& iso, std::string file_name) {
 }
 
 /* read address (32-bit unsigned int) from iso */
-std::string GCI::ReadAddr(ISOhandler& iso, uint32_t addr) {
+std::string GCI::ReadAddr(ISOhandler iso, uint32_t addr) {
 
     /* read from address */
     //TODO: throw error if not 32-bit address
@@ -54,7 +54,7 @@ std::string GCI::ReadAddr(ISOhandler& iso, uint32_t addr) {
 }
 
 /* read address (string version of 32-bit unsigned int) from iso */
-std::string GCI::ReadAddr(ISOhandler& iso, std::string addr) {
+std::string GCI::ReadAddr(ISOhandler iso, std::string addr) {
 
     /* read from address, make conversion to uint32_t */
     //TODO: throw error if not 32-bit address

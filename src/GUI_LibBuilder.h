@@ -24,6 +24,10 @@ public:
 
     LibBuilderTab(QWidget* = Q_NULLPTR);
 
+public slots:
+
+    void CreateLibrary();
+
 };
 
 #endif
