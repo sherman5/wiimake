@@ -71,22 +71,27 @@ std::string GCI::ReadAddr(ISOhandler iso, std::string addr) {
 void GCI::CreateLibrary(std::string name, std::string dir) {
     
     /* create archive command */
-    std::string ar_cmd = "powerpc-eabi-ar -cvr " + name;
+    std::string ar_cmd = "powerpc-eabi-ar -cvr " + name + ".a";
 
-    /* compile source files and get objects */
-    CodeAssembler code (dir, MemoryConfig(), std::vector<std::string>(), std::vector<std::string>());
-    auto objects = code.CompileSourceFiles();
+    /* get a list of all c files */
+    auto sources = get_files(dir, "c");
 
-    for (auto it = objects.begin(); it != objects.end(); ++it) {
+    /* iterate through c files */
+    for (auto it = sources.begin(); it != sources.end(); ++it) {
 
-        ar_cmd += " " + *it;
+        /* run compile command */
+        std::string compile_cmd = "powerpc-eabi-gcc -c " + *it + " -o " + change_ext(*it, "o");
+        run_cmd(compile_cmd);
+
+        /* add the object file names to the ar command */
+        ar_cmd += " " + change_ext(*it, "o"); 
 
     }
 
     /* rename sections in a unique way to differentiate between object files */
-    for (unsigned int i = 0; i < objects.size(); ++i) {
+    for (unsigned int i = 0; i < sources.size(); ++i) {
 
-        rename_sections(objects[i], std::to_string(i));
+        rename_sections(change_ext(sources[i], "o"), std::to_string(i));
 
     }
 
