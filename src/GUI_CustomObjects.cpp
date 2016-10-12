@@ -51,8 +51,13 @@ void PathInput::FindFile() {
     /* open file browser */
     m_file_browser->exec();
 
-    /* store selected file/directory */
-    m_input->insert(m_file_browser->selectedFiles().at(0));
+    /* check if no file was selected */
+    if (!m_file_browser->selectedFiles().isEmpty()) {
+
+        /* store selected file/directory */
+        m_input->insert(m_file_browser->selectedFiles().at(0));
+
+    }
 
 }
 
