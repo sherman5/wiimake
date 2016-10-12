@@ -31,6 +31,6 @@ LibBuilderTab::LibBuilderTab(QWidget* parent) : QWidget(parent) {
 
 void LibBuilderTab::CreateLibrary() {
 
-    GCI::CreateLibrary(m_source_dir->text(), m_name->text().toStdString());
+    GCI::CreateLibrary(m_name->text().toStdString(), m_source_dir->text());
 
 }
