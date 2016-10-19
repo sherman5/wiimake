@@ -40,7 +40,17 @@ private:
     /* address for the branch files */
     uint32_t m_inject_addr;
     uint32_t m_stack_setup_addr;
+
+    /************** INIT FUNCTIONS **************************/
+
+    /* store info from the memory config */
+    void ProcessMemRegions(MemoryConfig);
+
+    /* store libraries to link against */
+    void ProcessLibs(std::vector<std::string>);
     
+    /***** FUNCTIONS TO COMPILE, LINK, and ALLOCATE CODE ****/
+
     /* compile all .c files, store .o files */
     void StoreObjectFiles();
 
@@ -68,6 +78,7 @@ private:
 
     /* return the lines of code at each address */
     ASMcode GetCodeToInject();
+
 
 public:
 
