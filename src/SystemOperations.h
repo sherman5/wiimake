@@ -47,6 +47,6 @@ namespace SysOp {
     /* runs a command and waits for it to finish */
     int runCMD(std::string);
 
-};
+}
 
 #endif
