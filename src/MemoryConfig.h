@@ -65,6 +65,12 @@ public:
     /* add memory region */    
     void AddRegion(std::string, std::string);
 
+    /* get iterator to beginning of memory region list */
+    iterator begin();
+
+    /* get iterator to end of memory region list */
+    iterator end();
+
     /* setters */
     void SetInjectAddress(std::string);
     void SetInjectInstruction(std::string);
@@ -72,12 +78,6 @@ public:
     /* getters */    
     uint32_t GetInjectAddress();
     uint32_t GetInjectInstruction();
-
-    /* get iterator to beginning of memory region list */
-    iterator begin();
-
-    /* get iterator to end of memory region list */
-    iterator end();
 
 };
 

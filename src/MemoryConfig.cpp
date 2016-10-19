@@ -49,41 +49,72 @@ MemoryConfig::MemoryConfig() {}
 /* construct from file */
 MemoryConfig::MemoryConfig(std::string path) {
 
+    /* open up text file */    
     std::ifstream file (path);
 
+    /* read first line (contains inject address and instruction */
     std::string line;
     file >> line;
 
-    m_inject_addr = std::stoul(line.substr(0, line.find('-')), nullptr, 16);
-    m_inject_instruction = std::stoul(line.substr(line.find('-') + 1, line.length()), nullptr, 16);
+    /* set injection address */    
+    SetInjectAddress(line.substr(0, line.find('-')));
 
+    /* set injection instruction */    
+    SetInjectInstruction(line.substr(line.find('-') + 1, line.length()));
+
+    /* loop through remaining lines */
     while (file >> line) {
 
-        std::string first = line.substr(0, line.find('-'));
-        std::string second = line.substr(line.find('-') + 1, line.length());
-        m_regions.push_back(std::make_pair(stoul(first, nullptr, 16), stoul(second, nullptr, 16)));
+        /* get beginning and end of region */
+        std::string begin = line.substr(0, line.find('-'));
+        std::string end = line.substr(line.find('-') + 1, line.length());
+
+        /* add to memory region list */
+        AddRegion(begin, end);
 
     }
 
 }
 
+/* add memory region */
+void MemoryConfig::AddRegion(std::string begin, std::string end) {
+
+    m_regions.push_back(std::make_pair(stoul(begin, nullptr, 16),
+                                       stoul(end, nullptr, 16)));
+   
+}
+
+/* get iterator to beginning of memory region list */
+MemoryConfig::iterator MemoryConfig::begin() {
+
+    return MemoryConfig::iterator(m_regions.begin());
+
+}
+
+/* get iterator to end of memory region list */
+MemoryConfig::iterator MemoryConfig::end() {
+
+    return MemoryConfig::iterator(m_regions.end());
+
+}
+
+/**** setters ****/
+
 void MemoryConfig::SetInjectAddress(std::string addr) {
 
+    /* convert string (hex) to int */
     m_inject_addr = stoul(addr, nullptr, 16);
 
 }
 
 void MemoryConfig::SetInjectInstruction(std::string inst) {
 
+    /* convert string (hex) to int */
     m_inject_instruction = stoul(inst, nullptr, 16);
 
 }
 
-void MemoryConfig::AddRegion(std::string begin, std::string end) {
-
-    m_regions.push_back(std::make_pair(stoul(begin, nullptr, 16), stoul(end, nullptr, 16)));
-   
-}
+/**** getters ****/
 
 uint32_t MemoryConfig::GetInjectAddress() {
 
@@ -94,18 +125,6 @@ uint32_t MemoryConfig::GetInjectAddress() {
 uint32_t MemoryConfig::GetInjectInstruction() {
 
     return m_inject_instruction;
-
-}
-
-MemoryConfig::iterator MemoryConfig::begin() {
-
-    return MemoryConfig::iterator(m_regions.begin());
-
-}
-
-MemoryConfig::iterator MemoryConfig::end() {
-
-    return MemoryConfig::iterator(m_regions.end());
 
 }
 
