@@ -24,10 +24,13 @@ ObjdumpFileParser::iterator ObjdumpFileParser::begin() {
 
 /********************* ITERATOR CLASS **********************/
 
-/* open file stream and increment to reach first line of code */
+/* contructor for iterator */
 ObjdumpFileParser::iterator::iterator(ObjdumpFileParser* parser) {
         
+    /* open file stream */ 
     m_file_stream = new std::ifstream(parser->m_file_path);
+
+    /* increment to reach first line of code */
     ++(*this);
 
 }
@@ -39,7 +42,7 @@ ObjdumpFileParser::iterator ObjdumpFileParser::iterator::operator++() {
     *m_file_stream >> m_current_line;
     if (atEnd()) {return *this;} 
 
-    /* if new section heading, then update current section */
+    /* if new section heading, then update current section name */
     if (m_current_line.find("section") != std::string::npos
         && m_current_line.find(">") == std::string::npos  //not symbol
         && m_current_line.find(".") == std::string::npos) { //not file

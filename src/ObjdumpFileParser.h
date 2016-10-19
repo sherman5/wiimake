@@ -22,7 +22,7 @@ class ObjdumpFileParser {
         /* current 32-bit instruction */
         std::string m_current_line;
 
-        /* current section in binary */
+        /* current section name */
         std::string m_current_section;
 
         /* address of current 32-bit instruction */
@@ -33,7 +33,7 @@ class ObjdumpFileParser {
 
     public:
 
-        /* open file stream and increment to reach first line of code */
+        /* constructor for iterator */
         iterator(ObjdumpFileParser*);
         
         //TODO: should have a destructor
@@ -50,7 +50,8 @@ class ObjdumpFileParser {
         /* return true if at end of file */
         bool atEnd();
         
-        /* return the name of the section in the binary file that contains the current line */
+        /* return the name of the section in the binary file that
+           contains the current line */
         std::string getSection();
 
         /* close the file stream */

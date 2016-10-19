@@ -43,14 +43,17 @@ ISOhandler::ISOhandler(std::string path_to_iso) {
 /* get the DOL offset of a 32-bit RAM address */
 uint32_t ISOhandler::GetDOLoffset(uint32_t ram_addr) {
 
+    /* initialize return variable */
     uint32_t dol_offset = 0;
 
+    /* loop through each DOL section */
     for (int i = 0; i < 9; i++) {
 
         /* find corresponding region of DOL */
         if (ram_addr >= addr_key[i].second) {
 
-            /* calculate RAM offset and add to DOL address to get DOL offset */
+            /* calculate RAM offset and add to DOL address
+               to get DOL offset */
             dol_offset = addr_key[i].first + ram_addr - addr_key[i].second;
 
         }
@@ -91,13 +94,14 @@ uint32_t ISOhandler::IsoRead(uint32_t addr) {
     uint32_t line;
     iso_file.read(reinterpret_cast<char *>(&line), sizeof(line));
 
+    /* return value, accounting for endianess */    
     return htobe32(line);
 
 }
 
-
 /* save the current code in the regions provided */ 
-void ISOhandler::CreateRestorePoint(MemoryConfig mem_config, std::string save_file_path) {
+void ISOhandler::CreateRestorePoint(MemoryConfig mem_config,
+                                    std::string save_file_path) {
 
     /* data vector to write to file */
     std::vector<uint32_t> data;
@@ -107,14 +111,17 @@ void ISOhandler::CreateRestorePoint(MemoryConfig mem_config, std::string save_fi
     data.push_back(addr);
     data.push_back(IsoRead(addr));
 
-    /* loop through remaining memory regions */
+    /* loop through memory regions */
     MemoryConfig::iterator it = mem_config.begin();
     for (; it != mem_config.end(); ++it) {
     
+        /* get the first address in the region */
         addr = (*it).first;
+
+        /* while addr is still within region */
         while (addr <= (*it).second) {
 
-            /* store address and instruction at every line within region */
+            /* store address and instruction */
             data.push_back(addr);
             data.push_back(IsoRead(addr));
 
@@ -125,9 +132,12 @@ void ISOhandler::CreateRestorePoint(MemoryConfig mem_config, std::string save_fi
 
     }
 
-    /* write data to file */
+    /* open write file */
     std::ofstream outfile(save_file_path, std::ios::out | std::ios::binary);
-    outfile.write(reinterpret_cast<char *> (&data[0]), data.size() * sizeof(uint32_t));
+
+    /* write data to file */
+    outfile.write(reinterpret_cast<char *> (&data[0]),
+                    data.size() * sizeof(uint32_t));
 
 }
 
@@ -146,13 +156,20 @@ void ISOhandler::Restore(std::string load_file_path) {
     /* return to begining of file */
     infile.seekg(0, infile.beg);
 
-    /* loop through values and write consecutive values as (addr, value) pairs */
+    /* variables to read info into */
     uint32_t addr, value;
+
+    /* loop through stored values */
     for (unsigned int i = 0; i < length; ++i) {
 
+        /* read in values as (addr, instruction) pairs */
         infile.read(reinterpret_cast<char *>(&addr), sizeof(addr));
         infile.read(reinterpret_cast<char *>(&value), sizeof(addr));
+
+        /* write instructions to iso */
         IsoWrite(addr, value);
+
+        /* need to skip two lines at once */
         ++i;
 
     }

@@ -8,13 +8,15 @@
 #include <string>
 #include <vector>
 
-#define DOL_START 0x1E800
+//TODO: add config options for any game
+
+#define DOL_START 0x1E800 //specific to Melee v1.02
 
 class ISOhandler {
 
 private:
 
-    /* map of DOL - RAM */
+    /* map of DOL - RAM (specific to Melee v1.02) */
     std::pair<uint32_t, uint32_t> addr_key[10] = {
 
         {0x000100, 0x80003100},
@@ -50,7 +52,7 @@ public:
     /* read 32-bit value from RAM address */
     uint32_t IsoRead(uint32_t);
 
-    /* save the current code in the regions provided */
+    /* save the current code from the regions provided */
     void CreateRestorePoint(MemoryConfig, std::string);
 
     /* load code from save file */
