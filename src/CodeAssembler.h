@@ -1,36 +1,16 @@
 #ifndef CODE_ASSEMBLER_H
 #define CODE_ASSEMBLER_H
 
-#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(GCI_WINDOWS)
-
-    #define GCI_WINDOWS
-    #include <windows.h>
-    #include <process.h>
-    #include <stdio.h>
-        
-#endif
-
 #include <string>
 #include <vector>
 #include <utility>
 
-#ifdef GCI_WINDOWS
-
-    const std::string rm_cmd = "del";
-
-#else
-
-    const std::string rm_cmd = "rm";
-
-#endif
-
 #include "MemoryConfig.h"
 
 /*
-string stores path to file (section).
-uint32_t stores length of file 
-until FindCodeAllocation() is called. It then holds
-the address where to code is injected.
+string stores path to file (section)
+uint32_t stores length of file until FindCodeAllocation() is
+called. It then holds the address where to code is injected.
 */ 
 typedef std::vector< std::pair<std::string, uint32_t> > SectionList;
 
@@ -96,9 +76,6 @@ public:
                   MemoryConfig,
                   std::vector<std::string>,
                   std::vector<std::string>);
-
-    /* compile all .c files, return .o files */
-    std::vector<std::string> CompileSourceFiles();
 
     /* provides the logic for the main function of this class:
        call the steps to compile, allocate, and link the code

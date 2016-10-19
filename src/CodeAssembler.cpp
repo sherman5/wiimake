@@ -10,7 +10,7 @@
 #include "CodeAssembler.h"
 #include "MemoryConfig.h"
 #include "ObjdumpFileParser.h"
-#include "FileOperations.h"
+#include "SystemOperations.h"
 
 /****************** HELPER FUNCTIONS ********************/
 
@@ -30,51 +30,84 @@ bool code_comp(std::pair<std::string, uint32_t> a, std::pair<std::string, uint32
 
 /********************************************************/
 
+/********* CONSTRUCTOR AND INIT FUNCTIONS ***************/
+
 /* constructor for CodeAssembler class */
 CodeAssembler::CodeAssembler(std::string source_dir,
                              MemoryConfig mem_config,
                              std::vector<std::string> include_dirs,
                              std::vector<std::string> libs) {
 
-    /* get source files */
-    if (source_dir.back() == '/' || source_dir.back() == '\\') {source_dir.pop_back();}
+
+    /* remove trailing backslash if present */
+    if (source_dir.back() == '/' || source_dir.back() == '\\') {
+    
+        source_dir.pop_back();
+    
+    }
+
+    /* store source directory */
     m_source_dir = source_dir;
 
     /* store include directories */
-    m_include_dirs = concat_vector(include_dirs, "-I");
+    m_include_dirs = SysOp::concatVector(include_dirs, "-I");
 
-    /* get available memory regions */
-    auto it = mem_config.begin();
-    for (; it != mem_config.end(); ++it) {
+    /* process and store info from mem_config and libs */
+    ProcessMemRegions(mem_config);
+    ProcessLibs(libs);
 
+}
+
+/* store info from the memory config */
+void CodeAssembler::ProcessMemRegions(MemoryConfig config) {
+
+    /* iterate through available memory regions */
+    auto it = config.begin();
+    for (; it != config.end(); ++it) {
+
+        /* store each region */
         m_regions.push_back(std::make_pair((*it).first, (*it).second));
 
     }
 
     /* get injection addresses for main and the stack setup */
-    m_inject_addr = mem_config.GetInjectAddress();
+    m_inject_addr = config.GetInjectAddress();
     m_stack_setup_addr = m_regions[0].first;       
 
     /* leave enough room for stack setup */
     m_regions[0].first += 0xC; 
 
-    /* iterate through provided libraries */
+}
+
+/* store libraries to link against */
+void CodeAssembler::ProcessLibs(std::vector<std::string> libs) {
+
+    /* store libs as string to link against */
+    m_linked_files = SysOp::concatVector(libs);
+    
+    /* iterate through libs */
     for (auto lib_it = libs.begin(); lib_it != libs.end(); ++lib_it) {
 
-        /* add library to list of files to be linked */
-        m_linked_files += *lib_it + " ";
+        /* get a vector of all named sections (no '.') in lib file */
+        auto sections = SysOp::getNamedSections(*lib_it);
 
-        /* store each named section in library file */
-        auto sections = get_named_sections(*lib_it);
-        for (auto sect_it = sections.begin(); sect_it != sections.end(); ++sect_it) {
+        /* iterate through named sections */
+        auto section_it = sections.begin();
+        for (; section_it != sections.end(); ++section_it) {
 
-            m_sections.push_back(std::make_pair(*lib_it + " (" + *sect_it + ")", 0));
+            /* store section */
+            m_sections.push_back(
+                std::make_pair(*lib_it + " (" + *sect_it + ")", 0));
 
         }
 
     }
 
 }
+
+/********************************************************/
+
+/**************** PUBLIC FUNCTIONS **********************/
 
 /* provides the logic for the main function of this class:
    call the steps to compile, allocate, and link the code
@@ -93,59 +126,66 @@ ASMcode CodeAssembler::GetRawASM() {
 
 }
 
+
+/* delete all temp files created in the process */
+void CodeAssembler::CleanDirectory() {
+
+    /* put all file names in vector */
+    std::vector<std::string> files = {
+        rm_cmd + " linker_script.txt",
+        rm_cmd + " RawCode.txt",
+        rm_cmd + " exec.txt",
+        rm_cmd + " inject_point.s",
+        rm_cmd + " inject_point.o",
+        rm_cmd + " stack_setup.s",
+        rm_cmd + " stack_setup.o"
+    };
+
+    /* iterate through the vector and run each cmd */
+    std::vector<std::string>::iterator it = files.begin();
+    for (; it != files.end(); ++it) {
+
+        SysOp::runCMD(*it);
+
+    }
+    
+}
+
+/********************************************************/
+
+/***** FUNCTIONS TO COMPILE, LINK, and ALLOCATE CODE ****/
+
 /* compile all .c files, store .o files */
 void CodeAssembler::StoreObjectFiles() {
 
-    auto objects = CompileSourceFiles();
-    m_linked_files = concat_vector(objects);
+    /* compile source files */
+    SysOp::compileFiles(m_source_dir, m_include_dirs);
+
+    /* get object files */
+    auto objects = SysOp::getFiles(m_source_dir, "o");
+
+    /* add object files to list of files to link */
+    m_linked_files += " " + SysOp::concatVector(objects);
     
+    /* iterate through each object file */    
     for (auto it = objects.begin(); it != objects.end(); ++it) {
 
-        /* rename relevent sections in object file */
-        rename_sections(*it);
+        /* rename relevent sections */
+        SysOp::renameSections(*it);
 
         /* get sections from object file and store them */
-        auto sections = get_named_sections(*it);
-        for (auto sect_it = sections.begin(); sect_it != sections.end(); ++sect_it) {
+        auto sections = SysOp::getNamedSections(*it);
 
-            m_sections.push_back(std::make_pair(*it + " (" + *sect_it + ")", 0));
+        /* iterate through named section in object file */
+        auto section_it = sections.begin();
+        for (; section_it != sections.end(); ++section_it) {
+
+            m_sections.push_back(
+                std::make_pair(*it + " (" + *sect_it + ")", 0));
 
         }
 
-
     }
-
-
-}
-
-/* compile c files and return list of object file names */
-std::vector<std::string> CodeAssembler::CompileSourceFiles() {
-    
-    /* get a list of all c files */
-    auto sources = get_files(m_source_dir, "c");
-    std::vector<std::string> objects;
-
-    /* iterate through c files */
-    for (auto it = sources.begin(); it != sources.end(); ++it) {
-
-        /* run compile command */
-        std::string compile_cmd = "powerpc-eabi-gcc -c " + *it + " -o " + change_ext(*it, "o");
-        FILE* compiler = popen(compile_cmd.c_str(), "r");
-
-        /* output compiler output */
-        char c;
-        while ((c = std::getc(compiler)) != EOF) {
-            std::cout << c;
-        }
-        std::cout << std::endl;
-
-        /* close compile command, add object file */
-        pclose(compiler);
-        objects.push_back(change_ext(*it, "o"));
-
-    }
-
-    return objects;
 
 }
 
@@ -158,20 +198,29 @@ void CodeAssembler::CreateDummyLinkerScript() {
 
     /* write first line of linker script */
     script << "SECTIONS {" << std::endl;
+
+    /* section label */
+    unsigned int label = 1;
     
     /* iterate through all sections (reverse order to put libs last) */
-    unsigned int label = 1;
     for (auto it = m_sections.rbegin(); it != m_sections.rend(); ++it) {
 
-        /* write section header for each section */
+        /* write section header */
         script << "gci_" << label << " :\n{\n\t" << (*it).first << "\n}\n";
-        script << ". = ADDR(gci_" << label << ") + SIZEOF(gci_" << label << ");" << std::endl;
+
+        /* increment current address */
+        script << ". = ADDR(gci_" << label << ") + SIZEOF(gci_"
+               << label << ");" << std::endl;
+
+        /* increment label */
         label++;
 
     }
 
     /* write final line of linker script */
     script << "}" << std::endl;
+
+    /* close linker script */
     script.close();
 
 }
@@ -179,20 +228,25 @@ void CodeAssembler::CreateDummyLinkerScript() {
 /* run the linker with the dummy script and store the output */
 void CodeAssembler::StoreRawCodeAsText() {
 
-    /* link files with dummy script */
-    std::string linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + m_linked_files;
-    std::cout << linker_cmd << std::endl;
-    run_cmd(linker_cmd);
+    /* create linker command */
+    std::string cmd = "powerpc-eabi-ld -e _main --script linker_script.txt "
+                        + m_linked_files;
+
+    /* display linker command */
+    std::cout << cmd << std::endl;
+
+    /* run linker */
+    SysOp::runCMD(cmd);
     
     /* store objdump in text file */    
-    std::string cmd = "powerpc-eabi-objdump -D a.out > RawCode.txt";
-    run_cmd(cmd);
+    SysOp::runCMD("powerpc-eabi-objdump -D a.out > RawCode.txt");
     
     /* remove a.out */
-    run_cmd(rm_cmd + " a.out");
+    SysOp::runCMD(rm_cmd + " a.out");
     
 }
 
+//TODO: make this function cleaner/break up into more functions
 /* get the length of each section */
 void CodeAssembler::GetSectionLengths() {
 
@@ -238,7 +292,7 @@ void CodeAssembler::GetSectionLengths() {
 /* find an allocation of sections given the available memory */
 void CodeAssembler::FindCodeAllocation() {
     
-    /* need working copy of sections (can't sort m_sections) */
+    /* need working copy of sections (can't sort m_sections itself) */
     SectionList temp = m_sections;
 
     /* sort mem regions and code by size */
@@ -251,13 +305,16 @@ void CodeAssembler::FindCodeAllocation() {
         /* ignore sections with no size */
         if (temp[i].second == 0) {break;}
 
-        /* find correct section, set second field equal to inject address */
-        auto section = temp[i];
-        auto pos = std::find(m_sections.begin(), m_sections.end(), section);
+        /* find current section in m_sections */
+        auto pos = std::find(m_sections.begin(), m_sections.end(), temp[i]);
+
+        /* set second field equal to inject address */
         (*pos).second = m_regions[0].first;
 
-        /* update region size, resort regions */
+        /* update region size */
         m_regions[0].first += temp[i].second;
+
+        /* resort regions */     
         std::sort (m_regions.begin(), m_regions.end(), region_comp);
 
     }
@@ -278,8 +335,8 @@ void CodeAssembler::CreateBranchFiles() {
     inject_point.close();
 
     /* assemble both files */
-    run_cmd("powerpc-eabi-as stack_setup.s -o stack_setup.o");
-    run_cmd("powerpc-eabi-as inject_point.s -o inject_point.o");
+    SysOp::runCMD("powerpc-eabi-as stack_setup.s -o stack_setup.o");
+    SysOp::runCMD("powerpc-eabi-as inject_point.s -o inject_point.o");
 
 }
 
@@ -292,25 +349,34 @@ void CodeAssembler::CreateRealLinkerScript() {
     /* write first line of linker script */
     script << "SECTIONS {" << std::endl;
     
-    /* iterate through all sections (reverse order to put libs last) */
+    /* section label */
     unsigned int label = 1;
+
+    /* iterate through all sections (reverse order to put libs last) */
     for (auto it = m_sections.rbegin(); it != m_sections.rend(); ++it) {
 
         /* write section header for each section */
-        script << "gci_" << label << " 0x" << std::hex << (*it).second << " :\n{\n" << (*it).first << "\n}\n";
+        script << "gci_" << label << " 0x" << std::hex << (*it).second
+            << " :\n{\n" << (*it).first << "\n}\n";
+
+        /* increment label */
         label++;
 
     }
 
-    /* write sections for branch files */
-    script << "gci_" << label++ << " 0x" << std::hex << m_inject_addr << " :" << std::endl;
+    /* write section for inject_point */
+    script << "gci_" << label++ << " 0x" << std::hex << m_inject_addr
+           << " :" << std::endl;
     script << "{\ninject_point.o\n}" << std::endl;
     
+    /* write section for stack_setup */
     script << "gci_" << label << " 0x" << std::hex << m_stack_setup_addr << " :" << std::endl;
     script << "{\nstack_setup.o\n}" << std::endl;
 
     /* write final line of linker script */
     script << "}" << std::endl;
+    
+    /* close linker script */
     script.close();
 
 }
@@ -322,14 +388,14 @@ void CodeAssembler::Link() {
     m_linked_files += " stack_setup.o inject_point.o";
 
     /* run linker */
-    std::string linker_cmd = "powerpc-eabi-ld -e _main --script linker_script.txt " + m_linked_files;
-    run_cmd(linker_cmd);
+    SysOp::runCMD("powerpc-eabi-ld -e _main --script linker_script.txt "
+                   + m_linked_files;);
     
     /* store resulting executable as text file */
     run_cmd("powerpc-eabi-objdump -D a.out > exec.txt");
 
     /* remove a.out */
-    run_cmd(rm_cmd + " a.out");
+    SysOp::runCMD(rm_cmd + " a.out");
 
 }
 
@@ -347,6 +413,8 @@ ASMcode CodeAssembler::GetCodeToInject() {
 
         /* stop when section name contains '.' */
         if (it.getSection().find(".") != std::string::npos) {break;}
+
+        /* add line of code to vector */
         ret_val.push_back(std::make_pair((*it).first, (*it).second));
 
     }
@@ -354,32 +422,10 @@ ASMcode CodeAssembler::GetCodeToInject() {
     /* close file parser */
     it.close();
 
+    /* return vector of code */    
     return ret_val;
 
 }
 
-/* delete all temp files created in the process */
-void CodeAssembler::CleanDirectory() {
 
-    /* put all file names in vector */
-    std::vector<std::string> files = {
-        rm_cmd + " linker_script.txt",
-        rm_cmd + " RawCode.txt",
-        rm_cmd + " exec.txt",
-        rm_cmd + " inject_point.s",
-        rm_cmd + " inject_point.o",
-        rm_cmd + " stack_setup.s",
-        rm_cmd + " stack_setup.o"
-    };
-
-    /* iterate through the vector and delete each one */
-    std::vector<std::string>::iterator it = files.begin();
-    for (; it != files.end(); ++it) {
-
-        run_cmd(*it);
-
-    }
-    
-}
-
-
+/********************************************************/
