@@ -1,3 +1,4 @@
+# Core files that contain all functionality
 SET (CORE_SRCS GCI.cpp
                CodeAssembler.cpp
                FileOperations.cpp
@@ -5,6 +6,7 @@ SET (CORE_SRCS GCI.cpp
                ObjdumpFileParser.cpp
                MemoryConfig.cpp)
 
+# files that create and manage the GUI
 SET (GUI_SRCS GUI_MainWindow.cpp
               GUI_MemConfig.cpp
               GUI_SaveLoad.cpp
@@ -13,50 +15,52 @@ SET (GUI_SRCS GUI_MainWindow.cpp
               GUI_Inject.cpp
               GUI_CustomObjects.cpp)
 
-if (USE_BOOST) 
+# GUI
+if (BUILD_GUI)
     
-    include_directories (SYSTEM ${Boost_INCLUDE_DIR})
-    add_executable (GCI-CLI GCI-CLI_boost.cpp ${CORE_SRCS})
-    target_link_libraries (GCI ${Boost_LIBRARIES} wsock32 ws2_32)
-
-else ()
-
-    add_executable (GCI-CLI GCI-CLI_argp.cpp ${CORE_SRCS})
-
-endif ()
-
-if (USE_QT)
-
+    # Same source files for all platforms
     add_executable (GCI-GUI GCI-GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
     target_link_libraries (GCI-GUI Qt5::Widgets)
 
-endif ()
+    # Windows
+    if (WIN32) 
 
-if (WIN32)
-
-    target_link_libraries (GCI-CLI wsock32 ws2_32)
-    target_link_libraries (GCI-GUI wsock32 ws2_32)
-
-endif()
-
-if (WIN32)
-
-    if (USE_QT)
-
-        install (TARGETS GCI-GUI RUNTIME DESTINATION "C:/Program Files/GCI")
-
-    endif()        
-
-    install (TARGETS GCI-CLI RUNTIME DESTINATION "C:/Program Files/GCI" )
-
-else ()
-
-    if (USE_QT)
-
-        install (TARGETS GCI-GUI RUNTIME DESTINATION "/usr/local/bin/")
+        # need libraries for searching the file system
+        target_link_libraries (GCI-GUI wsock32 ws2_32)
 
     endif()
 
-    install (TARGETS GCI-CLI RUNTIME DESTINATION "/usr/local/bin/" )
+    # install target for GUI
+    install (TARGETS GCI-GUI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+    
+endif()    
+
+# CLI
+if (BUILD_CLI)
+
+    # Windows
+    if (WIN32)
+
+        # include boost headers
+        include_directories (SYSTEM ${Boost_INCLUDE_DIR})
+
+        # windows CLI source files
+        add_executable (GCI-CLI GCI-CLI_boost.cpp ${CORE_SRCS})
+
+        # link against boost
+        target_link_libraries (GCI-CLI ${Boost_LIBRARIES} wsock32 ws2_32)
+
+    # Linux
+    else()
+
+        # linux CLI source files
+        add_executable (GCI-CLI GCI-CLI_argp.cpp ${CORE_SRCS})
+
+    endif()
+
+    # install target for CLI
+    install (TARGETS GCI-CLI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 endif()
+
+
