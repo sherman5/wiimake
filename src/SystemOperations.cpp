@@ -105,6 +105,9 @@ void SysOp::compileFiles(std::string dir, std::string include_paths) {
     /* get a list of all c files */
     auto sources = SysOp::getFiles(dir, "c");
 
+    /* delete any pre-existing object file in directory */
+    SysOp::runCMD(rm_cmd + " *.o");
+
     /* iterate through c files */
     for (auto it = sources.begin(); it != sources.end(); ++it) {
 
@@ -114,9 +117,9 @@ void SysOp::compileFiles(std::string dir, std::string include_paths) {
         
         /* display and run command */
         std::cout << compile_cmd << std::endl;
-        run_cmd(compile_cmd);
+        SysOp::(compile_cmd);
 
-        //TODO: display output of gcc
+        //TODO: display output of compiler
 
      }
 

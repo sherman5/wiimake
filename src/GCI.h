@@ -10,7 +10,8 @@ namespace GCI {
     /* inject code into iso */
     void CreateISO(ISOhandler, MemoryConfig, CodeAssembler, bool=false);
 
-    /* save iso state, only save addresses in regions contained in mem_config */    
+    /* save iso state, only save addresses in regions contained
+       in mem_config */    
     void SaveISO(ISOhandler, MemoryConfig, std::string);
 
     /* load iso state from file */

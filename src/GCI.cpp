@@ -3,7 +3,7 @@
 #include <exception>
 #include <sstream>
 
-#include "FileOperations.h"
+#include "SystemOperations.h"
 
 /* inject code into iso */
 void GCI::CreateISO(ISOhandler iso,
@@ -17,14 +17,19 @@ void GCI::CreateISO(ISOhandler iso,
     /* remove temp files */
     if (!save_temps) { code_asmblr.CleanDirectory();}
 
-    /* overwrite injection command */
+    /* overwritten instruction get replaced at 0x04 offset
+       from the first memory region. The beginning of the first
+       memory region is where the return call to the game is done */
     uint32_t replace_addr = (*mem_config.begin()).first + 0x04;
+
+    /* overwrite injection command */
     iso.IsoWrite(replace_addr, mem_config.GetInjectInstruction());
 
 }
 
 /* save iso state, only save addresses in regions contained in mem_config */
-void GCI::SaveISO(ISOhandler iso, MemoryConfig mem_config, std::string file_name) {
+void GCI::SaveISO(ISOhandler iso, MemoryConfig mem_config,
+                  std::string file_name) {
 
     /* create save file */
     iso.CreateRestorePoint(mem_config, file_name);
@@ -73,30 +78,25 @@ void GCI::CreateLibrary(std::string name, std::string dir) {
     /* create archive command */
     std::string ar_cmd = "powerpc-eabi-ar -cvr " + name + ".a";
 
-    /* get a list of all c files */
-    auto sources = get_files(dir, "c");
+    /* compile all source files */
+    SysOp::compileFiles(dir);
 
-    /* iterate through c files */
-    for (auto it = sources.begin(); it != sources.end(); ++it) {
+    /* get object file names */
+    auto objects = SysOp::getFiles(dir, "o");
 
-        /* run compile command */
-        std::string compile_cmd = "powerpc-eabi-gcc -c " + *it + " -o " + change_ext(*it, "o");
-        run_cmd(compile_cmd);
+    /* add object files to ar command */
+    ar_cmd += " " + SysOp::concatVector(object);
 
-        /* add the object file names to the ar command */
-        ar_cmd += " " + change_ext(*it, "o"); 
+    /* rename sections in a unique way to differentiate
+       between object files */
+    for (unsigned int i = 0; i < objects.size(); ++i) {
 
-    }
-
-    /* rename sections in a unique way to differentiate between object files */
-    for (unsigned int i = 0; i < sources.size(); ++i) {
-
-        rename_sections(change_ext(sources[i], "o"), std::to_string(i));
+        rename_sections(objects[i], std::to_string(i));
 
     }
 
     /* run archive command to create static library */
-    run_cmd(ar_cmd);
+    SysOp::runCMD(ar_cmd);
 
 }
 

@@ -29,7 +29,7 @@ namespace SysOp {
     void compileFiles(std::string, std::string);
 
     /* return list of all files in a directory with given extension */
-    std::vector<std::string> getFiles(std::string, std::string);
+    std::vector<std::string> getFiles(std::string, std::string="");
 
     /* create a text file from a file stream */
     void createTextFile(FILE*, std::string);
