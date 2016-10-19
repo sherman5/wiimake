@@ -85,13 +85,13 @@ void GCI::CreateLibrary(std::string name, std::string dir) {
     auto objects = SysOp::getFiles(dir, "o");
 
     /* add object files to ar command */
-    ar_cmd += " " + SysOp::concatVector(object);
+    ar_cmd += " " + SysOp::concatVector(objects);
 
     /* rename sections in a unique way to differentiate
        between object files */
     for (unsigned int i = 0; i < objects.size(); ++i) {
 
-        rename_sections(objects[i], std::to_string(i));
+        SysOp::renameSections(objects[i], std::to_string(i));
 
     }
 
