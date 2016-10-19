@@ -1,7 +1,7 @@
 # Core files that contain all functionality
 SET (CORE_SRCS GCI.cpp
                CodeAssembler.cpp
-               FileOperations.cpp
+               SystemOperations.cpp
                ISOhandler.cpp
                ObjdumpFileParser.cpp
                MemoryConfig.cpp)

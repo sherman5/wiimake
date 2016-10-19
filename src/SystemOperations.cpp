@@ -1,6 +1,7 @@
-#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(GCI_WINDOWS)
+#include "SystemOperations.h"
 
-    #define GCI_WINDOWS
+#ifdef GCI_WINDOWS
+
     #include <windows.h>
     #include <process.h>
     #include <stdio.h>
@@ -12,23 +13,15 @@
 #include <cstring>
 #include <fstream>
 
-#ifdef GCI_WINDOWS
-
-    const std::string rm_cmd = "del";
-
-#else
-
-    const std::string rm_cmd = "rm";
-
-#endif
-
 #include "ObjdumpFileParser.h"
-#include "FileOperations.h"
+
+/**** windows implementation of functions ****/
 
 #ifdef GCI_WINDOWS
 
-/* return list of all files in a directory with given extension - windows version */
-std::vector<std::string> get_files(std::string dir, std::string ext) {
+/* return list of all files in a directory with given extension */
+std::vector<std::string> SysOp::getFiles(std::string dir,
+                                         std::string ext) {
 
     /* list of files to return */
     std::vector<std::string> files;
@@ -37,17 +30,18 @@ std::vector<std::string> get_files(std::string dir, std::string ext) {
     WIN32_FIND_DATA fdFile;
     HANDLE hFind = NULL;
 
-    /* only searcg for c source files */
-    std::string search = dir + "\\*.c"; 
+    /* only search for files with correct extension */
+    std::string search = dir + "\\*." + ext; 
 
     /* check if path exists */
     if ((hFind = FindFirstFile(search.c_str(), &fdFile)) == INVALID_HANDLE_VALUE) {
         
+        /* throw error if path does not exist */
         throw std::invalid_argument(dir + " directory not found");
 
     }
 
-    /* if dir exists add all c files to return vector */
+    /* if dir exists add all matching files to return vector */
     do {
                      
         // add file name with dir appended to the front */
@@ -59,21 +53,25 @@ std::vector<std::string> get_files(std::string dir, std::string ext) {
     /* cleanup */
     FindClose(hFind);
     
+    /* return list of file names */
     return files;
         
 }
 
+/**** linux implementation of functions ****/
+
 #else
 
-/* return list of all files in a directory with given extension - linux version */
-std::vector<std::string> get_files(std::string dir, std::string ext) {
+/* return list of all files in a directory with given extension */
+std::vector<std::string> SysOp::getFiles(std::string dir,
+                                         std::string ext) {
 
     /* list of files to return */
     std::vector<std::string> files;
 
     /* list files with ls */
     std::string cmd = "ls " + dir + "/*." + ext + " > files.txt";
-    run_cmd(cmd);
+    SysOp::runCMD(cmd);
 
     /* parse output of ls */
     std::ifstream file_list ("files.txt");
@@ -82,29 +80,54 @@ std::vector<std::string> get_files(std::string dir, std::string ext) {
     /* store each file name */
     while (file_list >> file) {
 
+        /* add file name to list */
         files.push_back(file);
 
     }
 
+    /* remove temp file */
+    SysOp::runCMD("rm files.txt");
+    
+    /* return file list */
     return files;
         
 }
 
 #endif
 
-/* change extenstion of file */
-std::string change_ext(std::string file, std::string ext) {
+/**** cross platform functions ****/
 
-    return file.substr(0, file.find('.') + 1) + ext;
+/* compiles all .c files in dir, include_paths is a
+formatted string with all include paths, e.g.
+"-I/path/to/include1 -I/path/to/include2" */
+void SysOp::compileFiles(std::string dir, std::string include_paths) {
+    
+    /* get a list of all c files */
+    auto sources = SysOp::getFiles(dir, "c");
+
+    /* iterate through c files */
+    for (auto it = sources.begin(); it != sources.end(); ++it) {
+
+        /* create compile command */
+        std::string compile_cmd = "powerpc-eabi-gcc -c " + include_paths
+            + *it + " -o " + CHANGE_EXT(*it, "o");
+        
+        /* display and run command */
+        std::cout << compile_cmd << std::endl;
+        run_cmd(compile_cmd);
+
+        //TODO: display output of gcc
+
+     }
 
 }
 
 /* return a list of named (no '.') sections in the object file */
-std::vector<std::string> get_named_sections(std::string lib) {
+std::vector<std::string> SysOp::getNamedSections(std::string lib) {
 
     /* get object dump of object file */
     std::string cmd = "powerpc-eabi-objdump -D " + lib + " > objdump.txt";
-    run_cmd(cmd);
+    SysOp::runCMD(cmd);
 
     /* parse the text file */
     ObjdumpFileParser parser ("objdump.txt");
@@ -133,15 +156,17 @@ std::vector<std::string> get_named_sections(std::string lib) {
     it.close();
 
     /* remove the text file */
-    run_cmd(rm_cmd + " objdump.txt");
+    runCMD(rm_cmd + " objdump.txt");
 
+    /* return list of section names */
     return sections;
 
 }
 
 /* create a string by concatenating each element of the vector,
    appending prefix before each string */
-std::string concat_vector(std::vector<std::string> vec, std::string prefix) {
+std::string SysOp::concatVector(std::vector<std::string> vec,
+                                std::string prefix) {
 
     /* iterate through each string and add it to the return string */
     std::string ret_string;
@@ -157,7 +182,10 @@ std::string concat_vector(std::vector<std::string> vec, std::string prefix) {
 }
 
 /* rename sections in object file since sections with '.' are ignored, ident makes names unique */
-void rename_sections(std::string file, std::string id) {
+void SysOp::renameSections(std::string file, std::string id) {
+
+    //TODO: make this general, not specific to this list of
+    //section names
 
     /* create objcopy command */
     std::string cmd = "powerpc-eabi-objcopy";
@@ -169,12 +197,12 @@ void rename_sections(std::string file, std::string id) {
     cmd += " " + file;
 
     /* execute command */
-    run_cmd(cmd.c_str());
+    runCMD(cmd);
 
 }
 
 /* runs cmd and waits for it to finish */
-int run_cmd(std::string cmd) {
+int SysOp::runCMD(std::string cmd) {
     
     FILE* cmd_ex = popen(cmd.c_str(), "r");
     pclose(cmd_ex);
