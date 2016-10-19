@@ -21,7 +21,7 @@
 #endif
 
 /* change extension of file name */
-#define CHANGE_EXT(file, ext) (file.substr(0, file.find('.') + 1) + ext)
+#define CHANGE_EXT(file, ext) (std::string(file).substr(0, std::string(file).find('.') + 1) + ext)
 
 namespace SysOp {
 

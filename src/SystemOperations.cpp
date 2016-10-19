@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include <cstring>
+#include <iostream>
 #include <fstream>
 
 #include "ObjdumpFileParser.h"
@@ -117,7 +118,7 @@ void SysOp::compileFiles(std::string dir, std::string include_paths) {
         
         /* display and run command */
         std::cout << compile_cmd << std::endl;
-        SysOp::(compile_cmd);
+        SysOp::runCMD(compile_cmd);
 
         //TODO: display output of compiler
 

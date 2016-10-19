@@ -97,7 +97,7 @@ void CodeAssembler::ProcessLibs(std::vector<std::string> libs) {
 
             /* store section */
             m_sections.push_back(
-                std::make_pair(*lib_it + " (" + *sect_it + ")", 0));
+                std::make_pair(*lib_it + " (" + *section_it + ")", 0));
 
         }
 
@@ -181,7 +181,7 @@ void CodeAssembler::StoreObjectFiles() {
         for (; section_it != sections.end(); ++section_it) {
 
             m_sections.push_back(
-                std::make_pair(*it + " (" + *sect_it + ")", 0));
+                std::make_pair(*it + " (" + *section_it + ")", 0));
 
         }
 
@@ -389,10 +389,10 @@ void CodeAssembler::Link() {
 
     /* run linker */
     SysOp::runCMD("powerpc-eabi-ld -e _main --script linker_script.txt "
-                   + m_linked_files;);
+                   + m_linked_files);
     
     /* store resulting executable as text file */
-    run_cmd("powerpc-eabi-objdump -D a.out > exec.txt");
+    SysOp::runCMD("powerpc-eabi-objdump -D a.out > exec.txt");
 
     /* remove a.out */
     SysOp::runCMD(rm_cmd + " a.out");
