@@ -75,6 +75,9 @@ std::string GCI::ReadAddr(ISOhandler iso, std::string addr) {
 /* create static library from files in given directory */
 void GCI::CreateLibrary(std::string name, std::string dir) {
     
+    /* remove trailing backslash */
+    if (dir.back() == '/' || dir.back() == '\') { dir.pop_back();}
+
     /* create archive command */
     std::string ar_cmd = "powerpc-eabi-ar -cvr " + name + ".a";
 
