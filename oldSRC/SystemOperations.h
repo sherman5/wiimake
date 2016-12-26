@@ -10,16 +10,6 @@
 #include <string>
 #include <vector>
 
-#ifdef GCI_WINDOWS
-
-    const std::string rm_cmd = "del";
-
-#else
-
-    const std::string rm_cmd = "rm";
-
-#endif
-
 /* change extension of file name */
 #define CHANGE_EXT(file, ext) (std::string(file).substr(0, std::string(file).find('.') + 1) + ext)
 

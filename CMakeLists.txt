@@ -30,23 +30,6 @@ endif()
 # build CLI by default, GUI only if QT is available
 set (BUILD_CLI TRUE)
 
-# windows specific checks
-if (WIN32)
-
-    # set up boost if on windows
-    find_package (Boost 1.46.0 COMPONENTS program_options)
-
-    # if boost is not installed
-    if (NOT Boost_FOUND)
-
-        # CLI on windows depends on boost/program _options
-        message(WARNING "Boost not found: CLI will not be built")    
-        set (BUILD_CLI FALSE)
-
-    endif()
-            
-endif()
-
 # look for qt (don't build GUI if qt not available)
 find_package (Qt5Widgets QUIET)
 
@@ -65,14 +48,6 @@ else()
     # don't build GUI
     set (BUILD_GUI FALSE)
     message(WARNING "QT not found: GUI will not be built")
-
-endif()
-
-# check if at least one program can be built
-if (NOT BUILD_CLI AND NOT BUILD_GUI) 
-
-    # exit with failure
-    message(FATAL_ERROR "neither CLI nor GUI can be built")
 
 endif()
 

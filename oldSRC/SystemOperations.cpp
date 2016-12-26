@@ -185,7 +185,7 @@ std::string SysOp::concatVector(std::vector<std::string> vec,
 
 }
 
-/* rename sections in object file since sections with '.' are ignored, ident makes names unique */
+/* rename sections in object file since sections with '.' are ignored, id makes names unique */
 void SysOp::renameSections(std::string file, std::string id) {
 
     //TODO: make this general, not specific to this list of

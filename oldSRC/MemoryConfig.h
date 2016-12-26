@@ -7,7 +7,7 @@
 #include <string>
 
 typedef std::pair<uint32_t, uint32_t> MemRegion;
-typedef std::vector< std::pair<uint32_t, uint32_t> > RegionList;
+typedef std::vector<MemRegion> RegionList;
 
 class MemoryConfig {
 
@@ -37,7 +37,7 @@ public:
         bool operator!=(const iterator&);
 
         /* return MemRegion (begin, end) */
-        MemRegion operator*();
+        MemRegion operator*()
 
     };
 
@@ -46,13 +46,13 @@ public:
 private:
 
     /* address to inject code at */
-    uint32_t m_inject_addr;
+    uint32_t mInjectAddress;
 
     /* instruction being overridden at this address */
-    uint32_t m_inject_instruction;
+    uint32_t mOriginalInstruction;
 
     /* list of all available memory regions */
-    RegionList m_regions;
+    RegionList mRegions;
 
 public:
 
@@ -72,12 +72,12 @@ public:
     iterator end();
 
     /* setters */
-    void SetInjectAddress(std::string);
-    void SetInjectInstruction(std::string);
+    void setInjectAddress(std::string);
+    void setOriginalInstruction(std::string);
 
     /* getters */    
-    uint32_t GetInjectAddress();
-    uint32_t GetInjectInstruction();
+    uint32_t injectAddress();
+    uint32_t originalInstruction();
 
 };
 

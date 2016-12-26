@@ -18,7 +18,8 @@ typedef std::vector< std::pair<std::string, uint32_t> > SectionList;
 typedef std::vector< std::pair<uint32_t, uint32_t> > ASMcode;
 typedef std::vector< std::pair<uint32_t, uint32_t> > MemoryRegions;
 
-class CodeAssembler {
+class CodeAssembler
+{
 
 private:
 
@@ -78,7 +79,6 @@ private:
 
     /* return the lines of code at each address */
     ASMcode GetCodeToInject();
-
 
 public:
 
