@@ -1,0 +1,26 @@
+
+Symbol table '.symtab' contains 23 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 803fa4f0     0 SECTION LOCAL  DEFAULT    1 
+     2: 803fa4dc     0 SECTION LOCAL  DEFAULT    2 
+     3: 803fa3f4     0 SECTION LOCAL  DEFAULT    3 
+     4: 803fa4c8     0 SECTION LOCAL  DEFAULT    4 
+     5: 803fa498     0 SECTION LOCAL  DEFAULT    5 
+     6: 80377998     0 SECTION LOCAL  DEFAULT    6 
+     7: 803fa3e8     0 SECTION LOCAL  DEFAULT    7 
+     8: 00000000     0 SECTION LOCAL  DEFAULT    8 
+     9: 00000000     0 FILE    LOCAL  DEFAULT  ABS ExampleMain.c
+    10: 00000000     0 FILE    LOCAL  DEFAULT  ABS ExampleFunction.c
+    11: 00000000     0 FILE    LOCAL  DEFAULT  ABS 
+    12: 0000000c     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_7
+    13: 000000a0     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_3
+    14: 00000010     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_1
+    15: 80377998     0 NOTYPE  GLOBAL DEFAULT    6 inject_point
+    16: 00000014     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_2
+    17: 803fa498    44 FUNC    GLOBAL DEFAULT    5 TimesTwo
+    18: 00000004     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_6
+    19: 00000010     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_4
+    20: 0000002c     0 NOTYPE  GLOBAL DEFAULT  ABS _sizeof_gci_5
+    21: 803fa3e8     0 NOTYPE  GLOBAL DEFAULT    7 stack_setup
+    22: 803fa3f4   160 FUNC    GLOBAL DEFAULT    3 _main

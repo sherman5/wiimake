@@ -51,6 +51,9 @@ else()
 
 endif()
 
+# allow for tests to be added 
+enable_testing(true)
+
 # add directory with source files
 add_subdirectory (src)
 
