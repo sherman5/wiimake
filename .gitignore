@@ -49,3 +49,4 @@ autom4te.cache/*
 *.dirstamp
 
 build/*
+!tests/*
