@@ -25,6 +25,8 @@ SET (GUI_SRCS GUI/CustomObjects.cpp
 # sources for testing
 SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testSymbolTable.cpp  
+               ../tests/testObjectFile.cpp
+               ../tests/testISO.cpp
                )
 
 # add test, install to current directory
@@ -39,6 +41,6 @@ add_executable (GCI MainProgram/CLI.cpp
                     )
 
 # install target for CLI
-install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+# install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # add GUI

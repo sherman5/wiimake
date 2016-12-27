@@ -1,13 +1,15 @@
 #ifndef HELPER_FUNCTIONS_H
 #define HELPER_FUNCTIONS_H
 
-#include <string>
 #include <stdint.h>
+#include <string>
+#include <utility>
 
 #include "Setup.h"
 
 /* convenient typedef's */
 typedef std::vector< std::pair<uint32_t, uint32_t> > ASMcode;
+typedef std::vector< std::pair<uint32_t, uint32_t> > Table;
 typedef std::vector<std::string> FileList;
 typedef std::vector<Section> SectionList;
 
@@ -76,15 +78,25 @@ namespace ObjectFile
     std::vector<std::string> getNamedSections(std::string);
 
     void renameSections(std::string, std::string);
+
+    std::pair<uint32_t, uint32_t> getLine(std::string, std::ifstream&);
+
+    bool lineOfCode(std::string);
+
 };
 
 namespace SymbolTable
 {
+    void parseLine(std::ifstream&, std::string, std::vector<unsigned>&);
+    
     std::vector<unsigned> getSizes(std::string, int);
 };
 
 namespace ISO
 {
+    /* get address table info from configuration file */
+    Table addressTable(std::string, int);
+
     /* read 32-bit value from RAM address */
     uint32_t read(std::string, uint32_t);
 

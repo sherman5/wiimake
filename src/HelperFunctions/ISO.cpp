@@ -1,54 +1,61 @@
 #include "HelperFunctions.h"
+#include "ByteOrder.h"
 
 #include <stdint.h>
 #include <vector>
 #include <fstream>
 
-#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
+/* get address table info from configuration file */
+Table ISO::addressTable(std::string configFile, int gameNum)
+{
+    /* table to store info */
+    Table table;
+        
+    /* open up text file */
+    std::ifstream file (configFile);
+    std::string line;
 
-    #include <winsock2.h>
-    #include <sys/param.h>
+    /* read until correct game number found */
+    while (!file.eof() && line != "game_id:" + gameNum)
+    {
+        file >> line;
+    }
 
-    #if BYTE_ORDER == LITTLE_ENDIAN
+    /* make sure game is found */
+    if (!file.eof())
+    {
+        throw std::invalid_argument("game ID not found");
+    }
 
-        #define be32toh(x) ntohl(x)
-        #define htobe32(x) htonl(x)
+    /* read the DOL start address */
+    file >> line; file >> line;
+    table.push_back(std::make_pair(stoul(line, nullptr, 16), 0));
 
-    #elif BYTE_ORDER == BIG_ENDIAN
+    /* read each (DOL,RAM) entry */
+    file >> line; file >> line;
 
-        #define htobe32(x) (x)
-        #define be32toh(x) (x)
+    /* read until next game section */
+    while (line != "**")
+    {
+        /* get DOL value, skip token, get RAM value */
+        uint32_t d = stoul(line, nullptr, 16);
+        file >> line; file >> line;
+        uint32_t r = stoul(line, nullptr, 16);
+        
+        /* store value in table, read next line */
+        table.push_back(std::make_pair(d, r)):
+        file >> line;
+    }
 
-    #endif
+    /* close file */
+    file.close()
 
-#else
-
-    #include <endian.h>
-
-#endif
-
-//TODO: add config options for any game
-
-#define DOL_START 0x1E800 //specific to Melee v1.02
-
-/* map of DOL - RAM (specific to Melee v1.02) */
-const std::pair<uint32_t, uint32_t> addressTable[10] = {
-
-    {0x000100, 0x80003100},
-    {0x3B3E20, 0x80005520},
-    {0x3B3FC0, 0x800056C0},
-    {0x002520, 0x80005940},
-    {0x3B4240, 0x803B7240},
-    {0x3B4260, 0x803B7260},
-    {0x3B4280, 0x803B7280},
-    {0x3B6840, 0x803B9840},
-    {0x42E6C0, 0x804D36A0},
-    {0x4313C0, 0x804D79E0}
-
-};
+    /* return table */
+    return table;
+}
 
 /* get the DOL offset of a 32-bit RAM address */
-uint32_t DOLoffset(uint32_t ramAddress)
+uint32_t ISO::DOLoffset(uint32_t ramAddress)
 {
     /* initialize return variable */
     uint32_t offset = 0;

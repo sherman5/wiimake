@@ -2,7 +2,8 @@
 
 #include <fstream>
 
-bool lineOfCode(std::string line)
+/* check if at beginning of valid line of code */
+bool ObjectFile::lineOfCode(std::string line)
 {
     /* check if not section, symbol, or file name */
     return line.find(".") == std::string::npos
@@ -11,17 +12,21 @@ bool lineOfCode(std::string line)
            && line.find(":") != std::string::npos;
 }
 
-std::pair<uint32_t, uint32_t> getLine(std::string line, std::ifstream& file)
+/* parse a line of code from text file, return (address, instruction)
+   - requires object file to have named sections containing '_' */
+std::pair<uint32_t, uint32_t> ObjectFile::getLine(std::string line,
+std::ifstream& file)
 {
-    /* current line is address */
+    /* remove ':' */
+    line.pop_back();
+
+    /* remaining line is address */
     uint32_t address = std::stoul(line, nullptr, 16);    
 
-    /* get first byte of instruction */
+    /* next 4 lines are the 4 bytes of the instruction */
     std::string instruction;
-    file >> instruction;
 
-    /* add remaining 3 bytes */
-    for (unsigned i = 0; i < 3; ++i)
+    for (unsigned i = 0; i < 4; ++i)
     {
         file >> line;
         instruction += line;
@@ -31,6 +36,7 @@ std::pair<uint32_t, uint32_t> getLine(std::string line, std::ifstream& file)
     return std::make_pair(address, stoul(instruction, nullptr, 16));
 }
 
+/* extract asm from binary file */
 ASMcode ObjectFile::extractASM(std::string fileName)
 {
     /* vector of code to return */
@@ -40,19 +46,15 @@ ASMcode ObjectFile::extractASM(std::string fileName)
     System::runCMD("powerpc-eabi-objdump -D " + fileName + " > exec.txt");
 
     /* open up text file and read first line */
-    std::ifstream file = std::ifstream("exec.txt");
+    std::ifstream file ("exec.txt");
     std::string line;
-    file >> line;
 
-    /* loop until end of file or unnamed section */
-    while (!file.eof() && line.find("section .") == std::string::npos)
+    /* loop until end of file or comment section */
+    while (!file.eof() && line != ".comment:")
     {
         /* check if valid line of code */
         if (lineOfCode(line))
         {
-            /* remove ':' */
-            line.pop_back();
-
             /* add line to code */
             code.push_back(getLine(line, file));
         }
@@ -88,10 +90,42 @@ void ObjectFile::renameSections(std::string file, std::string id)
     System::runCMD(cmd);
 }
 
-std::vector<std::string> ObjectFile::getNamedSections(std::string file)
+/* returns all section names without '.' */
+std::vector<std::string> ObjectFile::getNamedSections(std::string fileName)
 {
+    /* list of named sections */
+    std::vector<std::string> sections;
 
+    /* dump file contents to text */
+    System::runCMD("powerpc-eabi-objdump -D " + fileName + " > temp.txt");
+    
+    /* open up text file */ 
+    std::ifstream file ("temp.txt");
+    std::string line;
 
+    /* read every line of file, look out for sections */
+    while (!file.eof())
+    {
+        file >> line;
+
+        /* section found */
+        if (line == "section")
+        {
+            file >> line;  
+
+            /* add if named section */ 
+            if (line.find(".") == std::string::npos)
+            {
+                sections.push_back(line.substr(0, line.find(":")));
+            }
+        }
+    }
+
+    /* close file */
+    file.close();
+
+    /* return section list */
+    return sections;
 }
 
 
