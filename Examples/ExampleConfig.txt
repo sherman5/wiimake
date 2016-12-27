@@ -1,0 +1,35 @@
+ISO path:
+
+VanillaMelee.iso
+
+Injection Point:
+
+80377998 - 7ee3bb78
+
+Memory Regions:
+
+803fa3e8 - 803fc2ec
+803fc420 - 803fdc1c
+801910e0 - 80192930
+803001dc - 80301e40
+
+** Super Smash Bros Melee (v1.02) **
+game_id:1
+
+DOL Start:
+
+1E800
+
+(DOL,RAM) map:
+
+000100 - 80003100
+3b3e20 - 80005520
+3b3fC0 - 800056c0
+002520 - 80005940
+3b4240 - 803b7240
+3b4260 - 803b7260
+3b4280 - 803b7280
+3b6840 - 803b9840
+42e6c0 - 804d36a0
+4313c0 - 804d79e0
+
