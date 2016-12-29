@@ -9,7 +9,7 @@ SET (CORE_SRCS MainProgram/GCI.cpp
                HelperFunctions/Memory.cpp               
                HelperFunctions/ObjectFile.cpp
                HelperFunctions/SymbolTable.cpp
-               HelperFunctions/SystemOperations.cpp 
+               HelperFunctions/System.cpp 
                )
 
 # Files used for GUI
@@ -36,7 +36,7 @@ install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 # add CLI
 add_executable (GCI MainProgram/CLI.cpp
                     MainProgram/CommandLineParser.cpp
-                    MainProgram/Description.cpp
+                    MainProgram/ConfigFileParser.cpp
                     ${CORE_SRCS}
                     )
 

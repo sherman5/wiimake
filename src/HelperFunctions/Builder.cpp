@@ -1,20 +1,33 @@
 #include "HelperFunctions.h"
+#include "SetupFiles.h"
 
-ASMcode Builder::getASM(std::string sourceDir,
-                        MemoryConfig& memoryConfig,
-                        FileList& includeDirs,
-                        FileList& libs)
+#include <algorithm>
+
+/* compile, allocate, link code */
+ASMcode Builder::getASM(Arguments& args)
 {
     /* compile source files, return object files */
-    auto objects = getObjectFiles(sourceDir, includeDirs, libs);
+    auto objects = Builder::getObjectFiles(args.cmdOptions["--inject"], 
+        args.includePaths, args.libs);
 
     /* find addresses for each section */
-    auto sections = getSectionAddresses(objects, memoryConfig);
+    auto sections = Builder::getSectionAddresses(objects, args);
 
-    /* return linked code */
-    return getLinkedCode(sections);
+    /* add stack setup files */
+    Builder::addStackSetup(sections, args);
+
+    /* get linked code */
+    ASMcode code = Builder::getLinkedCode(sections);
+
+    /* add original instruction */
+    Builder::addOriginalInstruction(code, args);
+
+    /* return code */
+    return code;    
 }
 
+/* compile files in directory, return list of all object files
+   (including files from libraries) */
 FileList Builder::getObjectFiles(std::string sourceDir,
                                  FileList includeDirs,
                                  FileList libs)
@@ -35,8 +48,9 @@ FileList Builder::getObjectFiles(std::string sourceDir,
     return objects;
 }
 
+/* calculate sizes of sections and find allocation in memory */
 SectionList Builder::getSectionAddresses(FileList& objects,
-                                         MemoryConfig& memConfig)
+                                         Arguments& args)
 {
     /* list of section information */
     std::vector<Section> sections;
@@ -48,12 +62,37 @@ SectionList Builder::getSectionAddresses(FileList& objects,
     CodeSections::storeSizes(sections);
     
     /* calculate optimal code allocation */
-    CodeSections::findCodeAllocation(sections, memConfig);
+    Memory::findCodeAllocation(sections, args);
 
     /* return the sections object */    
     return sections;
 }
 
+/* add stack setup to call back after code is run */
+void Builder::addStackSetup(SectionList& sections, Arguments& args)
+{
+    /* this file sets up the call the main() */
+    std::ofstream stackSetup ("stack_setup.s");   
+    stackSetup << SetupFiles::stackSetupContents;
+    stackSetup.close();
+
+    /* this file sets up the call to stack_setup */
+    std::ofstream injectPoint ("inject_point.s");   
+    injectPoint << SetupFiles::injectPointContents;
+    injectPoint.close();
+    
+    /* compile both files */
+    System::runCMD("powerpc-eabi-as stack_setup.s -o stack_setup.o");
+    System::runCMD("powerpc-eabi-as inject_point.s -o inject_point.o");
+
+    /* add both to section list */
+    Section ss ("stack_setup.o", args.memRegions.front().start);
+    Section ip ("inject_point.o", args.configOptions["inject_address"]);
+    sections.push_back(ss);
+    sections.push_back(ip);
+}
+
+/* link code into final executable */
 ASMcode Builder::getLinkedCode(SectionList& sections)
 {
     /* create linker script, use addresses in 'sections' */
@@ -64,6 +103,27 @@ ASMcode Builder::getLinkedCode(SectionList& sections)
     return ObjectFile::extractASM("final.out");
 }
 
+/* add original instruction, overwrite nop line in code */
+void Builder::addOriginalInstruction(ASMcode& code, Arguments& args)
+{
+    /* find line of code at (stack_setup + 0x04) */
+    auto it = std::find_if(code.begin(), code.end(),
+        [&](const std::pair<uint32_t, uint32_t>& element)
+        {
+            return element.first == args.memRegions.front().start + 0x04;
+        });
+
+    /* check that instruction is nop */
+    if ((*it).second != 0x60000000)
+    {
+        throw std::runtime_error("instruction in stack setup is not 'nop'");
+    }
+
+    /* change to original instruction */
+    (*it).second = args.configOptions["original_instruction"];
+}
+
+/* remove all temporary files created in the build process */
 void Builder::cleanDirectory()
 {
     /* put all file names in vector */

@@ -1,100 +1,130 @@
 #include <iostream>
 
-#include "CommandLineParser.h"
+#include "Parser.h"
 #include "GCI.h"
 #include "Description.h"
 
 /* check if argument is present, throw error otherwise */
-void Require(std::string arg, std::string message) {
-
-    if (arg.empty()) {
-
+void Require(std::string arg, std::string message)
+{
+    if (arg.empty())
+    {
         throw std::invalid_argument(message);
-
     }
-
 }
 
-int main(int argc, char** argv)
+/* run the program given command line arguments */
+void RunProgram(Arguments& args)
 {
-try
-{
-    /* parse command line arguments */
-    Arguments args;
-    CMDparser::parse(argc, argv, args);    
+    /* check if only one main option was passed */
+    if (args.cmdOptions.count("--inject")
+        + args.cmdOptions.count("--save")
+        + args.cmdOptions.count("--load")
+        + args.cmdOptions.count("--ar")
+        + args.cmdOptions.count("--read") != 1)
+    {
+
+        /* throw exception for incorrect number of args */
+        throw std::invalid_argument("must specify exactly one of "
+            "--inject, --save, --load, --ar, --read");
+
+    }
 
     /* create library */
-    if (args.ar)   
+    if (args.cmdOptions.count("--ar"))   
     {
         /* check for required arguments */
-        Require(args.outputName, "missing library name, use --output");
-        Require(args.mainArg, "missing source code directory, --ar"
-            "<directory>");
+        Require(args.cmdOptions["--output"], "missing library name,"
+            " use --output");
+
+        Require(args.cmdOptions["--ar"], "missing source code directory,"
+            " --ar <directory>");
 
         /* call function to create library */
-        GCI::CreateLibrary(args.outputName, args.mainArg);
+        GCI::CreateLibrary(args);
     }
     /* get 32-bit value stored at RAM address */
-    else if (args.read) 
+    else if (args.cmdOptions.count("--read")) 
     {
         /* check for required arguments */
-        Require(args.mainArg, "missing address, --read <address>");
-        Require(args.isoPath, "missing iso file, use --iso-file");
+        Require(args.cmdOptions["--read"], "missing address,"
+            " --read <address>");
+
+        Require(args.cmdOptions["--iso-file"], "missing iso file, use"
+            " --iso-file");
     
         /* display value at address given */
-        std::cout << GCI::ReadAddr(args.isoPath, args.mainArg) << std::endl;
+        std::cout << GCI::ReadAddr(args) << std::endl;
     }
     /* compile, link, allocate code and inject to ISO  */
-    else if (args.inject)
+    else if (args.cmdOptions.count("--inject"))
     {
         /* check for required arguments */
-        Require(args.mainArg, "missing source code directory, --inject"
-            "<directory>");
-        Require(args.memFile, "missing memory configuration file, use"
-            "--mem-config");
-        Require(args.isoPath, "missing iso_file, use --iso-file");
+        Require(args.cmdOptions["--inject"], "missing source"
+            " code directory, --inject <directory>");
 
-        /* create object to handle memory config */
-        MemoryConfig memConfig (args.memFile);
+        Require(args.cmdOptions["--config-file"], "missing configuration"
+            " file, use --config-file");
 
-        /* call function to create new iso */
-        GCI::CreateISO(args.isoPath, args.mainArg, memConfig, args.libs,
-            args.includePaths, args.saveTemps);
+        Require(args.cmdOptions["--iso-file"], "missing iso file,"
+            " use --iso-file");
+
+        /* compile, allocate, link, and inject code */
+        GCI::CreateISO(args);
     }
     /* save state of iso */
-    else if (args.save)
+    else if (args.cmdOptions.count("--save"))
     {
         /* check for required arguments */
-        Require(args.memFile, "missing memory configuration file, use"
-            "--mem-config");
-        Require(args.isoPath, "missing iso_file, use --iso-file");
-        Require(args.mainArg, "missing save file name, --save <file>");
+        Require(args.cmdOptions["--config-file"], "missing memory"
+            " configuration file, use --mem-config");
 
-        /* create object to handle memory config */
-        MemoryConfig memConfig (args.memFile);
+        Require(args.cmdOptions["--iso-file"], "missing iso file,"
+            " use --iso-file");
+
+        Require(args.cmdOptions["--save"], "missing save file name,"
+            " --save <file>");
 
         /* call function to save iso state */
-        GCI::SaveISO(args.isoPath, memConfig, args.mainArg);
+        GCI::SaveISO(args);
     }
     /* load iso state */
-    else if (args.load)
+    else if (args.cmdOptions.count("--load"))
     {
         /* check for required arguments */
-        Require(args.isoPath, "missing iso_file, use --iso-file");
-        Require(args.mainArg, "missing save file name, --load <file>");
+        Require(args.cmdOptions["--iso-file"], "missing iso_file, use"
+            " --iso-file");
+
+        Require(args.cmdOptions["--load"], "missing save file name,"
+            " --load <file>");
 
         /* call function to load iso state */
-        GCI::LoadISO(args.isoPath, args.mainArg);
+        GCI::LoadISO(args);
     }
-}
-catch (std::exception& e)
-{
-    std::cout << e.what() << std::endl;
-    Description::displayUsage();
-}
-    return 0;
+
 }
 
-    
-    
+/* CLI */
+int main(int argc, char** argv)
+{
+    try
+    {
+        /* parse command line arguments */
+        Arguments args;
+        CMDparser::parse(argc, argv, args);    
+        ConfigParser::parse(args);
+
+        /* run program */
+        RunProgram(args);
+
+    }
+    /* user passed invalid argument */
+    catch (std::exception& e)
+    {
+        std::cout << e.what() << std::endl;
+        std::cout << Description::usage << std::endl;
+    }
+}
+
+   
 

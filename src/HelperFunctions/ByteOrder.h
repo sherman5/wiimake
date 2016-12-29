@@ -1,4 +1,4 @@
-#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(__WINDOWS__)
+#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64))
 
     #include <winsock2.h>
     #include <sys/param.h>

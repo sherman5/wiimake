@@ -1,89 +1,41 @@
 #include "HelperFunctions.h"
 #include "ByteOrder.h"
+#include "../MainProgram/Global.h"
 
 #include <stdint.h>
 #include <vector>
 #include <fstream>
 
-/* get address table info from configuration file */
-Table ISO::addressTable(std::string configFile, int gameNum)
-{
-    /* table to store info */
-    Table table;
-        
-    /* open up text file */
-    std::ifstream file (configFile);
-    std::string line;
-
-    /* read until correct game number found */
-    while (!file.eof() && line != "game_id:" + gameNum)
-    {
-        file >> line;
-    }
-
-    /* make sure game is found */
-    if (!file.eof())
-    {
-        throw std::invalid_argument("game ID not found");
-    }
-
-    /* read the DOL start address */
-    file >> line; file >> line;
-    table.push_back(std::make_pair(stoul(line, nullptr, 16), 0));
-
-    /* read each (DOL,RAM) entry */
-    file >> line; file >> line;
-
-    /* read until next game section */
-    while (line != "**")
-    {
-        /* get DOL value, skip token, get RAM value */
-        uint32_t d = stoul(line, nullptr, 16);
-        file >> line; file >> line;
-        uint32_t r = stoul(line, nullptr, 16);
-        
-        /* store value in table, read next line */
-        table.push_back(std::make_pair(d, r)):
-        file >> line;
-    }
-
-    /* close file */
-    file.close()
-
-    /* return table */
-    return table;
-}
-
 /* get the DOL offset of a 32-bit RAM address */
-uint32_t ISO::DOLoffset(uint32_t ramAddress)
+uint32_t ISO::DOLoffset(uint32_t ramAddress, Table& table)
 {
     /* initialize return variable */
     uint32_t offset = 0;
 
     /* loop through each DOL section */
-    for (int i = 0; i < 9; i++)
+    for (auto it = table.begin(); it != table.end(); ++it)
     {
         /* find corresponding region of DOL */
-        if (ramAddress >= addressTable[i].second)
+        if (ramAddress >= (*it).second)
         {
-            /* calculate RAM offset and add to DOL address
-               to get DOL offset */
-            offset = addressTable[i].first + ramAddress
-                        - addressTable[i].second;
+            /* add RAM offset to DOL address to get DOL offset */
+            offset = (*it).first + (ramAddress - (*it).second);
         }
     }
 
+    /* return DOL offset */
     return offset;
 }
 
 /* read 32-bit value from RAM address */
-uint32_t ISO::read(std::string path, uint32_t address)
+uint32_t ISO::read(uint32_t addr, Arguments& args)
 {
     /* open iso file */
-    std::ifstream isoFile (path);
+    std::ifstream isoFile (args.cmdOptions["--iso-file"]);
 
     /* find address of interest */
-    isoFile.seekg(DOL_START + DOLoffset(address));      
+    isoFile.seekg(args.configOptions["DOL_start"]
+        + ISO::DOLoffset(addr, args.addressTable));      
 
     /* read line at addr */
     uint32_t line;
@@ -93,49 +45,62 @@ uint32_t ISO::read(std::string path, uint32_t address)
     return htobe32(line);
 }
 
+/* read 32-bit value from RAM address */
+uint32_t ISO::read(std::string addr, Arguments& args)
+{
+    /* convert string to uint32_t */
+    return ISO::read(stoul(addr, nullptr, 16), args);
+}
+
+/* write 32-bit value to RAM address */
+void ISO::write(uint32_t addr, uint32_t val, Arguments& args)
+{
+    /* open iso file */
+    std::fstream iso (args.cmdOptions["--iso-file"]);
+
+    /* find address */
+    iso.seekp(args.configOptions["DOL_start"]
+        + DOLoffset(addr, args.addressTable));      
+
+    /* account for endianess */
+    val = be32toh(val);
+
+    /* write value */
+    iso.write(reinterpret_cast<char *>(&val), sizeof(val));
+}
+
 /* save the current code from the regions provided */
-void ISO::saveState(std::string path, MemoryConfig& mem,
-std::string saveFile)
+void ISO::saveState(Arguments& args)
 {
     /* data vector to write to file */
     std::vector<uint32_t> data;
 
-    /* add the address and instruction at injection point */
-    uint32_t address = mem.injectPoint.first;
-    data.push_back(address);
-    data.push_back(read(path, address));
+    /* start address */
+    uint32_t address = args.configOptions["code_start"];
 
-    /* loop through memory regions */
-    for (auto it = mem.regions.begin(); it != mem.regions.end(); ++it)
+    /* loop through all code */
+    for (; address <= args.configOptions["code_end"]; address += 0x04)
     {
-        /* get the first address in the region */
-        address = (*it).first;
-
-        /* while addr is still within region */
-        while (address <= (*it).second) 
-        {
-            /* store address and instruction */
-            data.push_back(address);
-            data.push_back(read(path, address));
-
-            /* go to next line of code */
-            address += 0x04;
-        }            
+        /* store (address, instruction) */
+        data.push_back(address);
+        data.push_back(ISO::read(address, args));
     }
 
     /* open write file */
-    std::ofstream outfile(saveFile, std::ios::out | std::ios::binary);
+    std::ofstream outfile(args.cmdOptions["--save"],
+        std::ios::out | std::ios::binary);
 
     /* write data to file */
     outfile.write(reinterpret_cast<char *> (&data[0]),
-                    data.size() * sizeof(uint32_t));
+        data.size() * sizeof(uint32_t));
 }
 
 /* load code from save file */
-void ISO::loadState(std::string path, std::string loadFile)
+void ISO::loadState(Arguments& args)
 {
     /* open up binary file for reading */
-    std::ifstream infile(loadFile, std::ios::in | std::ios::binary);
+    std::ifstream infile(args.cmdOptions["--load"],
+        std::ios::in | std::ios::binary);
 
     /* find end of file */
     infile.seekg(0, infile.end);
@@ -157,30 +122,17 @@ void ISO::loadState(std::string path, std::string loadFile)
         infile.read(reinterpret_cast<char *>(&value), sizeof(address));
 
         /* write instructions to iso */
-        injectCode(path, ASMcode(1, std::make_pair(address, value)));
+        ISO::write(address, value, args);
     }
 }
 
 /* inject code into iso */
-void ISO::injectCode(std::string isoPath, ASMcode code)
+void ISO::injectCode(ASMcode& code, Arguments& args)
 {
-    /* open iso file */
-    std::fstream iso (isoPath);
-
-    /* variable to hold value at an address */
-    uint32_t value;
-
     /* loop through code and write each (address, value) pair */
     for (auto it = code.begin(); it != code.end(); ++it)
     {
-        /* find address */
-        iso.seekp(DOL_START + DOLoffset((*it).first));      
-
-        /* account for endianess */
-        value = be32toh((*it).second);
-
-        /* write value */
-        iso.write(reinterpret_cast<char *>(&value), sizeof(value));
+        ISO::write((*it).first, (*it).second, args);
     }
 }
 
