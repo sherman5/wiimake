@@ -1,0 +1,14 @@
+SECTIONS {
+gci_1 0x80003000 :
+{
+	../tests/object1.o
+}
+gci_2 0x80004000 :
+{
+	../tests/object2.o
+}
+gci_3 0x80005000 :
+{
+	../tests/lib1.a
+}
+}

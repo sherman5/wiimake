@@ -2,7 +2,7 @@
 
 #include "../src/HelperFunctions/HelperFunctions.h"
 
-TEST_CASE ("Testing functions in ObjectFile.cpp")
+TEST_CASE ("testing functions in ObjectFile.cpp")
 {
     SECTION("Recognize line of asm code")
     {
