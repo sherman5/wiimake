@@ -9,7 +9,7 @@ void ConfigParser::parse(Arguments& args)
 
     /* parse arguments */
     std::string line;
-    while (!file.eof())
+    while (!file.eof() && line.find("game_id") == std::string::npos)
     {
         /* keep reading until variable is found */
         if (line.find("=") == std::string::npos)
@@ -39,6 +39,9 @@ std::ifstream ConfigParser::findGame(Arguments& args)
     {
         file >> line;
     }
+
+    /* read past game_id */
+    file >> line;
 
     /* return file stream */
     return file;

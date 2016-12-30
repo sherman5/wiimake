@@ -19,7 +19,7 @@ void Memory::findCodeAllocation(SectionList& sections, const Arguments& args)
     for (auto it = sections.rbegin(); it != sections.rend(); ++it)
     {
         /* ignore sections with zero size */
-        if ((*it).size == 0) { break;}
+        if ((*it).size == 0) { (*it).address = 0; break;}
 
         /* check if largest region can contain section */
         if ((*it).size > regions.back().end - regions.back().start)

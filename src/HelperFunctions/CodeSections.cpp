@@ -29,7 +29,8 @@ void CodeSections::storeSizes(SectionList& sections)
     Linker::link(sections, "temp_linker_script.txt", "sizes.out");
 
     /* get the sizes for each section */
-    std::vector<unsigned> sizes = SymbolTable::getSizes("sizes.out", sections.size());
+    std::vector<unsigned> sizes = SymbolTable::getSizes("sizes.out",
+        sections.size());
 
     /* iterate through sections */
     for (unsigned i = 0; i < sections.size(); ++i)

@@ -7,17 +7,35 @@
 #include "Description.h"
 
 /* parse command line args and store in Arguments struct */
-void CMDparser::parse(int argc, char** argv, Arguments& args)
+void CMDparser::parse(int argc, const char** argv, Arguments& args)
 {
     /* store each CMD line arg in vector of strings */
-    TokenList tokens;    
+    TokenList tokens = CMDparser::getTokens(argc, argv);
+
+    /* parse vector of args */
+    CMDparser::parseOptions(tokens, args);
+    CMDparser::parseLibsAndIncludes(tokens, args);
+
+    /* check if any options remain */
+    if (!tokens.empty())
+    {
+        throw std::invalid_argument("unrecognized option: "
+            + tokens.front());
+    }
+}
+
+/* return a list of tokens from the command line arguments */
+TokenList CMDparser::getTokens(int argc, const char** argv)
+{
+    /* store each argument in vector */ 
+    TokenList tokens;
     for (int i = 1; i < argc; ++i)
     {
         /* break up arguments at equals sign */
         std::string s (argv[i]);
         if (s.find("=") != std::string::npos)
         {
-            tokens.push_back(s.substr(1, s.find("=")));
+            tokens.push_back(s.substr(0, s.find("=")));
             tokens.push_back(s.substr(s.find("=") + 1));
         }
         else
@@ -26,16 +44,8 @@ void CMDparser::parse(int argc, char** argv, Arguments& args)
         }
     }
 
-    /* parse vector of args */
-    parseOptions(tokens, args);
-    parseLibsAndIncludes(tokens, args);
-
-    /* check if any options remain */
-    if (!tokens.empty())
-    {
-        throw std::invalid_argument("unrecognized option: "
-            + tokens.front());
-    }
+    /* return vector of parsed tokens */
+    return tokens;
 }
 
 /* parse command line options */
@@ -96,7 +106,7 @@ std::string CMDparser::getArg(TokenList& tokens, std::string option)
         {
             /* return arg, erase option & arg from token list */
             std::string ret = *it;
-            tokens.erase(it - 1, it);
+            tokens.erase(it - 1, it + 1);
             return ret;
         }
         else

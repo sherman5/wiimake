@@ -11,7 +11,10 @@ typedef std::vector<std::string> TokenList;
 namespace CMDparser
 {
     /* parse command line args and store in Arguments struct */
-    void parse(int, char**, Arguments&);
+    void parse(int, const char**, Arguments&);
+
+    /* return a list of tokens from the command line arguments */
+    TokenList getTokens(int, const char**);
 
     /* parse command line options */
     void parseOptions(TokenList&, Arguments&);

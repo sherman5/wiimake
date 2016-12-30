@@ -49,7 +49,7 @@ void LinkerScript::CreateFinalScript(SectionList& sections, std::string name)
     {
         /* write section header for each section */
         script << "gci_" << num << " 0x" << std::hex << (*it).address
-            << " :\n{\n" << (*it).path << "\n}\n";
+            << " :\n{\n\t" << (*it).path << "\n}\n";
 
         /* increment section number */
         num++;

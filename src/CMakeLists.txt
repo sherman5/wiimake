@@ -1,5 +1,6 @@
 # Core files that contain all functionality
 SET (CORE_SRCS MainProgram/GCI.cpp
+               MainProgram/ConfigFileParser.cpp
                HelperFunctions/Builder.cpp
                HelperFunctions/CodeSections.cpp
                HelperFunctions/Compiler.cpp
@@ -24,9 +25,18 @@ SET (GUI_SRCS GUI/CustomObjects.cpp
 
 # sources for testing
 SET (TEST_SRCS ../tests/Runner.cpp
+               ../tests/testSystem.cpp
                ../tests/testSymbolTable.cpp  
                ../tests/testObjectFile.cpp
+               ../tests/testMemory.cpp
+               ../tests/testLinkerScript.cpp
+               ../tests/testLinker.cpp
                ../tests/testISO.cpp
+               ../tests/testCompiler.cpp
+               ../tests/testCodeSections.cpp
+               ../tests/testConfigFileParser.cpp
+               ../tests/testCommandLineParser.cpp
+               MainProgram/CommandLineParser.cpp
                )
 
 # add test, install to current directory
@@ -36,9 +46,7 @@ install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 # add CLI
 add_executable (GCI MainProgram/CLI.cpp
                     MainProgram/CommandLineParser.cpp
-                    MainProgram/ConfigFileParser.cpp
-                    ${CORE_SRCS}
-                    )
+                    ${CORE_SRCS})
 
 # install target for CLI
 # install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})

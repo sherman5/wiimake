@@ -30,6 +30,13 @@ uint32_t ISO::DOLoffset(uint32_t ramAddress, Table& table)
 /* read 32-bit value from RAM address */
 uint32_t ISO::read(uint32_t addr, Arguments& args)
 {
+    /* check if valid address */
+    if (addr < args.configOptions["code_start"]
+        || addr > args.configOptions["code_end"])
+    {
+        throw std::invalid_argument("read at invalid address");
+    }
+
     /* open iso file */
     std::ifstream isoFile (args.cmdOptions["--iso-file"]);
 
@@ -40,6 +47,9 @@ uint32_t ISO::read(uint32_t addr, Arguments& args)
     /* read line at addr */
     uint32_t line;
     isoFile.read(reinterpret_cast<char *>(&line), sizeof(line));
+
+    /* close iso file */
+    isoFile.close();    
 
     /* return value, accounting for endianess */    
     return htobe32(line);
@@ -67,6 +77,9 @@ void ISO::write(uint32_t addr, uint32_t val, Arguments& args)
 
     /* write value */
     iso.write(reinterpret_cast<char *>(&val), sizeof(val));
+
+    /* close iso file */
+    iso.close();
 }
 
 /* save the current code from the regions provided */
@@ -75,17 +88,17 @@ void ISO::saveState(Arguments& args)
     /* data vector to write to file */
     std::vector<uint32_t> data;
 
-    /* start address */
+    /* start address - store at front of data */
     uint32_t address = args.configOptions["code_start"];
+    data.push_back(address);
 
     /* loop through all code */
     for (; address <= args.configOptions["code_end"]; address += 0x04)
     {
-        /* store (address, instruction) */
-        data.push_back(address);
+        /* store instruction */
         data.push_back(ISO::read(address, args));
     }
-
+    
     /* open write file */
     std::ofstream outfile(args.cmdOptions["--save"],
         std::ios::out | std::ios::binary);
@@ -93,6 +106,9 @@ void ISO::saveState(Arguments& args)
     /* write data to file */
     outfile.write(reinterpret_cast<char *> (&data[0]),
         data.size() * sizeof(uint32_t));
+
+    /* close output file */
+    outfile.close();
 }
 
 /* load code from save file */
@@ -112,18 +128,26 @@ void ISO::loadState(Arguments& args)
     infile.seekg(0, infile.beg);
 
     /* variables to read info into */
-    uint32_t address, value;
+    uint32_t addr, value;
+
+    /* read start address */
+    infile.read(reinterpret_cast<char *>(&addr), sizeof(addr));        
 
     /* loop through stored values */
-    for (unsigned int i = 0; i < length; i += 2)
+    for (unsigned int i = 1; i < length; ++i)
     {
         /* read in values as (addr, instruction) pairs */
-        infile.read(reinterpret_cast<char *>(&address), sizeof(address));
-        infile.read(reinterpret_cast<char *>(&value), sizeof(address));
+        infile.read(reinterpret_cast<char *>(&value), sizeof(value));
 
         /* write instructions to iso */
-        ISO::write(address, value, args);
+        ISO::write(addr, value, args);
+
+        /* increment address */
+        addr += 0x04;
     }
+
+    /* close input file */
+    infile.close();
 }
 
 /* inject code into iso */
