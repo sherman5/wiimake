@@ -2,13 +2,16 @@
 
 #include "../src/HelperFunctions/HelperFunctions.h"
 
+#include <iostream>
+
 TEST_CASE("testing functions in Compiler.cpp")
 {
-    SECTION("test compiler")
-    {
-        FileList files;
-        files.push_back("../tests/include");
-        auto objects = Compiler::compile("../tests/", files);
-        REQUIRE(objects.size() == 3);
-    }
+    std::cout << "\033[33m" << 
+    "\n========= Testing Compiler.cpp =========\n"
+    << "\033[39m" << std::endl;
+
+    FileList files;
+    files.push_back("../tests/include");
+    auto objects = Compiler::compile("../tests/source", files);
+    REQUIRE(objects.size() == 2);
 }

@@ -3,8 +3,14 @@
 #include "../src/HelperFunctions/HelperFunctions.h"
 #include "../src/MainProgram/Parser.h"
 
+#include <iostream>
+
 TEST_CASE("testing functions in Memory.cpp")
 {
+    std::cout << "\033[33m" <<
+    "\n========= Testing Memory.cpp =========\n"
+    << "\033[39m" << std::endl;
+
     /* get arguments for testing */
     Arguments args;
     args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
@@ -33,25 +39,20 @@ TEST_CASE("testing functions in Memory.cpp")
     sections[5].size = 0x900;
     sections[6].size = 0x1500;
 
-    SECTION("test finding allocation for code")
-    {
-       /* find allocation */
-        Memory::findCodeAllocation(sections, args);
+   /* find allocation */
+    Memory::findCodeAllocation(sections, args);
 
-        /* check addresses - sections are sorted now */
-        REQUIRE(sections[6].address == 0x803fa3f4);
-        REQUIRE(sections[5].address == 0x803001dc);
-        REQUIRE(sections[4].address == 0x801910e0);
-        REQUIRE(sections[3].address == 0x803fc420);
-        REQUIRE(sections[2].address == 0x803fb8f4);
-        REQUIRE(sections[1].address == 0x801920e0);        
-        REQUIRE(sections[0].address == 0x803fd420);
-   }
-
-    SECTION("test error handling")
-    {
-        sections[5].size = 0x1100;
-        REQUIRE_THROWS_AS(Memory::findCodeAllocation(sections, args), 
-            std::runtime_error);
-    }        
+    /* check addresses */
+    REQUIRE(sections[0].address == 0x801920e4);                
+    REQUIRE(sections[1].address == 0x803fc420);
+    REQUIRE(sections[2].address == 0x803001dc);
+    REQUIRE(sections[3].address == 0x801910e0);
+    REQUIRE(sections[4].address == 0x803fd424);
+    REQUIRE(sections[5].address == 0x803fb8f8);    
+    REQUIRE(sections[6].address == 0x803fa3f4);
+    
+    /* should not be able to find allocation now */
+    sections[5].size = 0x1100;
+    REQUIRE_THROWS_AS(Memory::findCodeAllocation(sections, args), 
+        std::runtime_error);
 }

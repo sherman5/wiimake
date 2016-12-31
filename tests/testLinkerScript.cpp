@@ -3,8 +3,14 @@
 #include "../src/HelperFunctions/HelperFunctions.h"
 #include "../src/MainProgram/Parser.h"
 
+#include <iostream>
+
 TEST_CASE("testing functions in LinkerScript.cpp")
 {
+    std::cout << "\033[33m" <<
+    "\n========= Testing LinkerScript.cpp =========\n"
+    << "\033[39m" << std::endl;
+
     /* create section list */
     SectionList sections;
     sections.push_back(Section("section1 (data)"));
@@ -16,10 +22,8 @@ TEST_CASE("testing functions in LinkerScript.cpp")
     sections.push_back(Section("section7"));
     sections.push_back(Section("section8"));
 
-    SECTION("create script to record sizes")
-    {
-        LinkerScript::CreateTempScript(sections, "../tests/script1.txt");
-    }
+    /* create script to record sizes */
+    LinkerScript::CreateTempScript(sections, "../tests/script1.txt");
 
     /* get arguments for testing */
     Arguments args;
@@ -41,8 +45,6 @@ TEST_CASE("testing functions in LinkerScript.cpp")
     sections[7].size = 0;    
     Memory::findCodeAllocation(sections, args);
     
-    SECTION("create final linker script")
-    {
-        LinkerScript::CreateFinalScript(sections, "../tests/script2.txt");
-    }
+    /* create final linker script with addresses */
+    LinkerScript::CreateFinalScript(sections, "../tests/script2.txt");
 }

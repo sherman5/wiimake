@@ -6,9 +6,8 @@
 #define f e e e e e e e
 #define g f f f f f f f
 #define h g g g g g g g
-#define i h h h h h h h
 
 int main()
 {
-    char* z = i;
+    char* z = h;
 }
