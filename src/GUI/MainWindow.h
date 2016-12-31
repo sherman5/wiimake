@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QWidget>
 #include <QTabWidget>
+#include <QComboBox>
 
 #include "../MainProgram/Global.h"
 #include "PathInput.h"
@@ -23,6 +24,7 @@ private:
     PathInput* mConfigFile;
 
     /* drop down menu to select game in config file */
+    QComboBox* mGameTitle;
 
 public:
 
@@ -31,6 +33,11 @@ public:
 
     /* get arguments */
     Arguments getArgs();
+
+public slots:
+    
+    /* get list of game titles from config file */
+    void getGameTitles();
 };
  
 #endif

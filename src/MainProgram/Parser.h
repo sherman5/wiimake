@@ -45,6 +45,9 @@ namespace ConfigParser
 
     /* store memory regions from the config file */
     void storeMemoryRegions(std::ifstream&, Arguments&);
+
+    /* get titles of all games in config file */    
+    FileList getGameTitles(std::string);
 };
 
 #endif

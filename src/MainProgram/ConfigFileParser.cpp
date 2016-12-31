@@ -128,4 +128,44 @@ void ConfigParser::storeMemoryRegions(std::ifstream& file, Arguments& args)
     }
 }
 
+TokenList ConfigParser::getGameTitles(std::string fileName)
+{
+    /* list of found titles */
+    TokenList titles;
+
+    /* open up file */
+    std::ifstream file (fileName);
+    std::string line, title;
+
+    /* read all lines */
+    while (!file.eof())
+    {
+        /* read line */
+        file >> line;
+
+        /* find section header (aka game titles) */
+        if (line.find("[") != std::string::npos)
+        {
+            /* store first token */
+            line.erase(0,1);
+            title += line;
+            file >> line;
+            
+            while (line.find("]") == std::string::npos)
+            {
+                title += " " + line;
+                file >> line;
+            }
+
+            line.pop_back();
+            title += " " + line;
+
+            titles.push_back(title);
+            title = "";
+        }
+    }
+
+    return titles;
+}
+
 

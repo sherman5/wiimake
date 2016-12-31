@@ -52,6 +52,9 @@ void PathInput::findFile()
     {
         /* store selected file/directory */
         mInput->insert(mFileBrowser->selectedFiles().at(0));
+
+        /* send signal */
+        emit valueChanged();        
     }
 }
 

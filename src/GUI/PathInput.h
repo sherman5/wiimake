@@ -33,6 +33,11 @@ public slots:
 
     /* browse for a file and store in input line */
     void findFile();
+
+signals:
+
+    /* file is found */
+    void valueChanged();
 };
 
 #endif
