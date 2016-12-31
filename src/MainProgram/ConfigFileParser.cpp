@@ -152,20 +152,24 @@ TokenList ConfigParser::getGameTitles(std::string fileName)
             title += line;
             file >> line;
             
+            /* go until end of secion header is found */
             while (line.find("]") == std::string::npos)
             {
                 title += " " + line;
                 file >> line;
             }
 
+            /* remove "]", add to title */  
             line.pop_back();
             title += " " + line;
 
+            /* add title to list, reset variable for next pass */
             titles.push_back(title);
             title = "";
         }
     }
 
+    /* return title list */
     return titles;
 }
 
