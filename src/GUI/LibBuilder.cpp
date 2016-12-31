@@ -1,36 +1,48 @@
-#include "GUI_LibBuilder.h"
+#include "LibBuilder.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 
-#include "GCI.h"
+#include "../MainProgram/GCI.h"
 
-LibBuilderTab::LibBuilderTab(QWidget* parent) : QWidget(parent) {
+LibBuilderTab::LibBuilderTab(QWidget* parent) : QWidget(parent)
+{
+    /* C source directory */
+    mSourceDir = new PathInput("C Source Code &Directory", this);
 
-    m_source_dir = new PathInput("C Source Code &Directory", this);
+    /* library name */
+    mName = new QLineEdit(this);
+    QLabel* label = new QLabel("Library &Name", this);
+    label->setBuddy(mName);
 
-    m_name = new QLineEdit(this);
-    m_name_label = new QLabel("Library &Name", this);
-    m_name_label->setBuddy(m_name);
+    /* button to create library */
+    QPushButton* createButton = new QPushButton("Create Library", this);
+    connect(createButton, SIGNAL(clicked()), this, SLOT(createLibrary()));
 
-    m_create_button = new QPushButton("Create Library", this);
-    connect(m_create_button, SIGNAL(clicked()), this, SLOT(CreateLibrary()));
-
-    QHBoxLayout* name_layout = new QHBoxLayout();
-    name_layout->addWidget(m_name_label);
-    name_layout->addWidget(m_name);
-    
+    /* create layout */
     QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->addWidget(m_source_dir);
-    layout->addLayout(name_layout);
-    layout->addWidget(m_create_button);
+    QHBoxLayout* nameLayout = new QHBoxLayout(this);
+    nameLayout->addWidget(label);
+    nameLayout->addWidget(mName);
+
+    layout->addWidget(mSourceDir);
+    layout->addLayout(nameLayout);
+    layout->addWidget(createButton);
 
     setLayout(layout);
-
 }
 
-void LibBuilderTab::CreateLibrary() {
+void LibBuilderTab::createLibrary()
+{
+    /* get arguments */
+    Arguments args;
 
-    GCI::CreateLibrary(m_name->text().toStdString(), m_source_dir->text());
+    args.cmdOptions.insert(std::make_pair("--ar",
+        mSourceDir->text()));
 
+    args.cmdOptions.insert(std::make_pair("--output",
+        mName->text().toStdString()));
+    
+    /* create library */
+    GCI::createLibrary(args);
 }

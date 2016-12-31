@@ -76,16 +76,16 @@ TEST_CASE("reading address from iso")
 
     /* read addresses */
     args.cmdOptions.insert(std::make_pair("--read", "80003100"));
-    REQUIRE(GCI::readAddr(args) == 0x7c0802a6);
+    REQUIRE(GCI::readAddress(args) == 0x7c0802a6);
 
     args.cmdOptions["--read"] = "80006000";
-    REQUIRE(GCI::readAddr(args) == 0xc0e10054);
+    REQUIRE(GCI::readAddress(args) == 0xc0e10054);
 
     args.cmdOptions["--read"] = "803b8000";
-    REQUIRE(GCI::readAddr(args) == 0xc091999a);
+    REQUIRE(GCI::readAddress(args) == 0xc091999a);
 
     args.cmdOptions["--read"] = "804dec00";
-    REQUIRE(GCI::readAddr(args) == 0xdeadbabe);
+    REQUIRE(GCI::readAddress(args) == 0xdeadbabe);
 }
 
 TEST_CASE("saving/loading iso state & injecting code")

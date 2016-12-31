@@ -1,5 +1,5 @@
-#ifndef GUI_CUSTOM_OBJECTS_H
-#define GUI_CUSTOM_OBJECTS_H
+#ifndef PATH_INPUT_H
+#define PATH_INPUT_H
 
 #include <QObject>
 #include <QWidget>
@@ -9,17 +9,17 @@
 #include <QFileDialog>
 
 /* input line that accepts file/directory path; can search in file browser */
-class PathInput : public QWidget {
-
+class PathInput : public QWidget
+{
     Q_OBJECT
 
 private:
 
     /* components of the file input line */
-    QLineEdit* m_input;
-    QLabel* m_label;
-    QPushButton* m_button;
-    QFileDialog* m_file_browser;
+    QLineEdit* mInput;
+    QLabel* mLabel;
+    QPushButton* mButton;
+    QFileDialog* mFileBrowser;
 
 public:
 
@@ -32,8 +32,7 @@ public:
 public slots:
 
     /* browse for a file and store in input line */
-    void FindFile();
-
+    void findFile();
 };
 
 #endif

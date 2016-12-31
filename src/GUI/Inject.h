@@ -1,5 +1,5 @@
-#ifndef GUI_INJECT_H
-#define GUI_INJECT_H
+#ifndef INJECT_H
+#define INJECT_H
 
 #include <vector>
 
@@ -8,38 +8,39 @@
 #include <QPushButton>
 #include <QGridLayout>
 
-#include "GUI_CustomObjects.h"
-#include "GUI_MemConfig.h"
+#include "MainWindow.h"
+#include "PathInput.h"
 
 /* tab - manages the injection of C code into the iso */
-class InjectTab : public QWidget {
-
+class InjectTab : public QWidget
+{
     Q_OBJECT
 
 private:
 
-    PathInput* m_source_dir;
-    std::vector<PathInput*> m_libraries;
-    std::vector<PathInput*> m_include_dirs;    
+    /* c code source directory and libs/includes */
+    PathInput* mSourceDir;
+    std::vector<PathInput*> mLibs, mIncludeDirs;    
 
-    QPushButton *m_add_lib_button, *m_add_include_button, *m_create_button;
+    /* pointer to main window containint this tab */
+    MainWindow* mMainWindow;
 
-    PathInput* m_iso_path;
-    MemConfigTab* m_mem_config_tab; 
-
-    QGridLayout* m_layout;
-    QVBoxLayout *m_lib_layout, *m_include_layout;
+    /* sub-layouts for libs and includes */
+    QVBoxLayout *mLibLayout, *mIncludeLayout;
 
 public:
 
-    InjectTab(PathInput*, MemConfigTab*, QWidget* = Q_NULLPTR);
+    /* constructor */
+    InjectTab(MainWindow*);
 
 public slots:
 
-    void AddLibPath();
-    void AddIncludeDir();
-    void CreateISO();
+    /* add more paths */
+    void addLibPath();
+    void addIncludeDir();
 
+    /* inject code into iso */
+    void createISO();
 };
  
 #endif

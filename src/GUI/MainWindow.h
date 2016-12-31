@@ -5,25 +5,32 @@
 #include <QWidget>
 #include <QTabWidget>
 
-#include "GUI_CustomObjects.h"
-#include "MemoryConfig.h"
+#include "../MainProgram/Global.h"
+#include "PathInput.h"
 
 /* main window for the GUI */
-class MainWindow : public QWidget {
-
+class MainWindow : public QWidget
+{
     Q_OBJECT
 
 private:
 
-    QTabWidget* m_tabs;
-    PathInput* m_iso_path;
+    /* tabs with all main function of program */
+    QTabWidget* mTabs;
+
+    /* file paths */
+    PathInput* mIsoPath;
+    PathInput* mConfigFile;
+
+    /* drop down menu to select game in config file */
 
 public:
 
+    /* constructor */
     MainWindow();
 
-    std::string GetIsoPath();
-
+    /* get arguments */
+    Arguments getArgs();
 };
  
 #endif

@@ -1,40 +1,43 @@
-#include "GUI_MainWindow.h"
+#include "MainWindow.h"
 
 #include <QVBoxLayout>
 
-#include "GUI_MemConfig.h"
-#include "GUI_Inject.h"
-#include "GUI_SaveLoad.h"
-#include "GUI_Isotool.h"
-#include "GUI_LibBuilder.h"
+#include "Inject.h"
+#include "SaveLoad.h"
+#include "IsoInfo.h"
+#include "LibBuilder.h"
 
-MainWindow::MainWindow() : QWidget() {
+/* constructor */
+MainWindow::MainWindow() : QWidget()
+{
+    mIsoPath = new PathInput("iso file:", this, false, "ISO File (*.iso)");
+    mConfigFile = new PathInput("Configuration File:", this, false,
+        "Config File (*.ini)");
 
-    m_iso_path = new PathInput("iso file:", this, false, "ISO File (*.iso)");
+    mTabs = new QTabWidget(this);
 
-    m_tabs = new QTabWidget();
-
-    MemConfigTab* mem_config_tab = new MemConfigTab();
-    
-    m_tabs->addTab(mem_config_tab, "Memory Configuration");
-    m_tabs->addTab(new InjectTab(m_iso_path, mem_config_tab), "Inject C Code");
-    m_tabs->addTab(new SaveLoadTab(m_iso_path, mem_config_tab), "Save/Load ISO State");
-    m_tabs->addTab(new IsotoolTab(m_iso_path), "ISO Info");
-    m_tabs->addTab(new LibBuilderTab(), "Create Library");
+   
+    mTabs->addTab(new InjectTab(this), "Inject C Code");
+    mTabs->addTab(new SaveLoadTab(this), "Save/Load ISO State");
+    mTabs->addTab(new IsoInfoTab(this), "ISO Info");
+    mTabs->addTab(new LibBuilderTab(this), "Create Library");
 
     QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->addWidget(m_iso_path);
-    layout->addWidget(m_tabs);
+    layout->addWidget(mIsoPath);
+    layout->addWidget(mConfigFile);
+    layout->addWidget(mTabs);
   
     setLayout(layout);
     setWindowTitle("GCI");
     resize(750, 400);
-
 }
 
-std::string MainWindow::GetIsoPath() {
-
-    return m_iso_path->text();
-
+/* get arguments */
+Arguments MainWindow::getArgs()
+{
+    return Arguments();
 }
+
+
+//    return mIsoPath->text();
 

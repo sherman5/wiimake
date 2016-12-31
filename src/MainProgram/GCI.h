@@ -19,7 +19,7 @@ namespace GCI
     void loadISO(Arguments&);
     
     /* read address from iso */    
-    uint32_t readAddr(Arguments&);
+    uint32_t readAddress(Arguments&);
 
     /* create static library from files in given directory */    
     void createLibrary(Arguments&);

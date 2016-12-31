@@ -127,7 +127,7 @@ void GCI::loadISO(Arguments& args)
 }
 
 /* read address (string version of 32-bit unsigned int) from iso */
-uint32_t GCI::readAddr(Arguments& args)
+uint32_t GCI::readAddress(Arguments& args)
 {
     return ISO::read(args.cmdOptions["--read"], args);
 }

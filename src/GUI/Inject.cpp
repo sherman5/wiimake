@@ -1,93 +1,92 @@
-#include "GUI_Inject.h"
+#include "Inject.h"
 
 #include <QMessageBox>
 
-#include "../HelperFunctions.h"
-#include "../MemoryConfig.h"
-#include "../GCI.h"
+#include "../MainProgram/GCI.h"
 
 /* constructor */
-InjectTab::InjectTab(PathInput* iso, MemConfigTab* mem, QWidget* parent) : QWidget(parent) {
-
-    /* store iso path location and memory configuration */
-    m_iso_path = iso;
-    m_mem_config_tab = mem;
+InjectTab::InjectTab(MainWindow* parent) : QWidget(parent)
+{
+    /* store iso and config file paths */
+    mMainWindow = parent;
 
     /* populate the default fields of the window */
-    m_source_dir = new PathInput ("C &Source Code Directory:", this);
-    m_libraries.push_back(new PathInput ("&Library 1", this, false, "Static Library (*.a)"));
-    m_include_dirs.push_back(new PathInput ("&Include Path 1", this));
+    mSourceDir = new PathInput("C &Source Code Directory:", this);
+    mLibs.push_back(new PathInput("&Library 1", this, false,
+        "Static Library (*.a)"));
+    mIncludeDirs.push_back(new PathInput("&Include Path 1", this));
 
-    /* add buttons to allow for additional paths; create main button*/
-    m_add_lib_button = new QPushButton("+", this);
-    m_add_include_button = new QPushButton("+", this);
-    m_create_button = new QPushButton("Create ISO", this);
+    /* add buttons to allow for additional paths; create main button */
+    QPushButton* addLib = new QPushButton("+", this);
+    QPushButton* addInclude = new QPushButton("+", this);
+    QPushButton* injectCode = new QPushButton("Inject Code", this);
 
     /* connect buttons with appropiate functions */
-    connect(m_add_lib_button, SIGNAL(clicked()), this, SLOT(AddLibPath()));
-    connect(m_add_include_button, SIGNAL(clicked()), this, SLOT(AddIncludeDir())); 
-    connect(m_create_button, SIGNAL(clicked()), this, SLOT(CreateISO())); 
+    connect(addLib, SIGNAL(clicked()), this, SLOT(addLibPath()));
+    connect(addInclude, SIGNAL(clicked()), this, SLOT(addIncludeDir())); 
+    connect(injectCode, SIGNAL(clicked()), this, SLOT(createISO())); 
 
     /* create initial layout */
-    m_layout = new QGridLayout(this);
-    m_lib_layout = new QVBoxLayout();
-    m_include_layout = new QVBoxLayout();
+    QGridLayout* layout = new QGridLayout(this);
+    mLibLayout = new QVBoxLayout(this);
+    mIncludeLayout = new QVBoxLayout(this);
 
     /* add main button and source directory field */
-    m_layout->addWidget(m_create_button, 0,0,1,-1, Qt::AlignBottom);
-    m_layout->addWidget(m_source_dir, 1, 0, Qt::AlignBottom);
+    layout->addWidget(injectCode, 0,0,1,-1, Qt::AlignBottom);
+    layout->addWidget(mSourceDir, 1, 0, Qt::AlignBottom);
 
     /* add library section */
-    m_lib_layout->addWidget(m_libraries.front());
-    m_layout->addLayout(m_lib_layout, 2, 0);
-    m_layout->addWidget(m_add_lib_button, 2, 1);
+    mLibLayout->addWidget(mLibs.front());
+    layout->addLayout(mLibLayout, 2, 0);
+    layout->addWidget(addLib, 2, 1);
 
     /* add include path section */
-    m_include_layout->addWidget(m_include_dirs.front());
-    m_layout->addLayout(m_include_layout, 3, 0);
-    m_layout->addWidget(m_add_include_button, 3, 1);    
+    mIncludeLayout->addWidget(mIncludeDirs.front());
+    layout->addLayout(mIncludeLayout, 3, 0);
+    layout->addWidget(addInclude, 3, 1);    
 
     /* set layout */
-    setLayout(m_layout);
-
+    setLayout(layout);
 }
 
 /* add another slot for a library */
-void InjectTab::AddLibPath() {
-
+void InjectTab::addLibPath()
+{
     /* insert new slot */
-    std::string label = "Library " + std::to_string(m_libraries.size() + 1);
-    m_libraries.push_back(new PathInput(QString::fromStdString(label), this));
+    std::string label = "Library " + std::to_string(mLibs.size() + 1);
+    mLibs.push_back(new PathInput(QString::fromStdString(label),
+        this, false, "Static Library (*.a)"));
 
     /* move button and add new library slot */
-    m_lib_layout->addWidget(m_libraries.back());
-
+    mLibLayout->addWidget(mLibs.back());
 }
 
 /* add another slot for an include directory */
-void InjectTab::AddIncludeDir() {
-
+void InjectTab::addIncludeDir()
+{
     /* insert new slot */
-    std::string label = "Include Path " + std::to_string(m_include_dirs.size() + 1);
-    m_include_dirs.push_back(new PathInput(QString::fromStdString(label), this));
+    std::string label = "Include Path "
+        + std::to_string(mIncludeDirs.size() + 1);
+
+    mIncludeDirs.push_back(new PathInput(
+        QString::fromStdString(label), this));
 
     /* move button and add new include directory slot */
-    m_include_layout->addWidget(m_include_dirs.back());
-
+    mIncludeLayout->addWidget(mIncludeDirs.back());
 }
 
 /* inject the code into the iso */
-void InjectTab::CreateISO() {
-
+void InjectTab::createISO()
+{
     /* get code source directory */
-    std::string source_dir = m_source_dir->text();
+/*    std::string source_dir = m_source_dir->text();
     std::vector<std::string> libs, include_dirs;
 
     /* get library names */
-    for (auto it = m_libraries.begin(); it != m_libraries.end(); ++it) {
+/*    for (auto it = m_libraries.begin(); it != m_libraries.end(); ++it) {
 
         /* only consider fields that contain content */        
-        if ((*it)->text().length() > 0) {
+    /*    if ((*it)->text().length() > 0) {
 
             libs.push_back((*it)->text());
 
@@ -96,10 +95,10 @@ void InjectTab::CreateISO() {
     }
 
     /* get include directories */
-    for (auto it = m_include_dirs.begin(); it != m_include_dirs.end(); ++it) {
+/*    for (auto it = m_include_dirs.begin(); it != m_include_dirs.end(); ++it) {
 
         /* only consider fields that contain content */
-        if ((*it)->text().length() > 0) {
+/*        if ((*it)->text().length() > 0) {
 
             include_dirs.push_back((*it)->text());
 
@@ -108,7 +107,7 @@ void InjectTab::CreateISO() {
     }
 
     /* call function to compile and inject code */    
-    GCI::CreateISO(source_dir,
+/*    GCI::CreateISO(source_dir,
                    m_mem_config_tab->getConfig(),
                    include_dirs,
                    libs,
@@ -116,8 +115,8 @@ void InjectTab::CreateISO() {
 
     //TODO: handle failure
     /* pop up message box for success */
-    QMessageBox mb (QMessageBox::Information, "GCI", "ISO Succesfully Created!");
-    mb.exec();    
+//    QMessageBox mb (QMessageBox::Information, "GCI", "ISO Succesfully Created!");
+//    mb.exec();    
 
 }
 

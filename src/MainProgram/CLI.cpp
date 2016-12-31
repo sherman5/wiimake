@@ -17,7 +17,7 @@ void RunProgram(Arguments& args)
     else if (args.cmdOptions.count("--read")) 
     {
         /* display value at address given */
-        std::cout << std::hex << GCI::readAddr(args) << std::endl;
+        std::cout << std::hex << GCI::readAddress(args) << std::endl;
     }
     /* compile, link, allocate code and inject to ISO  */
     else if (args.cmdOptions.count("--inject"))

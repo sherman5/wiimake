@@ -27,9 +27,6 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 endif()
 
-# build CLI by default, GUI only if QT is available
-set (BUILD_CLI TRUE)
-
 # look for qt (don't build GUI if qt not available)
 find_package (Qt5Widgets QUIET)
 
@@ -50,9 +47,6 @@ else()
     message(WARNING "QT not found: GUI will not be built")
 
 endif()
-
-# allow for tests to be added 
-# enable_testing(true)
 
 # add directory with source files
 add_subdirectory (src)

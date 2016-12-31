@@ -1,5 +1,5 @@
-#ifndef GUI_LIB_BUILDER_H
-#define GUI_LIB_BUILDER_H
+#ifndef LIB_BUILDER_H
+#define LIB_BUILDER_H
 
 #include <QWidget>
 #include <QObject>
@@ -7,27 +7,29 @@
 #include <QLabel>
 #include <QLineEdit>
 
-#include "GUI_CustomObjects.h"
+#include "PathInput.h"
 
-class LibBuilderTab : public QWidget {
-
+class LibBuilderTab : public QWidget
+{
     Q_OBJECT
 
 private:
 
-    PathInput* m_source_dir;
-    QLineEdit* m_name;
-    QLabel* m_name_label;
-    QPushButton* m_create_button;
+    /* C source directory */
+    PathInput* mSourceDir;
+
+    /* library name */
+    QLineEdit* mName;
 
 public:
 
+    /* constructor */
     LibBuilderTab(QWidget* = Q_NULLPTR);
 
 public slots:
 
-    void CreateLibrary();
-
+    /* create library */
+    void createLibrary();
 };
 
 #endif

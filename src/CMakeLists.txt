@@ -14,16 +14,15 @@ SET (CORE_SRCS MainProgram/GCI.cpp
                )
 
 # Files used for GUI
-SET (GUI_SRCS GUI/CustomObjects.cpp
+SET (GUI_SRCS GUI/MainWindow.cpp    
+              GUI/PathInput.cpp
               GUI/Inject.cpp
-              GUI/Isotool.cpp
-              GUI/LibBuilder.cpp
-              GUI/MainWindow.cpp    
-              GUI/MemConfig.cpp
               GUI/SaveLoad.cpp
+              GUI/IsoInfo.cpp
+              GUI/LibBuilder.cpp
               )
 
-# sources for testing
+# Test files
 SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testSystem.cpp
                ../tests/testConfigFileParser.cpp
@@ -45,12 +44,29 @@ SET (TEST_SRCS ../tests/Runner.cpp
 add_executable (testGCI ${TEST_SRCS} ${CORE_SRCS})
 install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 
+# get libraries needed for windows
+if (WIN32)
+
+    set (EXTRA_LIBS wsock32 ws2_32)
+
+endif()
+
 # add CLI
 add_executable (GCI MainProgram/CLI.cpp
                     MainProgram/CommandLineParser.cpp
                     ${CORE_SRCS})
 
-# install target for CLI
- install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+target_link_libraries (GCI ${EXTRA_LIBS})
 
 # add GUI
+if (BUILD_GUI)
+
+    add_executable (GCI-gui MainProgram/GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
+    target_link_libraries (GCI-gui Qt5::Widgets ${EXTRA_LIBS})
+
+endif()
+
+# install targets
+install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install (TARGETS GCI-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
