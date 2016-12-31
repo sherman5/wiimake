@@ -4,7 +4,7 @@
 namespace Description
 {
 
-    const std::string version = "\nGCI v1.0\nDecember 26, 2016\n";
+    const std::string version = "\nGCI v1.0\nDecember 30, 2016\n";
 
     const std::string summary = "\n"
     "\t GCI is an automated tool for compiling, allocating,\n"
@@ -24,7 +24,7 @@ namespace Description
     "\t [--ar <directory>] [--read <address>] [--config-file <file>]\n"
     "\t [--game-id <id>] [--iso-file <file>] [--lib <library>]\n"
     "\t [--include <directory>] [--output <filename>] [--save-temps]\n"
-    "\t [--help] [--usage] [--version]\n"
+    "\t [--help] [--usage] [--version]\n";
 
     const std::string space = "                            ";
 

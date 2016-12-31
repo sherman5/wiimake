@@ -5,11 +5,9 @@
 #include "../src/MainProgram/Parser.h"
 #include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
 TEST_CASE("test that arguments are checked correctly")
 {
-    /* header for the first test case */
+    /* display header in the first test case */
     displayHeader("Testing GCI.cpp");
 
     /* struct to hold arguments */

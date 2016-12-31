@@ -4,11 +4,30 @@
 #include "../src/MainProgram/Parser.h"
 #include "../tests/HeaderDisplay.h"
 
-TEST_CASE("Testing functions in ISO.cpp")
+TEST_CASE("create iso from reference")
 {
     /* display header in first test case */
     displayHeader("Testing ISO.cpp");
 
+    /* open up iso files */
+    std::fstream referenceISO ("../tests/reference.iso");
+    std::fstream testISO ("../tests/test.iso");
+
+    /* loop through all addresses */
+    uint32_t val;
+    for (uint32_t a = 0; a < 0x457df2; a += 0x04)
+    {
+        referenceISO.read(reinterpret_cast<char *>(&val), sizeof(val));
+        testISO.write(reinterpret_cast<char *>(&val), sizeof(val));
+    }
+
+    /* close iso files */
+    referenceISO.close();
+    testISO.close();
+}
+
+TEST_CASE("test all functions in ISO.cpp")
+{
     /* populate args with info for iso */
     Arguments args;
     args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
@@ -20,7 +39,6 @@ TEST_CASE("Testing functions in ISO.cpp")
         "../tests/save.data"));
     args.cmdOptions.insert(std::make_pair("--load",
         "../tests/save.data"));
-
 
     ConfigParser::parse(args);
 

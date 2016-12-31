@@ -2,32 +2,18 @@
 
 #include "../src/HelperFunctions/HelperFunctions.h"
 #include "../src/MainProgram/Parser.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE("testing functions in Builder.cpp")
+TEST_CASE("create library")
 {
-    std::cout << "\033[33m" <<
-    "\n========= Testing Builder.cpp =========\n"
-    << "\033[39m" << std::endl;
+    /* display header in first test case */
+    displayHeader("Testing Builder.cpp");
 
-    /* arguments for testing */
+    /* needed args */
     Arguments args;
-
     args.cmdOptions.insert(std::make_pair("--ar", "../tests/lib"));
     args.cmdOptions.insert(std::make_pair("--output",
         "../tests/libtest.a"));
-
-    args.cmdOptions.insert(std::make_pair("--inject", "../tests/source"));
-    args.libs.push_back("../tests/lib1.a");
-    args.includePaths.push_back("../tests/include");
-
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));
-    ConfigParser::parse(args);
-
-    /** create test library **/
 
     /* remove old library */
     System::runCMD(System::rm + " ../tests/libtest.a");
@@ -48,31 +34,52 @@ TEST_CASE("testing functions in Builder.cpp")
     REQUIRE(libSections[5] == "text2");
     REQUIRE(libSections[6] == "rodata2");
     REQUIRE(libSections[7] == "attr2");
+}
 
-    /** test adding original instruction **/
+TEST_CASE("add original instruction")
+{
+    /* needed args */
+    Arguments args;
+    args.configOptions.insert(std::make_pair("inject_address", 0x125));
+    args.configOptions.insert(std::make_pair("original_instruction", 0xe));
+    args.memRegions.push_back(MemRegion(0x120, 0x200));
 
     /* create sample code */
     ASMcode testCode;
     testCode.push_back(std::make_pair(0x50, 0xabc));        
     testCode.push_back(std::make_pair(0x75, 0xabc));
     testCode.push_back(std::make_pair(0x100, 0xabc));
-    testCode.push_back(std::make_pair(0x803fa3ec, 0x60000000));
+    testCode.push_back(std::make_pair(0x124, 0x60000000));
     testCode.push_back(std::make_pair(0x150, 0xabc));
     testCode.push_back(std::make_pair(0x200, 0xabc));
 
     /* overwrite nop */
     REQUIRE_NOTHROW(Builder::addOriginalInstruction(testCode, args));
-    REQUIRE(testCode[3].first == 0x803fa3ec);
-    REQUIRE(testCode[3].second == 0x7ee3bb78);
+    REQUIRE(testCode[3].first == 0x124);
+    REQUIRE(testCode[3].second == 0xe);
 
     /* should return error - instruction not nop */
     REQUIRE_THROWS_AS(Builder::addOriginalInstruction(testCode, args),
         std::runtime_error);
+}
+
+TEST_CASE("allocate sections given object files")
+{
+    /* needed args */
+    Arguments args;
+    args.cmdOptions.insert(std::make_pair("--inject", "../tests/source"));
+    args.libs.push_back("../tests/lib1.a");
+    args.includePaths.push_back("../tests/include");
+
+    args.cmdOptions.insert(std::make_pair("--config-file",
+        "../tests/config.ini"));
+    args.cmdOptions.insert(std::make_pair("--game-id", "2"));
+    ConfigParser::parse(args);
 
     /* compile source files, return object files */
     auto objects = Builder::getObjectFiles(args.cmdOptions["--inject"], 
         args.includePaths, args.libs);
-
+    
     REQUIRE(objects.size() == 3);    
     REQUIRE(objects[0] == "../tests/source/source1.o");    
     REQUIRE(objects[1] == "../tests/source/source2.o");
@@ -135,7 +142,31 @@ TEST_CASE("testing functions in Builder.cpp")
 
     REQUIRE(sections[14].path == "inject_point.o");
     REQUIRE(sections[14].address == 0x80377998);
-    
+}
+
+TEST_CASE("link sections and extract code")
+{
+    /* needed args */
+    Arguments args;
+    args.cmdOptions.insert(std::make_pair("--inject", "../tests/source"));
+    args.libs.push_back("../tests/lib1.a");
+    args.includePaths.push_back("../tests/include");
+
+    args.cmdOptions.insert(std::make_pair("--config-file",
+        "../tests/config.ini"));
+    args.cmdOptions.insert(std::make_pair("--game-id", "2"));
+    ConfigParser::parse(args);
+
+    /* compile source files, return object files */
+    auto objects = Builder::getObjectFiles(args.cmdOptions["--inject"], 
+        args.includePaths, args.libs);
+
+    /* find addresses for each section */
+    auto sections = Builder::getSectionAddresses(objects, args);
+
+    /* add stack setup files */
+    Builder::addStackSetup(sections, args);
+
     /* link all code in sections */
     System::runCMD(System::rm + " final.out");
     ASMcode code = Builder::getLinkedCode(sections);

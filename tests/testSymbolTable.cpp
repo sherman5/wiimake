@@ -1,22 +1,18 @@
 #include "catch.hpp"
 
 #include "../src/HelperFunctions/HelperFunctions.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE ("Testing functions in SymbolTable.cpp")
+TEST_CASE ("parsing single line")
 {
-    std::cout << "\033[33m" <<
-    "\n========= Testing SymbolTable.cpp =========\n"
-    << "\033[39m" << std::endl;
-
-    /** test parsing a single line **/
+    /* display header in first test case */
+    displayHeader("Testing SymbolTable.cpp");
 
     /* vector of sizes */
     std::vector<unsigned> sizes;
     sizes.resize(7);
 
-    /* read first line of file */
+    /* open up text file with symbol table */
     std::ifstream file = std::ifstream("../tests/symbolTable.txt");
     std::string line;
 
@@ -52,8 +48,10 @@ TEST_CASE ("Testing functions in SymbolTable.cpp")
     /* section 1 has size 16 */
     SymbolTable::parseLine(file, line, sizes);
     REQUIRE(sizes[0] == 16);
+}
 
-    /** test top level size parser **/    
+TEST_CASE("parse whole table")
+{
     auto sz = SymbolTable::getSizes("../tests/symbolTable.out", 7);
     REQUIRE(sz[0] == 16);
     REQUIRE(sz[1] == 20);

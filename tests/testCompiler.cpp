@@ -1,14 +1,12 @@
 #include "catch.hpp"
 
 #include "../src/HelperFunctions/HelperFunctions.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE("testing functions in Compiler.cpp")
+TEST_CASE("compile files in directory")
 {
-    std::cout << "\033[33m" << 
-    "\n========= Testing Compiler.cpp =========\n"
-    << "\033[39m" << std::endl;
+    /* display header in first test case */
+    displayHeader("Testing Compiler.cpp");
 
     FileList files;
     files.push_back("../tests/include");

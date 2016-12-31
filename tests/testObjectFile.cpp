@@ -1,17 +1,14 @@
 #include "catch.hpp"
 
 #include "../src/HelperFunctions/HelperFunctions.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE ("testing functions in ObjectFile.cpp")
+TEST_CASE("recognize single line of code")
 {
-    std::cout << "\033[33m" << 
-    "\n========= Testing ObjectFile.cpp =========\n"
-    << "\033[39m" << std::endl;
+    /* display header in first test case */
+    displayHeader("Testing ObjectFile.cpp");
 
-    /** recognize a single line of code **/
-
+    REQUIRE(!ObjectFile::lineOfCode(""));    
     REQUIRE(!ObjectFile::lineOfCode("a.out:"));
     REQUIRE(!ObjectFile::lineOfCode("gci_1:"));
     REQUIRE(!ObjectFile::lineOfCode("<gci_1>:"));
@@ -19,15 +16,14 @@ TEST_CASE ("testing functions in ObjectFile.cpp")
     REQUIRE(ObjectFile::lineOfCode("c:"));
     REQUIRE(!ObjectFile::lineOfCode("<TimesTwo>:"));
     REQUIRE(!ObjectFile::lineOfCode(".comment:"));
+}
 
-    /** test parsing a single line from text file **/
-
+TEST_CASE("parse single line of code")
+{
     /* open up test file */
     std::ifstream file ("../tests/objectFile.txt");
-
-    /* string to store line */
     std::string line;
-    
+
     /* find first line of code */
     while (!ObjectFile::lineOfCode(line))
     {
@@ -41,10 +37,11 @@ TEST_CASE ("testing functions in ObjectFile.cpp")
 
     /* close file */
     file.close();
+}
 
-    /** extract asm from object file */
-
-    /* get asm code */
+TEST_CASE("extract asm from object file")
+{
+   /* get asm code */
     auto code = ObjectFile::extractASM("../tests/objectFile.out");
 
     /* check number of lines */
@@ -57,9 +54,10 @@ TEST_CASE ("testing functions in ObjectFile.cpp")
     REQUIRE(code[9].second == 0x9421ffe8);
     REQUIRE(code[67].first == 0x803fa3f0);
     REQUIRE(code[67].second == 0x4bf7d5ac);
+}
 
-    /* get named sections of object file */   
-
+TEST_CASE("get named sections from object file")
+{
     /* get sections */
     auto sect = ObjectFile::getNamedSections("../tests/objectFile.out");
 

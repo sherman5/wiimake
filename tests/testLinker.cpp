@@ -1,14 +1,12 @@
 #include "catch.hpp"
 
 #include "../src/HelperFunctions/HelperFunctions.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE("testing functions in Linker.cpp")
+TEST_CASE("test linker")
 {
-    std::cout << "\033[33m" <<
-    "\n========= Testing Linker.cpp =========\n"
-    << "\033[39m" << std::endl;
+    /* display header in first test case */
+    displayHeader("Testing Linker.cpp");
 
     /* create sections */
     SectionList sections;

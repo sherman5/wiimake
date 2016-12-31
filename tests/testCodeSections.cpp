@@ -2,14 +2,12 @@
 
 #include "../src/HelperFunctions/HelperFunctions.h"
 #include "../src/MainProgram/Parser.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE("testing functions in CodeSections.cpp")
+TEST_CASE("get section names and sizes")
 {
-    std::cout << "\033[33m" <<
-    "\n========= Testing CodeSections.cpp =========\n"
-    << "\033[39m" << std::endl;
+    /* display header in first test case */
+    displayHeader("Testing CodeSections.cpp");
 
     /* create file list */
     FileList files;
@@ -17,7 +15,7 @@ TEST_CASE("testing functions in CodeSections.cpp")
     files.push_back("../tests/object2.o");
     files.push_back("../tests/lib1.a");
 
-    /* get sections */
+    /* get section names */
     SectionList sections;
     REQUIRE_NOTHROW(CodeSections::storeNames(sections, files));
 
@@ -36,6 +34,7 @@ TEST_CASE("testing functions in CodeSections.cpp")
     REQUIRE(sections[11].path == "../tests/lib1.a (rodata2)");
     REQUIRE(sections[12].path == "../tests/lib1.a (attr2)");
 
+    /* get section sizes */
     REQUIRE_NOTHROW(CodeSections::storeSizes(sections));
 
     REQUIRE(sections.size() == 13);

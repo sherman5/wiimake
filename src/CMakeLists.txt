@@ -26,18 +26,18 @@ SET (GUI_SRCS GUI/CustomObjects.cpp
 # sources for testing
 SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testSystem.cpp
-               ../tests/testSymbolTable.cpp  
-               ../tests/testObjectFile.cpp
-               ../tests/testMemory.cpp
-               ../tests/testLinkerScript.cpp
-               ../tests/testLinker.cpp
+               ../tests/testConfigFileParser.cpp
+               ../tests/testCommandLineParser.cpp
                ../tests/testISO.cpp
                ../tests/testCompiler.cpp
+               ../tests/testLinker.cpp
+               ../tests/testLinkerScript.cpp
+               ../tests/testObjectFile.cpp
+               ../tests/testSymbolTable.cpp  
+               ../tests/testMemory.cpp
                ../tests/testCodeSections.cpp
                ../tests/testBuilder.cpp
                ../tests/testGCI.cpp
-               ../tests/testConfigFileParser.cpp
-               ../tests/testCommandLineParser.cpp
                MainProgram/CommandLineParser.cpp
                )
 

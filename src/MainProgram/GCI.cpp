@@ -43,8 +43,8 @@ void GCI::checkArgs(Arguments& args)
         + args.cmdOptions.count("--read") != 1)
     {
         /* throw exception for incorrect number of args */
-        throw std::invalid_argument("must specify exactly one of "
-            "--inject, --save, --load, --ar, --read");
+        throw std::invalid_argument("error: must specify exactly one"
+            " of --inject, --save, --load, --ar, --read");
     }
 
     /* check that enough arguments are passed */
