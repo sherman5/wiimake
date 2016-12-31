@@ -50,7 +50,8 @@ void IsoInfoTab::readAddress()
     /* get arguments */ 
     Arguments args = mMainWindow->getArgs();
     args.cmdOptions.insert(std::make_pair("--read", address));
-    
+    GCI::checkArgs(args);    
+
     /* try to read address */
     try
     {

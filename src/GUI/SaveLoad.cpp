@@ -44,6 +44,7 @@ void SaveLoadTab::saveFile()
     args.cmdOptions.insert(std::make_pair("--save", file));
 
     /* save file */
+    GCI::checkArgs(args);
     GCI::saveISO(args);
 }
 
@@ -64,6 +65,7 @@ void SaveLoadTab::loadFile()
     args.cmdOptions.insert(std::make_pair("--load", file));
 
     /* load file */    
+    GCI::checkArgs(args);
     GCI::loadISO(args);
 }
 

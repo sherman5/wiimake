@@ -44,5 +44,6 @@ void LibBuilderTab::createLibrary()
         mName->text().toStdString()));
     
     /* create library */
+    GCI::checkArgs(args);
     GCI::createLibrary(args);
 }
