@@ -2,14 +2,12 @@
 
 #include "../src/HelperFunctions/HelperFunctions.h"
 #include "../src/MainProgram/Parser.h"
+#include "../tests/HeaderDisplay.h"
 
-#include <iostream>
-
-TEST_CASE("testing functions in Memory.cpp")
+TEST_CASE("find code allocation")
 {
-    std::cout << "\033[33m" <<
-    "\n========= Testing Memory.cpp =========\n"
-    << "\033[39m" << std::endl;
+    /* display header in first test case */
+    displayHeader("Testing Memory.cpp");
 
     /* get arguments for testing */
     Arguments args;
@@ -39,7 +37,7 @@ TEST_CASE("testing functions in Memory.cpp")
     sections[5].size = 0x900;
     sections[6].size = 0x1500;
 
-   /* find allocation */
+    /* find allocation */
     Memory::findCodeAllocation(sections, args);
 
     /* check addresses */

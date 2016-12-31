@@ -111,7 +111,7 @@ void GCI::createISO(Arguments& args)
     ISO::injectCode(code, args);
 
     /* remove temp files */
-    if (!args.cmdOptions.count("--save-temps")) { Builder::cleanDirectory();}
+    if (!args.cmdOptions.count("--save-temps")) {Builder::cleanDirectory();}
 }
 
 /* save iso state */

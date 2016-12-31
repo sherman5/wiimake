@@ -156,13 +156,22 @@ void Builder::cleanDirectory()
     /* put all file names in vector */
     std::vector<std::string> files =
     {
-        System::rm + " linker_script.txt",
+        "sizes.txt",
+        "temp_linker_script.txt",
+        "sizes.out",
+        "stack_setup.s",
+        "stack_setup.o",
+        "inject_point.s",
+        "inject_point.o",
+        "linker_script.txt",
+        "final.out",
+        "final.txt"
     };
 
     /* iterate through the vector and run each cmd */
     auto it = files.begin();
     for (; it != files.end(); ++it)
     {
-        System::runCMD(*it);
+        System::runCMD(System::rm + " " + *it);
     }
 }

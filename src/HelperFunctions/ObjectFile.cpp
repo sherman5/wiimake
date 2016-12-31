@@ -125,6 +125,9 @@ std::vector<std::string> ObjectFile::getNamedSections(std::string fileName)
     /* close file */
     file.close();
 
+    /* remove temp file */
+    System::runCMD(System::rm + " temp.txt");
+
     /* return section list */
     return sections;
 }
