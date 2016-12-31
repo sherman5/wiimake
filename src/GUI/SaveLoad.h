@@ -20,10 +20,12 @@ private:
 
 public:
 
+    /* constructor */    
     SaveLoadTab(MainWindow*);
     
 public slots:
 
+    /* save/load iso state to/from file */
     void saveFile();
     void loadFile();
 };

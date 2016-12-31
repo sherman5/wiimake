@@ -128,6 +128,7 @@ void ConfigParser::storeMemoryRegions(std::ifstream& file, Arguments& args)
     }
 }
 
+/* get titles of all games in config file */    
 TokenList ConfigParser::getGameTitles(std::string fileName)
 {
     /* list of found titles */

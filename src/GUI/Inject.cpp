@@ -78,45 +78,39 @@ void InjectTab::addIncludeDir()
 /* inject the code into the iso */
 void InjectTab::createISO()
 {
-    /* get code source directory */
-/*    std::string source_dir = m_source_dir->text();
-    std::vector<std::string> libs, include_dirs;
+    /* get arguments from main window */
+    Arguments args = mMainWindow->getArgs();
 
-    /* get library names */
-/*    for (auto it = m_libraries.begin(); it != m_libraries.end(); ++it) {
+    /* get source code directory */
+    args.cmdOptions.insert(std::make_pair("--inject", mSourceDir->text()));
 
+    /* get libs */
+    for (auto it = mLibs.begin(); it != mLibs.end(); ++it)
+    {
         /* only consider fields that contain content */        
-    /*    if ((*it)->text().length() > 0) {
-
-            libs.push_back((*it)->text());
-
+        if ((*it)->text().length() > 0)
+        {
+            args.libs.push_back((*it)->text());
         }
-
     }
 
-    /* get include directories */
-/*    for (auto it = m_include_dirs.begin(); it != m_include_dirs.end(); ++it) {
-
+    /* get includes */
+    for (auto it = mIncludeDirs.begin(); it != mIncludeDirs.end(); ++it)
+    {
         /* only consider fields that contain content */
-/*        if ((*it)->text().length() > 0) {
-
-            include_dirs.push_back((*it)->text());
-
+        if ((*it)->text().length() > 0)
+        {
+            args.includePaths.push_back((*it)->text());
         }
-
     }
 
-    /* call function to compile and inject code */    
-/*    GCI::CreateISO(source_dir,
-                   m_mem_config_tab->getConfig(),
-                   include_dirs,
-                   libs,
-                   m_iso_path->text());
+    /* create iso */
+    GCI::checkArgs(args);
+    GCI::createISO(args);
 
-    //TODO: handle failure
     /* pop up message box for success */
-//    QMessageBox mb (QMessageBox::Information, "GCI", "ISO Succesfully Created!");
-//    mb.exec();    
-
+    QMessageBox mb (QMessageBox::Information, "GCI",
+        "C code successfully injected into iso!");
+    mb.exec();    
 }
 
