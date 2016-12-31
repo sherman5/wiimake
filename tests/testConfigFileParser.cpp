@@ -125,6 +125,17 @@ TEST_CASE("no config file provided")
     REQUIRE_NOTHROW(ConfigParser::parse(args));
 }
 
+TEST_CASE("test getting game titles")
+{
+    /* get titles */
+    auto list = ConfigParser::getGameTitles("../tests/config.ini");
+
+    REQUIRE(list.size() == 3);
+    REQUIRE(list[0] == "Dummy 1");
+    REQUIRE(list[1] == "Test Config");
+    REQUIRE(list[2] == "Dummy 2");
+}
+
 
 
 
