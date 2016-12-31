@@ -7,6 +7,9 @@
     
 #endif
 
+/* change extension of file name */
+#define CHANGE_EXT(file, ext) (std::string(file).substr(0, std::string(file).find_last_of('.') + 1) + ext)
+
 #include <vector>
 #include <utility>
 #include <string>

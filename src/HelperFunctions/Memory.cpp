@@ -1,38 +1,90 @@
 #include "HelperFunctions.h"
 
 #include <algorithm>
+#include <iostream>
 
-/* find an allocation of code in available regions */
-void Memory::findCodeAllocation(SectionList& sections, const Arguments& args)
+/* find an allocation of code in available regions
+   can't change section order! */
+void Memory::findCodeAllocation(SectionList& sections,
+const Arguments& args)
 {
-    /* get local copy of memory regions vector */
+    /* get local copies */
     std::vector<MemRegion> regions = args.memRegions;
+    std::vector<Section> sortedSections = SectionList(sections);
 
     /* leave room for stack setup */
     regions.front().start += 0xC;
 
-    /* sort regions and sections (SectionList = std::vector<Section>)*/
+    /* sort regions and sections */
     std::sort (regions.begin(), regions.end());
-    std::sort (sections.begin(), sections.end());
+    std::sort (sortedSections.begin(), sortedSections.end());
 
     /* iterate through sections, start with largest */
-    for (auto it = sections.rbegin(); it != sections.rend(); ++it)
+    auto it = sortedSections.rbegin();
+    for (; it != sortedSections.rend(); ++it)
     {
-        /* ignore sections with zero size */
-        if ((*it).size == 0) { (*it).address = 0; break;}
+        /* find this section in original */
+        auto orig = std::find_if(sections.begin(), sections.end(),
+            [&](const Section& section)
+            {
+                return section.path == (*it).path;
+            });
 
-        /* check if largest region can contain section */
-        if ((*it).size > regions.back().end - regions.back().start)
+        /* store address */
+        Memory::storeAddress(*orig, regions.back());
+
+        /* re-sort regions */
+        std::sort(regions.begin(), regions.end());
+    }
+
+    /* check allocation */
+    Memory::checkAllocation(sections);
+}
+
+/* store the address from given region for this section */
+void Memory::storeAddress(Section& section, MemRegion& region)
+{
+    /* ignore sections with zero size */
+    if (section.size == 0)
+    {
+        section.address = 0;
+    }
+    else
+    {
+        /* check if region can contain section */
+        if (section.size > region.end - region.start)
         {
-            throw std::runtime_error("can't find allocation of code with"
-                " given memory regions");
+            throw std::runtime_error("can't find allocation of code"
+                " with given memory regions");
         }
 
-        /* put section at beginning of largest region */
-        (*it).address = regions.back().start;
+        /* put section at beginning of region */
+        section.address = region.start;
 
-        /* update region size and re-sort */
-        regions.back().start += (*it).size;
-        std::sort(regions.begin(), regions.end());
+        /* update region size (with buffer)*/
+        region.start += section.size + 0x04;
+    }
+}    
+
+/* verify allocation was done correctly - can't change section order */
+void Memory::checkAllocation(const SectionList& sections)
+{
+    /* can't sort const reference */    
+    auto copy = sections;
+
+    /* sort copy of sections by address - ascending */
+    std::sort(copy.begin(), copy.end(),
+        [](const Section& a, const Section& b)
+        {
+            return a.address < b.address;
+        });
+
+    /* check for section overlap */
+    for (unsigned i = 0; i < copy.size() - 1; ++i)
+    {
+        if (copy[i].address + copy[i].size > copy[i+1].address)
+        {
+            throw std::runtime_error("error allocating code");
+        }
     }
 }

@@ -32,16 +32,16 @@ FileList Builder::getObjectFiles(std::string sourceDir,
                                  FileList includeDirs,
                                  FileList libs)
 {       
-    /* remove trailing backslash if present */
-    if (sourceDir.back() == '/' || sourceDir.back() == '\\')
-    {
-        sourceDir.pop_back();
-    }
-
     /* compile source files */
     auto objects = Compiler::compile(sourceDir, includeDirs);
-    
-    /* add libraries to list of object files */
+
+    /* rename sections */
+    for (auto it = objects.begin(); it != objects.end(); ++it)
+    {
+        ObjectFile::renameSections(*it);
+    }
+
+    /* add libraries to END of object file list */
     objects.insert(objects.end(), libs.begin(), libs.end());
 
     /* return list of all object files */
@@ -88,6 +88,7 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
     /* add both to section list */
     Section ss ("stack_setup.o", args.memRegions.front().start);
     Section ip ("inject_point.o", args.configOptions["inject_address"]);
+
     sections.push_back(ss);
     sections.push_back(ip);
 }
@@ -123,6 +124,32 @@ void Builder::addOriginalInstruction(ASMcode& code, Arguments& args)
     (*it).second = args.configOptions["original_instruction"];
 }
 
+/* create static library from files in given directory */
+void Builder::buildLibrary(Arguments& args)
+{
+    /* compile source files, get object names */
+    auto objects = Compiler::compile(args.cmdOptions["--ar"]);
+
+    /* create archive command */
+    std::string cmd = "powerpc-eabi-ar -cvr " + args.cmdOptions["--output"];
+
+    /* add object files to command */
+    for (auto it = objects.begin(); it != objects.end(); ++it)
+    {
+        cmd += " " + *it;
+    }
+
+    /* rename sections in a unique way to differentiate
+       between object files */
+    for (unsigned int i = 0; i < objects.size(); ++i)
+    {
+        ObjectFile::renameSections(objects[i], std::to_string(i));
+    }
+
+    /* run archive command to create static library */
+    System::runCMD(cmd);
+}
+
 /* remove all temporary files created in the build process */
 void Builder::cleanDirectory()
 {
@@ -130,12 +157,6 @@ void Builder::cleanDirectory()
     std::vector<std::string> files =
     {
         System::rm + " linker_script.txt",
-        System::rm + " RawCode.txt",
-        System::rm + " exec.txt",
-        System::rm + " inject_point.s",
-        System::rm + " inject_point.o",
-        System::rm + " stack_setup.s",
-        System::rm + " stack_setup.o"
     };
 
     /* iterate through the vector and run each cmd */

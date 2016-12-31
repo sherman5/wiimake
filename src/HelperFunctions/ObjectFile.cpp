@@ -43,10 +43,11 @@ ASMcode ObjectFile::extractASM(std::string fileName)
     ASMcode code;
 
     /* dump file contents to text */
-    System::runCMD("powerpc-eabi-objdump -D " + fileName + " > exec.txt");
+    System::runCMD("powerpc-eabi-objdump -D " + fileName + " > "
+        + CHANGE_EXT(fileName, "txt"));
 
     /* open up text file and read first line */
-    std::ifstream file ("exec.txt");
+    std::ifstream file (CHANGE_EXT(fileName, "txt"));
     std::string line;
 
     /* loop until end of file or comment section */

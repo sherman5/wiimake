@@ -1,9 +1,18 @@
 #include "Parser.h"
 #include "Global.h"
 
+#include <string>
+
 /* parse config file */
 void ConfigParser::parse(Arguments& args)
 {
+    /* check if config file was passed */
+    if (!args.cmdOptions.count("--config-file")
+        || args.cmdOptions["--config-file"].empty())
+    {
+        return;
+    }
+    
     /* find beginning of game info */
     std::ifstream file = ConfigParser::findGame(args);
 
@@ -52,6 +61,11 @@ void ConfigParser::storeVariable(std::ifstream& file, std::string line,
 Arguments& args)
 {
     /* get variable name and value */
+    if (line.find("=") == line.length())
+    {
+        throw std::invalid_argument("config file: no value given for "
+            + line);
+    }
     std::string name = line.substr(0, line.find("="));
     std::string value = line.substr(line.find("=") + 1);
 

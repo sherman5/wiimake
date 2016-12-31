@@ -34,6 +34,8 @@ SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testISO.cpp
                ../tests/testCompiler.cpp
                ../tests/testCodeSections.cpp
+               ../tests/testBuilder.cpp
+               ../tests/testGCI.cpp
                ../tests/testConfigFileParser.cpp
                ../tests/testCommandLineParser.cpp
                MainProgram/CommandLineParser.cpp
@@ -49,6 +51,6 @@ add_executable (GCI MainProgram/CLI.cpp
                     ${CORE_SRCS})
 
 # install target for CLI
-# install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+ install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # add GUI

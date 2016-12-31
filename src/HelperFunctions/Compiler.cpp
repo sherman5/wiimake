@@ -2,10 +2,8 @@
 
 #include <iostream>
 
-/* change extension of file name */
-#define CHANGE_EXT(file, ext) (std::string(file).substr(0, std::string(file).find_last_of('.') + 1) + ext)
-
-FileList Compiler::compile(std::string dir, FileList& includePaths)
+//TODO: throw exception with compiler error
+FileList Compiler::compile(std::string dir, FileList includePaths)
 {
     /* list of object files */
     FileList objects;
@@ -29,7 +27,7 @@ FileList Compiler::compile(std::string dir, FileList& includePaths)
     for (auto it = sources.begin(); it != sources.end(); ++it) {
 
         /* create compile command */
-        std::string cmd = "powerpc-eabi-gcc -c " + includes
+        std::string cmd = "powerpc-eabi-gcc -c -fno-builtin " + includes
             + *it + " -o " + CHANGE_EXT(*it, "o");
         
         /* add to object list */
@@ -38,9 +36,6 @@ FileList Compiler::compile(std::string dir, FileList& includePaths)
         /* display and run command */
         std::cout << cmd << std::endl;
         System::runCMD(cmd);
-
-        //TODO: display output of compiler
-
      }
 
     /* return list of objects */

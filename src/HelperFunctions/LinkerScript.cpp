@@ -17,7 +17,8 @@ void LinkerScript::CreateTempScript(SectionList& sections, std::string name)
     for (auto it = sections.begin(); it != sections.end(); ++it)
     {
         /* write section header */
-        script << "gci_" << num << " :\n{\n\t" << (*it).path << "\n}\n";
+        script << "gci_" << std::dec << num << " :\n{\n\t" << (*it).path
+            << "\n}\n";
 
         /* save size in symbol */
         script << "_sizeof_gci_" << num << "=SIZEOF(gci_" << num << ");\n";
@@ -48,8 +49,8 @@ void LinkerScript::CreateFinalScript(SectionList& sections, std::string name)
     for (auto it = sections.begin(); it != sections.end(); ++it)
     {
         /* write section header for each section */
-        script << "gci_" << num << " 0x" << std::hex << (*it).address
-            << " :\n{\n\t" << (*it).path << "\n}\n";
+        script << "gci_" << std::dec << num << " 0x" << std::hex <<
+            (*it).address << " :\n{\n\t" << (*it).path << "\n}\n";
 
         /* increment section number */
         num++;

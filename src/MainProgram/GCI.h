@@ -6,20 +6,23 @@
 
 namespace GCI
 {
+    /* check that valid args are passed */
+    void checkArgs(Arguments&);
+
     /* inject code into iso */
-    void CreateISO(Arguments&);
+    void createISO(Arguments&);
 
     /* save iso state */    
-    void SaveISO(Arguments&);
+    void saveISO(Arguments&);
 
     /* load iso state from file */
-    void LoadISO(Arguments&);
+    void loadISO(Arguments&);
     
     /* read address from iso */    
-    std::string ReadAddr(Arguments&);
+    uint32_t readAddr(Arguments&);
 
     /* create static library from files in given directory */    
-    void CreateLibrary(Arguments&);
-}
+    void createLibrary(Arguments&);
+};
 
 #endif

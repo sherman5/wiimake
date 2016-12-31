@@ -85,7 +85,11 @@ void ISO::write(uint32_t addr, uint32_t val, Arguments& args)
 /* save the current code from the regions provided */
 void ISO::saveState(Arguments& args)
 {
+    /* open iso file - faster than calling read */
+    std::ifstream isoFile (args.cmdOptions["--iso-file"]);
+
     /* data vector to write to file */
+    uint32_t value;
     std::vector<uint32_t> data;
 
     /* start address - store at front of data */
@@ -95,8 +99,15 @@ void ISO::saveState(Arguments& args)
     /* loop through all code */
     for (; address <= args.configOptions["code_end"]; address += 0x04)
     {
+        /* find address */    
+        isoFile.seekg(args.configOptions["DOL_start"]
+        + ISO::DOLoffset(address, args.addressTable)); 
+
+        /* read value */
+        isoFile.read(reinterpret_cast<char *>(&value), sizeof(value));
+
         /* store instruction */
-        data.push_back(ISO::read(address, args));
+        data.push_back(htobe32(value));
     }
     
     /* open write file */
@@ -114,6 +125,9 @@ void ISO::saveState(Arguments& args)
 /* load code from save file */
 void ISO::loadState(Arguments& args)
 {
+    /* open iso file - faster than calling write */
+    std::fstream iso (args.cmdOptions["--iso-file"]);
+
     /* open up binary file for reading */
     std::ifstream infile(args.cmdOptions["--load"],
         std::ios::in | std::ios::binary);
@@ -139,8 +153,15 @@ void ISO::loadState(Arguments& args)
         /* read in values as (addr, instruction) pairs */
         infile.read(reinterpret_cast<char *>(&value), sizeof(value));
 
-        /* write instructions to iso */
-        ISO::write(addr, value, args);
+        /* find address */
+        iso.seekp(args.configOptions["DOL_start"]
+            + DOLoffset(addr, args.addressTable));
+
+        /* account for endianess */
+        value = be32toh(value);
+    
+        /* write value to iso */    
+        iso.write(reinterpret_cast<char *>(&value), sizeof(value));
 
         /* increment address */
         addr += 0x04;

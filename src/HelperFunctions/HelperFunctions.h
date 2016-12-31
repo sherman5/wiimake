@@ -30,6 +30,9 @@ namespace Builder
     /* add original instruction, overwrite nop line in code */
     void addOriginalInstruction(ASMcode&, Arguments&);
 
+    /* build library from source directory of c files */
+    void buildLibrary(Arguments&);
+
     /* remove all temporary files created in the build process */
     void cleanDirectory();
 };
@@ -51,13 +54,19 @@ namespace Memory
        original memory regions object since the first address given
        in args.memRegions is used for stack setup */
     void findCodeAllocation(SectionList&, const Arguments&);
+
+    /* store the address from given region for this section */
+    void storeAddress(Section&, MemRegion&);
+
+    /* verify allocation was done correctly */
+    void checkAllocation(const SectionList&);
 };
 
 /* compile lists of C files */
 namespace Compiler
 {
     /* compile files in directory, using include paths given */
-    FileList compile(std::string, FileList&);
+    FileList compile(std::string, FileList = FileList());
 };
 
 /* link lists of object files */
@@ -87,7 +96,7 @@ namespace ObjectFile
     std::vector<std::string> getNamedSections(std::string);
 
     /* name relevant sections in object file */
-    void renameSections(std::string, std::string);
+    void renameSections(std::string, std::string="");
 
     /* get single line of code from object file */
     std::pair<uint32_t, uint32_t> getLine(std::string, std::ifstream&);
