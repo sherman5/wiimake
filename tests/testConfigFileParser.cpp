@@ -15,7 +15,8 @@ TEST_CASE("correct game is found")
         "../tests/config.ini"));
 
     /* go one line past game_id */
-    std::ifstream file = ConfigParser::findGame(args);
+    std::ifstream file ("../tests/config.ini");
+    ConfigParser::findGame(args, file);
     std::string line;
     file >> line;
 
@@ -32,7 +33,8 @@ TEST_CASE("parse table")
         "../tests/config.ini"));
 
     /* find starting point in config file */
-    std::ifstream file = ConfigParser::findGame(args);
+    std::ifstream file("../tests/config.ini");
+    ConfigParser::findGame(args, file);
     std::string line;
 
     /* read until memory_regions variable is found */
@@ -57,7 +59,8 @@ TEST_CASE("parse single option")
         "../tests/config.ini"));
 
     /* find starting point in config file */
-    std::ifstream file = ConfigParser::findGame(args);
+    std::ifstream file ("../tests/config.ini");
+    ConfigParser::findGame(args, file);
     std::string line;
 
     /* read until code_end variable is found */
@@ -109,7 +112,8 @@ TEST_CASE("error when value is missing in variable")
     args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
     args.cmdOptions.insert(std::make_pair("--config-file",
         "../tests/config.ini"));
-    std::ifstream file = ConfigParser::findGame(args);
+    std::ifstream file ("../tests/config.ini");
+    ConfigParser::findGame(args, file);
     std::string line = "variable=";
 
     REQUIRE_THROWS_AS(ConfigParser::storeVariable(file, line, args),

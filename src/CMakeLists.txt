@@ -40,33 +40,25 @@ SET (TEST_SRCS ../tests/Runner.cpp
                MainProgram/CommandLineParser.cpp
                )
 
-# add test, install to current directory
+# add unit tests
 add_executable (testGCI ${TEST_SRCS} ${CORE_SRCS})
-install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
-
-# get libraries needed for windows
-if (WIN32)
-
-    set (EXTRA_LIBS wsock32 ws2_32)
-
-endif()
+target_link_libraries (testGCI)
 
 # add CLI
 add_executable (GCI MainProgram/CLI.cpp
                     MainProgram/CommandLineParser.cpp
                     ${CORE_SRCS})
 
-target_link_libraries (GCI ${EXTRA_LIBS})
-
 # add GUI
 if (BUILD_GUI)
 
     add_executable (GCI-gui MainProgram/GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
-    target_link_libraries (GCI-gui Qt5::Widgets ${EXTRA_LIBS})
-
+    target_link_libraries (GCI-gui Qt5::Widgets)
+    
 endif()
 
 # install targets
+install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install (TARGETS GCI-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 

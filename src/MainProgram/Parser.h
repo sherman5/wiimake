@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <fstream>
 
 #include "Global.h"
 
@@ -35,7 +36,7 @@ namespace ConfigParser
     void parse(Arguments&);
 
     /* find beginning of game section in config file */
-    std::ifstream findGame(Arguments&);
+    void findGame(Arguments&, std::ifstream&);
 
     /* parse line and store variable */
     void storeVariable(std::ifstream&, std::string, Arguments&);

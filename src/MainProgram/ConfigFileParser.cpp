@@ -14,7 +14,8 @@ void ConfigParser::parse(Arguments& args)
     }
     
     /* find beginning of game info */
-    std::ifstream file = ConfigParser::findGame(args);
+    std::ifstream file(args.cmdOptions["--config-file"]);
+    ConfigParser::findGame(args, file);
 
     /* parse arguments */
     std::string line;
@@ -37,11 +38,8 @@ void ConfigParser::parse(Arguments& args)
 }
 
 /* find beginning of game section in config file */
-std::ifstream ConfigParser::findGame(Arguments& args)
+void ConfigParser::findGame(Arguments& args, std::ifstream& file)
 {
-    /* open up text file */
-    std::ifstream file (args.cmdOptions["--config-file"]);
-
     /* read until correct game number found */
     std::string line;
     while (!file.eof() && line != "game_id=" + args.cmdOptions["--game-id"])
@@ -51,9 +49,6 @@ std::ifstream ConfigParser::findGame(Arguments& args)
 
     /* read past game_id */
     file >> line;
-
-    /* return file stream */
-    return file;
 }
 
 /* parse line and store variable */

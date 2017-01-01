@@ -10,8 +10,8 @@ inline void displayHeader(std::string message)
     int len = 60 - message.length() - 4;
     std::string pad (len / 2, '=');
 
-    std::cout << "\033[33m\n" << std::setw(60 - len / 2) << std::left
-        << pad + "  " + message << pad + "\n\033[39m" << std::endl;
+    std::cout << /*"\033[33m*/"\n" << std::setw(60 - len / 2) << std::left
+        << pad + "  " + message << pad + "\n"/*\033[39m"*/ << std::endl;
 }
 
 #endif

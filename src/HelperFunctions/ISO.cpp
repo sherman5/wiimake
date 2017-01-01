@@ -52,7 +52,7 @@ uint32_t ISO::read(uint32_t addr, Arguments& args)
     isoFile.close();    
 
     /* return value, accounting for endianess */    
-    return htobe32(line);
+    return HOST_TO_BE(line);
 }
 
 /* read 32-bit value from RAM address */
@@ -73,7 +73,7 @@ void ISO::write(uint32_t addr, uint32_t val, Arguments& args)
         + DOLoffset(addr, args.addressTable));      
 
     /* account for endianess */
-    val = be32toh(val);
+    val = BE_TO_HOST(val);
 
     /* write value */
     iso.write(reinterpret_cast<char *>(&val), sizeof(val));
@@ -107,7 +107,7 @@ void ISO::saveState(Arguments& args)
         isoFile.read(reinterpret_cast<char *>(&value), sizeof(value));
 
         /* store instruction */
-        data.push_back(htobe32(value));
+        data.push_back(HOST_TO_BE(value));
     }
     
     /* open write file */
@@ -158,7 +158,7 @@ void ISO::loadState(Arguments& args)
             + DOLoffset(addr, args.addressTable));
 
         /* account for endianess */
-        value = be32toh(value);
+        value = BE_TO_HOST(value);
     
         /* write value to iso */    
         iso.write(reinterpret_cast<char *>(&value), sizeof(value));
