@@ -54,7 +54,7 @@ install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # GUI
-if (!BUILD_GUI)
+if (BUILD_GUI)
 
     add_executable (GCI-gui MainProgram/GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
     target_link_libraries (GCI-gui Qt5::Widgets)
