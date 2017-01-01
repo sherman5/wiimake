@@ -12,7 +12,7 @@ FileList Compiler::compile(std::string dir, FileList includePaths)
     auto sources = System::getFiles(dir, "c");
 
     /* delete any pre-existing object file in directory */
-    System::runCMD(System::rm + " *.o");
+    System::runCMD(System::rm + " " + dir + "/*.o");
 
     /* string to hold include paths */
     std::string includes;
@@ -34,8 +34,7 @@ FileList Compiler::compile(std::string dir, FileList includePaths)
         objects.push_back(CHANGE_EXT(*it, "o"));
     
         /* display and run command */
-        std::cout << cmd << std::endl;
-        System::runCMD(cmd);
+        System::runCMD(cmd, true);
      }
 
     /* return list of objects */

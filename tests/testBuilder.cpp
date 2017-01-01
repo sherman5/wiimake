@@ -4,6 +4,32 @@
 #include "../src/MainProgram/Parser.h"
 #include "../tests/HeaderDisplay.h"
 
+#include <algorithm>
+#include <string>
+
+/* ignore back/forward slashes in windows */
+#ifdef GCI_WINDOWS
+
+    bool STR_EQ(std::string a, std::string b)
+    {
+        std::replace(a.begin(), a.end(), '/', 'x');
+        std::replace(a.begin(), a.end(), '\\', 'x');
+    
+        std::replace(b.begin(), b.end(), '/', 'x');
+        std::replace(b.begin(), b.end(), '\\', 'x');
+
+        return a == b;
+    }
+
+#else
+    
+    bool STR_EQ(std::string a, std::string b)
+    {
+        return a == b;
+    }
+
+#endif
+
 TEST_CASE("create library")
 {
     /* display header in first test case */
@@ -81,28 +107,27 @@ TEST_CASE("allocate sections given object files")
         args.includePaths, args.libs);
     
     REQUIRE(objects.size() == 3);    
-    REQUIRE(objects[0] == "../tests/source/source1.o");    
-    REQUIRE(objects[1] == "../tests/source/source2.o");
-    REQUIRE(objects[2] == "../tests/lib1.a");
+    REQUIRE(STR_EQ(objects[0], "../tests/source/source1.o"));    
+    REQUIRE(STR_EQ(objects[1], "../tests/source/source2.o"));
+    REQUIRE(STR_EQ(objects[2], "../tests/lib1.a"));
 
     /* find addresses for each section */
     auto sections = Builder::getSectionAddresses(objects, args);
 
     REQUIRE(sections.size() == 13);
 
-    REQUIRE(sections[0].path == "../tests/source/source1.o (text)");
-    REQUIRE(sections[1].path == "../tests/source/source1.o (rodata)");
-    REQUIRE(sections[2].path == "../tests/source/source1.o (attr)");    
-    REQUIRE(sections[3].path == "../tests/source/source2.o (text)");
-    REQUIRE(sections[4].path == "../tests/source/source2.o (attr)");
-    REQUIRE(sections[5].path == "../tests/lib1.a (text0)");
-    REQUIRE(sections[6].path == "../tests/lib1.a (attr0)");
-    REQUIRE(sections[7].path == "../tests/lib1.a (text1)");
-    REQUIRE(sections[8].path == "../tests/lib1.a (rodata1)");
-    REQUIRE(sections[9].path == "../tests/lib1.a (attr1)");
-    REQUIRE(sections[10].path == "../tests/lib1.a (text2)");
-    REQUIRE(sections[11].path == "../tests/lib1.a (rodata2)");
-    REQUIRE(sections[12].path == "../tests/lib1.a (attr2)");
+    REQUIRE(STR_EQ(sections[0].path, "../tests/source/source1.o (text)"));
+    REQUIRE(STR_EQ(sections[1].path, "../tests/source/source1.o (rodata)"));
+    REQUIRE(STR_EQ(sections[2].path, "../tests/source/source1.o (attr)"));REQUIRE(STR_EQ(sections[3].path, "../tests/source/source2.o (text)"));
+    REQUIRE(STR_EQ(sections[4].path, "../tests/source/source2.o (attr)"));
+    REQUIRE(STR_EQ(sections[5].path, "../tests/lib1.a (text0)"));
+    REQUIRE(STR_EQ(sections[6].path, "../tests/lib1.a (attr0)"));
+    REQUIRE(STR_EQ(sections[7].path, "../tests/lib1.a (text1)"));
+    REQUIRE(STR_EQ(sections[8].path, "../tests/lib1.a (rodata1)"));
+    REQUIRE(STR_EQ(sections[9].path, "../tests/lib1.a (attr1)"));
+    REQUIRE(STR_EQ(sections[10].path, "../tests/lib1.a (text2)"));
+    REQUIRE(STR_EQ(sections[11].path, "../tests/lib1.a (rodata2)"));
+    REQUIRE(STR_EQ(sections[12].path, "../tests/lib1.a (attr2)"));
 
     REQUIRE(sections[0].size == 0xc0);
     REQUIRE(sections[1].size == 0x14);

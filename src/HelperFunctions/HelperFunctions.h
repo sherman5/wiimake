@@ -142,18 +142,25 @@ namespace ISO
 /* run system specific commands */
 namespace System
 {
-    /* command used for deletint files */
+    /* command used for deleting files */
     #ifdef GCI_WINDOWS
         const std::string rm = "del";
     #else
         const std::string rm = "rm";
     #endif
 
+    /* command for copying files */
+    #ifdef GCI_WINDOWS
+        const std::string cp = "copy";
+    #else
+        const std::string cp = "cp";
+    #endif
+
     /* return list of all files in a directory with given extension */
     FileList getFiles(std::string, std::string);
 
     /* runs a command and waits for it to finish */
-    int runCMD(std::string);
+    int runCMD(std::string, bool=false);
 };
 
 #endif

@@ -147,7 +147,7 @@ void Builder::buildLibrary(Arguments& args)
     }
 
     /* run archive command to create static library */
-    System::runCMD(cmd);
+    System::runCMD(cmd, true);
 }
 
 /* remove all temporary files created in the build process */

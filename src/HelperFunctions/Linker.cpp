@@ -28,6 +28,5 @@ void Linker::link(SectionList& sections, std::string script,
     std::string cmd = "powerpc-eabi-ld -e _main -o " + name + " --script "
         + script + " " + allFiles;
 
-    std::cout << cmd << std::endl;
-    System::runCMD(cmd);
+    System::runCMD(cmd, true);
 }

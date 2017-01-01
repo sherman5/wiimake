@@ -1,5 +1,5 @@
-#ifndef SETUP_H
-#define SETUP_H
+#ifndef GLOBAL_H
+#define GLOBAL_H
 
 #if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64)) && !defined(GCI_WINDOWS)
 

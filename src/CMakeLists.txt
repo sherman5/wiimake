@@ -49,16 +49,18 @@ add_executable (GCI MainProgram/CLI.cpp
                     MainProgram/CommandLineParser.cpp
                     ${CORE_SRCS})
 
-# add GUI
-if (BUILD_GUI)
-
-    add_executable (GCI-gui MainProgram/GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
-    target_link_libraries (GCI-gui Qt5::Widgets)
-    
-endif()
-
 # install targets
 install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-install (TARGETS GCI-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+
+# GUI
+if (!BUILD_GUI)
+
+    add_executable (GCI-gui MainProgram/GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
+    target_link_libraries (GCI-gui Qt5::Widgets)
+    install (TARGETS GCI-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+    
+endif()
+
+
 

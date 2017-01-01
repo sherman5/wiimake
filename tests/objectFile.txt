@@ -1,5 +1,5 @@
 
-../tests/objectFile.out:     file format elf32-powerpc
+..\tests\objectFile.out:     file format elf32-powerpc
 
 
 Disassembly of section gci_1:

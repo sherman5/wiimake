@@ -4,11 +4,15 @@
 #include "../src/MainProgram/GCI.h"
 #include "../src/MainProgram/Parser.h"
 #include "../tests/HeaderDisplay.h"
+#include "../tests/ISOcreation.h"
 
 TEST_CASE("test that arguments are checked correctly")
 {
     /* display header in the first test case */
     displayHeader("Testing GCI.cpp");
+
+    /* create test iso */   
+    createTestIso();
 
     /* struct to hold arguments */
     Arguments args;
