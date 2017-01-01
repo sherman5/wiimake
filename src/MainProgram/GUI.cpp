@@ -1,10 +1,10 @@
 #include <QApplication>
 #include <QMessageBox>
 
-//#include "../GUI/MainWindow.h"
+#include "../GUI/MainWindow.h"
 
 /* class to handle exception throwing */
-/*class GUI Q_DECL_FINAL : public QApplication
+class GUI Q_DECL_FINAL : public QApplication
 {
 
 public:
@@ -12,10 +12,10 @@ public:
     GUI(int& argc, char** argv) : QApplication(argc, argv) {}
 
     /* override defualt notify function */
-/*    bool notify(QObject* receiver, QEvent* event) Q_DECL_OVERRIDE
+    bool notify(QObject* receiver, QEvent* event) Q_DECL_OVERRIDE
     {
         /* catch and display exceptions */
-/*        try
+        try
         {
             return QApplication::notify(receiver, event);
         }
@@ -27,15 +27,15 @@ public:
 
         return false;
     }
-};*/
+};
 
 /* GUI */
 int main(int argc, char **argv)
 {
     QApplication app (argc, argv);
  
-    //MainWindow* mainWindow = new MainWindow();
-    //mainWindow->show();
+    MainWindow* mainWindow = new MainWindow();
+    mainWindow->show();
 
     return app.exec();
 }
