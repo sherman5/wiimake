@@ -50,14 +50,14 @@ void GCI::checkArgs(Arguments& args)
     /* check that enough arguments are passed */
     if (args.cmdOptions.count("--ar"))
     {
-        Require(args, "--output", "need library name, use --output");
-        Require(args, "--ar", "missing source directory, --ar=<directory>");
+        Require(args, "--output", "missing library name");
+        Require(args, "--ar", "missing source directory");
     }
     else
     {
-        Require(args, "--config-file", "no --config-file given");
-        Require(args, "--iso-file", "no --iso-file given");
-        Require(args, "--game-id", "no --game-id given");
+        Require(args, "--config-file", "no config file given");
+        Require(args, "--iso-file", "no iso file given");
+        Require(args, "--game-id", "game not specified");
         Require(args, "code_start", "code_start missing in config file");
         Require(args, "code_end", "code_end missing in config file");
         Require(args, "DOL_start", "DOL_start missing in config file");
@@ -89,15 +89,15 @@ void GCI::checkArgs(Arguments& args)
     /* check for main argument */    
     if (args.cmdOptions.count("--save"))
     {
-        Require(args, "--save", "missing save file name, --save=<file>");
+        Require(args, "--save", "missing save file name");
     }
     if (args.cmdOptions.count("--load"))
     {
-        Require(args, "--load", "missing load file name, --load=<file>");
+        Require(args, "--load", "missing load file name");
     }
     if (args.cmdOptions.count("--read"))
     {
-        Require(args, "--read", "missing read address, --read=<address>");
+        Require(args, "--read", "missing read address");
     }
 }
 
