@@ -36,7 +36,7 @@ SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testMemory.cpp
                ../tests/testCodeSections.cpp
                ../tests/testBuilder.cpp
-               #../tests/testGCI.cpp
+               ../tests/testGCI.cpp
                MainProgram/CommandLineParser.cpp
                )
 
