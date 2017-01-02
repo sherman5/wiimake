@@ -40,7 +40,7 @@ std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
     System::runCMD("powerpc-eabi-readelf -s " + fileName + " > sizes.txt");
 
     /* open up text file */
-    std::ifstream file ("sizes.txt");
+    std::ifstream file ("sizes.txt", std::ios::in);
 
     /* read until first line */
     std::string line;

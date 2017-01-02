@@ -71,7 +71,7 @@ FileList System::getFiles(std::string dir, std::string ext)
     System::runCMD(cmd);
 
     /* parse output of ls */
-    std::ifstream filesText ("files.txt");
+    std::ifstream filesText ("files.txt", std::ios::in);
     std::string file;
 
     /* store each file name */

@@ -47,7 +47,7 @@ ASMcode ObjectFile::extractASM(std::string fileName)
         + CHANGE_EXT(fileName, "txt"));
 
     /* open up text file and read first line */
-    std::ifstream file (CHANGE_EXT(fileName, "txt"));
+    std::ifstream file (CHANGE_EXT(fileName, "txt"), std::ios::in);
     std::string line;
 
     /* loop until end of file or comment section */
@@ -101,7 +101,7 @@ std::vector<std::string> ObjectFile::getNamedSections(std::string fileName)
     System::runCMD("powerpc-eabi-objdump -D " + fileName + " > temp.txt");
     
     /* open up text file */ 
-    std::ifstream file ("temp.txt");
+    std::ifstream file ("temp.txt", std::ios::in);
     std::string line;
 
     /* read every line of file, look out for sections */

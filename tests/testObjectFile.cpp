@@ -21,7 +21,7 @@ TEST_CASE("recognize single line of code")
 TEST_CASE("parse single line of code")
 {
     /* open up test file */
-    std::ifstream file ("../tests/objectFile.txt");
+    std::ifstream file ("../tests/objectFile.txt", std::ios::in);
     std::string line;
 
     /* find first line of code */

@@ -14,7 +14,7 @@ void ConfigParser::parse(Arguments& args)
     }
     
     /* find beginning of game info */
-    std::ifstream file(args.cmdOptions["--config-file"]);
+    std::ifstream file(args.cmdOptions["--config-file"], std::ios::in);
     ConfigParser::findGame(args, file);
 
     /* parse arguments */
@@ -130,7 +130,7 @@ TokenList ConfigParser::getGameTitles(std::string fileName)
     TokenList titles;
 
     /* open up file */
-    std::ifstream file (fileName);
+    std::ifstream file (fileName, std::ios::in);
     std::string line, title;
 
     /* read all lines */

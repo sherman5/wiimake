@@ -115,7 +115,7 @@ void ISO::saveState(Arguments& args)
     
     /* open write file */
     std::ofstream saveFile(args.cmdOptions["--save"],
-        std::ios::out | std::ios::binary);
+        std::ios::out | std::ios::binary | std::ios::trunc);
 
     /* write data to file */
     saveFile.write(reinterpret_cast<char *> (&data[0]),

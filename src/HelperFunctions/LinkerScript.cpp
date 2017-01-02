@@ -5,7 +5,7 @@
 void LinkerScript::CreateTempScript(SectionList& sections, std::string name)
 {
     /* open up text file */
-    std::ofstream script (name);
+    std::ofstream script (name, std::ios::out | std::ios::trunc);
 
     /* write first line of linker script */
     script << "SECTIONS {" << std::endl;
@@ -37,7 +37,7 @@ void LinkerScript::CreateTempScript(SectionList& sections, std::string name)
 void LinkerScript::CreateFinalScript(SectionList& sections, std::string name)
 {
    /* open up text file */
-    std::ofstream script (name);
+    std::ofstream script (name, std::ios::out | std::ios::trunc);
 
     /* write first line of linker script */
     script << "SECTIONS {" << std::endl;

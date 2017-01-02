@@ -13,7 +13,7 @@ TEST_CASE ("parsing single line")
     sizes.resize(7);
 
     /* open up text file with symbol table */
-    std::ifstream file ("../tests/symbolTable.txt");
+    std::ifstream file ("../tests/symbolTable.txt", std::ios::in);
     std::string line;
 
     /* expect error since not at first column of table */
