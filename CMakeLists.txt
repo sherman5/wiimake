@@ -30,8 +30,8 @@ endif()
 # look for qt (don't build GUI if qt not available)
 find_package (Qt5Widgets QUIET)
 
-# if QT is installed
-if (Qt5Widgets_FOUND)
+# if QT is installed, and not on windows
+if (Qt5Widgets_FOUND AND !WIN32)
 
     # Whether to handle moc automatically for Qt targets
     set (CMAKE_AUTOMOC ON)

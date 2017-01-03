@@ -1,6 +1,7 @@
-#include <QApplication>
-#include <QMessageBox>
-
+//#include <QApplication>
+//#include <QPushButton>
+//#include <QMessageBox>
+#include <QtWidgets>
 //#include "../GUI/MainWindow.h"
 
 /* class to handle exception throwing */
@@ -32,10 +33,18 @@ public:
 /* GUI */
 int main(int argc, char **argv)
 {
-    QApplication app (argc, argv);
+//    QApplication app (argc, argv);
  
 //    MainWindow* mainWindow = new MainWindow();
 //    mainWindow->show();
 
-    return app.exec();
+//    return app.exec();
+
+    QApplication a( argc, argv );
+
+//    QPushButton hello( "Hello world!", 0 );
+//    hello.resize( 100, 30 );
+
+    //hello.show();
+    return a.exec();
 }
