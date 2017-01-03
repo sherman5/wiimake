@@ -30,8 +30,8 @@ endif()
 # look for qt (don't build GUI if qt not available)
 find_package (Qt5Widgets QUIET)
 
-# if QT is installed, and not on windows
-if (Qt5Widgets_FOUND AND !WIN32)
+# if QT is installed and user requested GUI is built
+if (Qt5Widgets_FOUND AND GUI)
 
     # Whether to handle moc automatically for Qt targets
     set (CMAKE_AUTOMOC ON)
@@ -39,13 +39,25 @@ if (Qt5Widgets_FOUND AND !WIN32)
     # build GUI since QT was found
     set (BUILD_GUI TRUE)
 
-# if QT is not installed
+    message("-- GUI will be built")
+
+# GUI will not be built
 else()
 
     # don't build GUI
     set (BUILD_GUI FALSE)
-    message(WARNING "QT not found: GUI will not be built")
+    
+    # diplay info
+    if (GUI)
 
+        message(WARNING "QT not found: GUI will not be built")
+
+    else()
+
+        message("-- GUI will not be built")
+
+    endif()
+         
 endif()
 
 # add directory with source files

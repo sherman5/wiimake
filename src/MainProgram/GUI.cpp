@@ -1,11 +1,11 @@
-//#include <QApplication>
-//#include <QPushButton>
-//#include <QMessageBox>
-#include <QtWidgets>
-//#include "../GUI/MainWindow.h"
+#include <QApplication>
+#include <QPushButton>
+#include <QMessageBox>
+
+#include "../GUI/MainWindow.h"
 
 /* class to handle exception throwing */
-/*class GUI Q_DECL_FINAL : public QApplication
+class GUI Q_DECL_FINAL : public QApplication
 {
 
 public:
@@ -13,10 +13,10 @@ public:
     GUI(int& argc, char** argv) : QApplication(argc, argv) {}
 
     /* override defualt notify function */
-/*    bool notify(QObject* receiver, QEvent* event) Q_DECL_OVERRIDE
+    bool notify(QObject* receiver, QEvent* event) Q_DECL_OVERRIDE
     {
         /* catch and display exceptions */
-/*        try
+        try
         {
             return QApplication::notify(receiver, event);
         }
@@ -33,18 +33,11 @@ public:
 /* GUI */
 int main(int argc, char **argv)
 {
-//    QApplication app (argc, argv);
+    QApplication app (argc, argv);
  
-//    MainWindow* mainWindow = new MainWindow();
-//    mainWindow->show();
+    MainWindow* mainWindow = new MainWindow();
+    mainWindow->show();
 
-//    return app.exec();
+    return app.exec();
 
-    QApplication a( argc, argv );
-
-//    QPushButton hello( "Hello world!", 0 );
-//    hello.resize( 100, 30 );
-
-    //hello.show();
-    return a.exec();
 }
