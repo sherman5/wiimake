@@ -13,15 +13,6 @@ SET (CORE_SRCS ArgumentParsing/CommandLineParser.cpp
                IsoHandling/ISO.cpp
                )               
 
-# Files used for GUI
-SET (GUI_SRCS GUI/MainWindow.cpp    
-              GUI/PathInput.cpp
-              GUI/Inject.cpp
-              GUI/SaveLoad.cpp
-              GUI/IsoInfo.cpp
-              GUI/LibBuilder.cpp
-              )
-
 # Test files
 SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testSystem.cpp
@@ -51,15 +42,6 @@ install (TARGETS testWiiMake RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 install (TARGETS wiimake RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install (TARGETS wiimake-ar RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install (TARGETS wiimake-isotool RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-
-# GUI
-if (BUILD_GUI)
-
-    add_executable (wiimake-gui MainProgram/wiimake-gui.cpp ${CORE_SRCS} ${GUI_SRCS})
-    target_link_libraries (wiimake-gui Qt5::Widgets)
-    install (TARGETS wiimake-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
-    
-endif()
 
 
 

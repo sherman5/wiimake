@@ -27,39 +27,6 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 
 endif()
 
-# look for qt (don't build GUI if qt not available)
-find_package (Qt5Widgets QUIET)
-
-# if QT is installed and user requested GUI is built
-if (Qt5Widgets_FOUND AND GUI)
-
-    # Whether to handle moc automatically for Qt targets
-    set (CMAKE_AUTOMOC ON)
-
-    # build GUI since QT was found
-    set (BUILD_GUI TRUE)
-
-    message("-- GUI will be built")
-
-# GUI will not be built
-else()
-
-    # don't build GUI
-    set (BUILD_GUI FALSE)
-    
-    # diplay info
-    if (GUI)
-
-        message(WARNING "QT not found: GUI will not be built")
-
-    else()
-
-        message("-- GUI will not be built")
-
-    endif()
-         
-endif()
-
 # add directory with source files
 add_subdirectory (src)
 
