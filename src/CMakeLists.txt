@@ -30,7 +30,7 @@ SET (TEST_SRCS ../tests/Runner.cpp
                )
 
 # add unit tests
-add_executable (testWiiMake ${TEST_SRCS} ${CORE_SRCS})
+#add_executable (testWiiMake ${TEST_SRCS} ${CORE_SRCS})
 
 # add command line programs
 add_executable (wiimake MainProgram/wiimake.cpp ${CORE_SRCS})
@@ -38,7 +38,7 @@ add_executable (wiimake-ar MainProgram/wiimake-ar.cpp ${CORE_SRCS})
 add_executable (wiimake-isotool MainProgram/wiimake-isotool.cpp ${CORE_SRCS})
 
 # install targets
-install (TARGETS testWiiMake RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
+#install (TARGETS testWiiMake RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
 install (TARGETS wiimake RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install (TARGETS wiimake-ar RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 install (TARGETS wiimake-isotool RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})

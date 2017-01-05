@@ -25,6 +25,7 @@ void CMDparser::parseMetaOptions(TokenList& tokens)
     /* check for help/usage/version */
     if (CMDparser::optionExists(tokens, "--help"))
     {
+        std::cout << Description::usage << std::endl;
         std::cout << Description::summary << std::endl;
         std::cout << Description::help << std::endl;
         exit(0);
