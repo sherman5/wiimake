@@ -5,7 +5,7 @@
 #include <string>
 #include <fstream>
 
-#include "Global.h"
+#include "Arguments.h"
 
 typedef std::vector<std::string> TokenList;
 
@@ -15,7 +15,7 @@ namespace CMDparser
     TokenList getTokens(int, const char**);
 
     /* parse command line options */
-    void parseMetaOptions(TokenList&, Arguments&);
+    void parseMetaOptions(TokenList&);
 
     /* check if user passed in option */
     bool optionExists(TokenList&, std::string);
@@ -26,20 +26,20 @@ namespace ConfigParser
     /* parse config file */
     void parse(Arguments&);
 
-    /* find beginning of game section in config file */
-    void findGame(Arguments&, std::ifstream&);
+    /* convert file to vector of strings */
+    TokenList getTokens(Arguments&);
 
-    /* parse line and store variable */
-    void storeVariable(std::ifstream&, std::string, Arguments&);
+    /* remove all comments from config file */
+    void removeComments(TokenList&);
 
-    /* parse a table of hex values */
-    Table getTable(std::ifstream&);
+    /* store all variables in file */
+    void storeAllVariables(TokenList&, Arguments&);
 
-    /* store memory regions from the config file */
-    void storeMemoryRegions(std::ifstream&, Arguments&);
+    /* store a single variable */
+    void storeVariable(Arguments&, std::string, TokenList);
 
-    /* get titles of all games in config file */    
-    FileList getGameTitles(std::string);
+    /* store the memory regions variable */
+    void storeMemRegions(Arguments&, TokenList);
 };
 
 #endif

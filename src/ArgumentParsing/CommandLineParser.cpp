@@ -7,7 +7,7 @@
 #include "../MainProgram/Description.h"
 
 /* return a list of tokens from the command line arguments */
-TokenList CMDparser::getTokens(unsigned argc, const char** argv)
+TokenList CMDparser::getTokens(int argc, const char** argv)
 {
     /* store each argument in vector */ 
     TokenList tokens;
@@ -20,29 +20,29 @@ TokenList CMDparser::getTokens(unsigned argc, const char** argv)
     return tokens;
 }
 
-bool optionExists(TokenList& tokens, std::string option)
-{    
-    return std::find(tokens.begin(), tokens.end(), option)
-        != tokens.end();
-}
-
 void CMDparser::parseMetaOptions(TokenList& tokens)
 {
     /* check for help/usage/version */
-    if (CMDparser::optioExists(tokens, "--help"))
+    if (CMDparser::optionExists(tokens, "--help"))
     {
         std::cout << Description::summary << std::endl;
         std::cout << Description::help << std::endl;
         exit(0);
     }
-    else if (CMDparser::optioExists(tokens, "--usage"))
+    else if (CMDparser::optionExists(tokens, "--usage"))
     {
         std::cout << Description::usage << std::endl;
         exit(0);
     }
-    else if (CMDparser::optioExists(tokens, "--version"))
+    else if (CMDparser::optionExists(tokens, "--version"))
     {
         std::cout << Description::version << std::endl;
         exit(0);
     }
+}
+
+bool CMDparser::optionExists(TokenList& tokens, std::string option)
+{    
+    return std::find(tokens.begin(), tokens.end(), option)
+        != tokens.end();
 }

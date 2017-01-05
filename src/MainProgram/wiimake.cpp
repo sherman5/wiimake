@@ -1,10 +1,13 @@
+#include "../HighLevel/HighLevel.h"
+#include "../IsoHandling/ISO.h"
 #include "../ArgumentParsing/Parser.h"
 #include "../ArgumentParsing/Arguments.h"
 #include "Description.h"
 
 #include <iostream>
+#include <algorithm>
 
-int main(unsigned argc, const char** argv)
+int main(int argc, const char** argv)
 {
     /* get command line arguments */
     TokenList tokens = CMDparser::getTokens(argc, argv);
@@ -12,8 +15,9 @@ int main(unsigned argc, const char** argv)
     /* parse meta options */
     CMDparser::parseMetaOptions(tokens);
 
-    /* look for --save-temps option */ 
-    auto pos = std::find(tokens.begin(), tokens.end(),"--save-temps");
+    /* look for --save-temps option, erase it if given */ 
+    Arguments args;
+    auto pos = std::find(tokens.begin(), tokens.end(), "--save-temps");
     if (pos != tokens.end())
     {
         args.saveTemps = true;
@@ -23,20 +27,22 @@ int main(unsigned argc, const char** argv)
     /* parse remaining two options */
     if (tokens.size() != 2)
     {
-        std::throw invalid_argument("incorrect number of options");
+        throw std::invalid_argument("incorrect number of options");
         std::cout << Description::usage << std::endl;
         exit(0);
     }
     else 
     {
         /* parse file arguments */
-        args.isoFile = tokens.front();
         args.configFile = tokens.back();
         ConfigParser::parse(args);
 
+        /* create iso handler */
+        ISO iso (tokens.front());
+
         /* inject code into iso */
         auto code = Builder::getASM(args);
-        ISO::injectCode(code, args);
+        iso.injectCode(code);
         if (!args.saveTemps) {Builder::cleanDirectory();}
     }    
 

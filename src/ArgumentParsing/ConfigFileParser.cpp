@@ -1,7 +1,8 @@
 #include "Parser.h"
-#include "Global.h"
+#include "Arguments.h"
 
 #include <string>
+#include <algorithm>
 
 /* parse config file */
 void ConfigParser::parse(Arguments& args)
@@ -13,7 +14,7 @@ void ConfigParser::parse(Arguments& args)
     ConfigParser::removeComments(tokens);
 
     /* store all variables in file */
-    ConfigParser::storeVariables(tokens, args);
+    ConfigParser::storeAllVariables(tokens, args);
 }
 
 /* convert file to vector of strings */
@@ -33,9 +34,9 @@ TokenList ConfigParser::getTokens(Arguments& args)
         /* separate equal signs */
         if (line.find("=") != std::string::npos)
         {
-            tokens.push_back(s.substr(0, s.find("=")));
+            tokens.push_back(line.substr(0, line.find("=")));
             tokens.push_back("=");
-            tokens.push_back(s.substr(s.find("=") + 1));
+            tokens.push_back(line.substr(line.find("=") + 1));
         }
         else
         {
@@ -43,7 +44,7 @@ TokenList ConfigParser::getTokens(Arguments& args)
         }
 
         /* read next line */
-        file >> line;
+        configFile >> line;
     }
 
     /* close config file */
@@ -106,37 +107,37 @@ TokenList values)
     auto pos = std::find(variables.begin(), variables.end(), name);
 
     /* find correct variable, store accordingly */
-    switch (pos)
+    switch (std::distance(variables.begin(), pos))
     {
-        case variables.begin() + 0:
+        case 0:
             ConfigParser::storeMemRegions(args, values);
             break;
-        case variables.begin() + 1;
+        case 1:
             args.sources = values;
             break;
-        case variables.begin() + 2;
+        case 2:
             args.libs = values;
             break;
-        case variables.begin() + 3;
+        case 3:
             args.includePaths = values;
             break;
-        case variables.begin() + 4;
+        case 4:
             args.compileFlags = values;
             break;
-        case variables.begin() + 5;
+        case 5:
             args.linkFlags = values;
             break;
-        case variables.begin() + 6;
+        case 6:
             args.entry = values[0];
             break;
-        case variables.begin() + 7;
+        case 7:
             args.injectAddress = stoul(values[0], nullptr, 16);
             break;
-        case variables.begin() + 8;
+        case 8:
             args.originalInstruction = stoul(values[0], nullptr, 16);
             break;
         default:
-            throw std::invalud_argument("unrecognized variable in"
+            throw std::invalid_argument("unrecognized variable in"
                 " config file: " + name);
             break;
     }

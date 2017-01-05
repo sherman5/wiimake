@@ -1,8 +1,6 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
-#include "../IsoHandling/ISO.h"
-
 /* single region of memory (struct used for sorting) */
 struct MemRegion
 {
@@ -29,20 +27,17 @@ struct Arguments
     /* name of library/save/load file */
     std::string name;
 
+    /* address to read from iso */
+    std::string address;
+
     /* configuration file */
     std::string configFile;
     
-    /* ISO object to handl iso file */
-    ISO isoFile;
-
-    /* entry symbol */
-    std::string entry;
-
     /* save temporary files */
     bool saveTemps;
 
-    /* address to read from iso */
-    std::string address;
+    /* entry symbol */
+    std::string entry;
 
     /* inject point */
     uint32_t injectAddress, originalInstruction;

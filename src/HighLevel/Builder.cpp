@@ -1,5 +1,5 @@
-#include "HelperFunctions.h"
-#include "SetupFiles.h"
+#include "HighLevel.h"
+#include "StackSetupFiles.h"
 
 #include <algorithm>
 
@@ -7,7 +7,7 @@
 ASMcode Builder::getASM(Arguments& args)
 {
     /* compile source files, return object files */
-    auto objects = Builder::getObjectFiles(args.cmdOptions["--inject"], 
+    auto objects = Builder::getObjectFiles(args.sources, 
         args.includePaths, args.libs);
 
     /* find addresses for each section */
@@ -28,12 +28,12 @@ ASMcode Builder::getASM(Arguments& args)
 
 /* compile files in directory, return list of all object files
    (including files from libraries) */
-FileList Builder::getObjectFiles(std::string sourceDir,
+FileList Builder::getObjectFiles(FileList sources,
                                  FileList includeDirs,
                                  FileList libs)
 {       
     /* compile source files */
-    auto objects = Compiler::compile(sourceDir, includeDirs);
+    auto objects = Compiler::compile(sources, includeDirs);
 
     /* rename sections */
     for (auto it = objects.begin(); it != objects.end(); ++it)
@@ -87,7 +87,7 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
 
     /* add both to section list */
     Section ss ("stack_setup.o", args.memRegions.front().start);
-    Section ip ("inject_point.o", args.configOptions["inject_address"]);
+    Section ip ("inject_point.o", args.injectAddress);
 
     sections.push_back(ss);
     sections.push_back(ip);
@@ -121,17 +121,17 @@ void Builder::addOriginalInstruction(ASMcode& code, Arguments& args)
     }
 
     /* change to original instruction */
-    (*it).second = args.configOptions["original_instruction"];
+    (*it).second = args.originalInstruction;
 }
 
 /* create static library from files in given directory */
 void Builder::buildLibrary(Arguments& args)
 {
     /* compile source files, get object names */
-    auto objects = Compiler::compile(args.cmdOptions["--ar"]);
+    auto objects = Compiler::compile(args.sources);
 
     /* create archive command */
-    std::string cmd = "powerpc-eabi-ar -cvr " + args.cmdOptions["--output"];
+    std::string cmd = "powerpc-eabi-ar -cvr " + args.name;
 
     /* add object files to command */
     for (auto it = objects.begin(); it != objects.end(); ++it)

@@ -2,6 +2,9 @@
 #define ISO_H
 
 #include <stdint.h>
+#include <fstream>
+#include <vector>
+#include <string>
 
 struct IsoSection
 {
@@ -11,7 +14,7 @@ struct IsoSection
 
     IsoSection(uint32_t d, uint32_t r, uint32_t s)
         : DOLoffset(d), RAMaddress(r), size(s) {}
-}
+};
 
 class ISO
 {
@@ -19,10 +22,10 @@ class ISO
 private:
 
     /* file stream */
-    std::ifstream* mFile;
+    std::fstream* mFile;
     
     /* DOL - address table */
-    std::vector<IsoSection> mDolTable;
+    std::vector<IsoSection> mDOLtable;
     
     /* DOL start address */
     uint32_t mStartDOL;
@@ -31,12 +34,12 @@ private:
     uint32_t mCodeStart, mCodeEnd;
 
     /* place file stream at RAM address */
-    void gotoAddress(uint32_t);
+    uint32_t dolOffset(uint32_t);
 
 public:
 
     /* constructor from file path */
-    ISO(std:string);
+    ISO(std::string);
 
     /* destructor - close file stream */
     ~ISO();
@@ -49,13 +52,13 @@ public:
     void write(uint32_t, uint32_t);
 
     /* save the current state of the iso file */
-    void saveState(std:string);
+    void saveState(std::string);
 
     /* load code from save file */
     void loadState(std::string);
 
     /* inject code into iso */
-    void injectCode(ASMcode&);
+    void injectCode(std::vector< std::pair<uint32_t, uint32_t> >&);
 };
 
 #endif

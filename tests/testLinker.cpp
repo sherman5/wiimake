@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/LowLevel/LowLevel.h"
+#include "HeaderDisplay.h"
 
 TEST_CASE("test linker")
 {

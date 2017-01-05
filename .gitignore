@@ -29,9 +29,10 @@
 *~
 *.iso
 
-GCI
-GCI_ar
-GCI_isotool
+wiimake
+wiimake-ar
+wiimake-isotool
+wiimake-gui
 *.data
 
 *.m4

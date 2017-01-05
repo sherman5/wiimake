@@ -1,18 +1,12 @@
-#include "HelperFunctions.h"
+#include "LowLevel.h"
 
 #include <iostream>
 
 //TODO: throw exception with compiler error
-FileList Compiler::compile(std::string dir, FileList includePaths)
+FileList Compiler::compile(FileList& sources, FileList includePaths)
 {
     /* list of object files */
     FileList objects;
-
-    /* get a list of all c files */
-    auto sources = System::getFiles(dir, "c");
-
-    /* delete any pre-existing object file in directory */
-    System::runCMD(System::rm + " " + dir + "/*.o");
 
     /* string to hold include paths */
     std::string includes;

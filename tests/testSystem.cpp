@@ -1,6 +1,6 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
+#include "../src/LowLevel/LowLevel.h"
 #include "../tests/HeaderDisplay.h"
 
 #include <fstream>
@@ -33,12 +33,6 @@ TEST_CASE("running commands")
     /* remove test files */
     System::runCMD(System::rm + " testFile.out");  
     System::runCMD(System::rm + " testFile.txt");
-}
-
-TEST_CASE("get list of files from directory")
-{
-    FileList files = System::getFiles("../tests/", "cpp");
-    REQUIRE(files.size() == 14);
 }
 
 

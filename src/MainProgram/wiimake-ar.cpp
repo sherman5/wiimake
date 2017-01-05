@@ -1,8 +1,11 @@
-#include "Parser.h"
+#include "../HighLevel/HighLevel.h"
+#include "../ArgumentParsing/Parser.h"
+#include "../ArgumentParsing/Arguments.h"
+#include "Description.h"
 
 #include <iostream>
 
-int main(unsigned argc, const char** argv)
+int main(int argc, const char** argv)
 {
     /* get command line arguments */
     TokenList tokens = CMDparser::getTokens(argc, argv);
@@ -21,7 +24,7 @@ int main(unsigned argc, const char** argv)
     /* parse command line arguments */
     Arguments args;
     args.name = tokens.front();
-    args.sources = TokenList(tokens.front() + 1, tokens.end());
+    args.sources = TokenList(tokens.begin() + 1, tokens.end());
 
     /* create library */
     Builder::buildLibrary(args);

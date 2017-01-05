@@ -1,8 +1,10 @@
-#include "Parser.h"
+#include "../ArgumentParsing/Parser.h"
+#include "../IsoHandling/ISO.h"
+#include "Description.h"
 
 #include <iostream>
 
-int main(unsigned argc, const char** argv)
+int main(int argc, const char** argv)
 {
     /* get command line arguments */
     TokenList tokens = CMDparser::getTokens(argc, argv);
@@ -18,24 +20,21 @@ int main(unsigned argc, const char** argv)
         exit(0);
     }
     
-    /* get iso file */
-    Arguments args;
-    args.isoFile = tokens[1];
-
+    /* create iso handler */
+    ISO iso (tokens[1]);
+    
     /* run the program */
     if (tokens.front() == "--save")
     {
-        args.name = tokens.back();
-        ISO::saveState(args);
+        iso.saveState(tokens.back());
     }
     else if (tokens.front() == "--load")
     {
-        args.name = tokens.back();
-        ISO::loadState(args);
+        iso.loadState(tokens.back());
     }
     else if (tokens.front() == "--read")
     {
-        std::cout << ISO::read(tokens.back(), args);
+        std::cout << iso.read(tokens.back());
     }
     else
     {
