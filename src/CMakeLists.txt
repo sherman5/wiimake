@@ -1,18 +1,17 @@
 # Core files that contain all functionality
-SET (CORE_SRCS MainProgram/GCI.cpp
-               MainProgram/ConfigFileParser.cpp
-               MainProgram/CommandLineParser.cpp
-               HelperFunctions/Builder.cpp
-               HelperFunctions/CodeSections.cpp
-               HelperFunctions/Compiler.cpp
-               HelperFunctions/ISO.cpp
-               HelperFunctions/Linker.cpp
-               HelperFunctions/LinkerScript.cpp
-               HelperFunctions/Memory.cpp               
-               HelperFunctions/ObjectFile.cpp
-               HelperFunctions/SymbolTable.cpp
-               HelperFunctions/System.cpp 
-               )
+SET (CORE_SRCS ArgumentParsing/CommandLineParser.cpp
+               ArgumentParsing/ConfigFileParser.cpp
+               HighLevel/Builder.cpp
+               HighLevel/CodeSections.cpp
+               HighLevel/LinkerScript.cpp
+               HighLevel/Memory.cpp
+               LowLevel/Compiler.cpp
+               LowLevel/Linker.cpp
+               LowLevel/ObjectFile.cpp
+               LowLevel/SymbolTable.cpp
+               LowLevel/System.cpp
+               IsoHandling/ISO.cpp
+               )               
 
 # Files used for GUI
 SET (GUI_SRCS GUI/MainWindow.cpp    

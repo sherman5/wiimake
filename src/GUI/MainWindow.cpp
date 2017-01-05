@@ -40,7 +40,7 @@ MainWindow::MainWindow() : QWidget()
     layout->addWidget(mTabs);
   
     setLayout(layout);
-    setWindowTitle("GCI");
+    setWindowTitle("WiiMake");
     resize(750, 400);
 }
 

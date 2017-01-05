@@ -6,7 +6,6 @@
 #include <QTabWidget>
 #include <QComboBox>
 
-#include "../MainProgram/Global.h"
 #include "PathInput.h"
 
 /* main window for the GUI */
