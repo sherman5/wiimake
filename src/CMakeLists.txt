@@ -1,6 +1,7 @@
 # Core files that contain all functionality
 SET (CORE_SRCS MainProgram/GCI.cpp
                MainProgram/ConfigFileParser.cpp
+               MainProgram/CommandLineParser.cpp
                HelperFunctions/Builder.cpp
                HelperFunctions/CodeSections.cpp
                HelperFunctions/Compiler.cpp
@@ -37,27 +38,28 @@ SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testCodeSections.cpp
                ../tests/testBuilder.cpp
                ../tests/testGCI.cpp
-               MainProgram/CommandLineParser.cpp
                )
 
 # add unit tests
-add_executable (testGCI ${TEST_SRCS} ${CORE_SRCS})
+add_executable (testWiiMake ${TEST_SRCS} ${CORE_SRCS})
 
-# add CLI
-add_executable (GCI MainProgram/CLI.cpp
-                    MainProgram/CommandLineParser.cpp
-                    ${CORE_SRCS})
+# add command line programs
+add_executable (wiimake MainProgram/wiimake.cpp ${CORE_SRCS})
+add_executable (wiimake-ar MainProgram/wiimake-ar.cpp ${CORE_SRCS})
+add_executable (wiimake-isotool MainProgram/wiimake-isotool.cpp ${CORE_SRCS})
 
 # install targets
-install (TARGETS testGCI RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
-install (TARGETS GCI RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install (TARGETS testWiiMake RUNTIME DESTINATION ${CMAKE_BINARY_DIR})
+install (TARGETS wiimake RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install (TARGETS wiimake-ar RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+install (TARGETS wiimake-isotool RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 # GUI
 if (BUILD_GUI)
 
-    add_executable (GCI-gui MainProgram/GUI.cpp ${CORE_SRCS} ${GUI_SRCS})
-    target_link_libraries (GCI-gui Qt5::Widgets)
-    install (TARGETS GCI-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
+    add_executable (wiimake-gui MainProgram/wiimake-gui.cpp ${CORE_SRCS} ${GUI_SRCS})
+    target_link_libraries (wiimake-gui Qt5::Widgets)
+    install (TARGETS wiimake-gui RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX})
     
 endif()
 

@@ -4,10 +4,10 @@
 namespace Description
 {
 
-    const std::string version = "\nGCI v1.0\nDecember 30, 2016\n";
+    const std::string version = "\nwiimake v1.0\nDecember 30, 2016\n";
 
     const std::string summary = "\n"
-    "\t GCI is an automated tool for compiling, allocating,\n"
+    "\t wiimake is an automated tool for compiling, allocating,\n"
     "\t linking, and injecting C code into games for the\n"
     "\t Wii/Gamecube. The main use of this program is with the\n"
     "\t \"--inject\" flag, which tells the program to do the\n"
@@ -20,11 +20,11 @@ namespace Description
     "\t injected at a specified address\n";
 
     const std::string usage = "\nUsage: "
-    "GCI [--inject <directory>] [--save <file>] [--load <file>]\n"
-    "\t [--ar <directory>] [--read <address>] [--config-file <file>]\n"
-    "\t [--game-id <id>] [--iso-file <file>] [--lib <library>]\n"
-    "\t [--include <directory>] [--output <filename>] [--save-temps]\n"
-    "\t [--help] [--usage] [--version]\n";
+    "wiimake [--help] [--usage] [--version]\n"
+    "wiimake ISOFILE CONFIGFILE [--save-temps]\n"
+    "wiimake-ar LIBNAME file1 file2 ...\n"
+    "wiimake-isotool ISOFILE [--save <filename>] [--load <filename>]\n"
+    "\t [--read <address>]\n";
 
     const std::string space = "                            ";
 

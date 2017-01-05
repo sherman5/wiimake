@@ -10,6 +10,8 @@
 /* change extension of file name */
 #define CHANGE_EXT(file, ext) (std::string(file).substr(0, std::string(file).find_last_of('.') + 1) + ext)
 
+#include "ISO.h"
+
 #include <vector>
 #include <utility>
 #include <string>
@@ -39,18 +41,15 @@ struct Section
     }
 };
 
-/* convenient typedef's */
-typedef std::vector< std::pair<uint32_t, uint32_t> > ASMcode;
-typedef std::vector< std::pair<uint32_t, uint32_t> > Table;
-typedef std::vector<std::string> FileList;
-typedef std::vector<Section> SectionList;
-
 /* single region of memory (struct used for sorting) */
 struct MemRegion
 {
     uint32_t start, end;
 
     MemRegion(uint32_t a, uint32_t b) : start(a), end(b) {}
+
+    MemRegion(std::string a, std::string b) :
+        start(stoul(a, nullptr, 16)), end(stoul(b, nullptr, 16)) {}
     
     bool operator<(const MemRegion& other)
     {
@@ -61,29 +60,6 @@ struct MemRegion
     {
         return end - start == other.end - other.start;
     }
-};
-
-struct Arguments
-{
-    /* --inject, --save, --load, --ar, --read, --config-file,
-       --iso-file, --output, --save-temps, --game-id,
-       --help, --usage, --version
-    */
-    std::map<std::string, std::string> cmdOptions;
-
-    /* code_start, code_end, inject_address, original_instruction,
-       DOL_start
-    */
-    std::map<std::string, uint32_t> configOptions;
-
-    /* libs and include paths */
-    std::vector<std::string> libs, includePaths;
-
-    /* available memory regions */
-    std::vector<MemRegion> memRegions;
- 
-    /* address table */
-    Table addressTable;
 };
 
 #endif

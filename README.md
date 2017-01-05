@@ -1,8 +1,8 @@
-# Gamecube Code Injector
+# wiimake
 
 ## Introduction
 
-GCI is an automated tool for compiling, allocating, linking, and injecting C code into games for the Wii/Gamecube.
+wiimake is an automated tool for compiling, allocating, linking, and injecting C code into games for the Wii/Gamecube.
 
 ## Installation 
 
@@ -12,12 +12,12 @@ The only dependency of this software is `devkitPPC`. For installation instructio
 
 `http://devkitpro.org/wiki/Getting_Started/devkitPPC`
 
-To check if you can run the program try typing `powerpc-eabi-gcc` is your terminal. If you get
+To check if you can run the program try typing `powerpc-eabi-gcc` in your terminal. If you get
 
 `powerpc-eabi-gcc: fatal error: no input files` then it has succesfully installed.
 
 
-### Install GCI
+### Install wiimake
 
 1. download zip file of release
 

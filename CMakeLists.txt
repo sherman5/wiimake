@@ -6,7 +6,7 @@ set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11"
         CACHE STRING "g++ flags")
 
 # project name
-project (GCI)
+project (wiimake)
 
 # set default install directories
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
@@ -14,7 +14,7 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     # windows install directory
     if (WIN32)
 
-        set (CMAKE_INSTALL_PREFIX "C:/Program Files/GCI"
+        set (CMAKE_INSTALL_PREFIX "C:/Program Files/wiimake"
                 CACHE PATH "default install path")
 
     # linux install directory
