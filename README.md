@@ -62,18 +62,25 @@ wiimake ISO CONFIGFILE [--save-temps]
 
 The configuration file provides `wiimake` with all the necessary information about the source files and target iso file.
 
+The config file format should be `.ini`. `wiimake` treats any line starting with `;` as a comment (standard) and allows for spaces between `=` as well as variables to have a list of values. Section headers in `[]` are ignored.
+
+This file should have 9 variables defined: `REGIONS, SOURCES, LIBRARIES, INCLUDE_PATHS, COMPILER_FLAGS, LINKER_FLAGS, ENTRY, ADDRESS, INSTRUCTION`.
+
+See `./examples/config.ini` for an example configuration file.
+
 ### REGIONS
 
 ```
 REGIONS =
 
-    803fa3e8-803fc2ec
-    803fc420-803fdc1c
-    801910e0-80192930
-    803001dc-80301e40
+    FFFFFFFF-FFFFFFFF
+    FFFFFFFF-FFFFFFFF
+    ...
 ```
 
-### SOURCES, LIRARIE, INCLUDE_PATHS
+This variable specifies the regions in the game memory that are avialable to be overwritten. The regions must have the format of `start_address-end_address` with no spaces.
+
+### SOURCES, LIRARIES, INCLUDE_PATHS
 
 ```
 SOURCES = file1.c file2.c ...
@@ -83,6 +90,8 @@ LIBRARIES = file1.c file2.c ...
 INCLUDE_PATHS = path/to/dir1 path/to/dir2 ...
 ```
 
+These variables tell `wiimake` which source files to compile, which directories to look for `.h` files, and which libraries to link against.
+
 ### COMPILER_FLAGS, LINKER_FLAGS
 
 ```
@@ -90,6 +99,8 @@ COMPILER_FLAGS = -flag1 -flag2 ...
  
 LINKER_FLAGS = -flag1 -flag2 ...
 ```
+
+These variables allow for flags to be passed directly to the `powerpc-eabi-gcc` and `powerpc-eabi-ld`.
 
 ### ENTRY, ADDRESS, INSTRUCTION
 
@@ -101,6 +112,9 @@ ADDRESS = 0xFFFFFFFF
 INSTRUCTION = 0xFFFFFFFF
 ```
 
+`ENTRY` specifies the function name that the user's program should start with. This would typically be `main` but in this case that is an invalid name.
+
+`ADDRESS` is the address in game memory that the function in `ENTRY` gets injected into. `INSTRUCTION` is the original instruction at this address and gets called after the function in `ENTRY` is run. If the user wants to overwrite this line completely, just set `INSTRUCTION = 0x60000000` (nop).
 ## wiimake-ar
 
 ```
@@ -116,5 +130,7 @@ wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
 ```
 
 `wiimake-isotool` is useful for operating on an iso file directly. The --read flag allows the user to read any RAM address from the iso, which is useful when trying to find the original instruction that is being overwritten at the injection point. There is also --save and --load which allow for easy distribution of mods.
+
+## Examples
 
 
