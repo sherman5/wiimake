@@ -1,5 +1,12 @@
 #include "LowLevel.h"
 
+#ifdef WIIMAKEWINDOWS
+
+    #include <windows.h>
+    #include <process.h>
+
+#endif
+
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -11,8 +18,8 @@ int System::runCMD(std::string cmd, bool display)
         std::replace(cmd.begin(), cmd.end(), '/', '\\');
     #endif
 
-    FILE* cmd_ex = popen(cmd.c_str(), "r");
-    pclose(cmd_ex);
+    FILE* cmdExe = popen(cmd.c_str(), "r");
+    pclose(cmdExe);
 
     if (display)
     {

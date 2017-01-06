@@ -37,10 +37,10 @@ struct Arguments
     bool saveTemps;
 
     /* entry symbol */
-    std::string entry;
+    std::string entry = "";
 
     /* inject point */
-    uint32_t injectAddress, originalInstruction;
+    uint32_t injectAddress = 0, originalInstruction = 0;
     
     /* source and lib files, include paths */
     std::vector<std::string> sources, libs, includePaths;

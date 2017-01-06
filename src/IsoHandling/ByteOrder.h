@@ -18,7 +18,7 @@
 
     #include <endian.h>
 
-    #define HOST_TO_BE(x) htobe32(x)
-    #define BE_TO_HOST(x) be32toh(x)
+    #define HOST_TO_BE(x) (htobe32(x))
+    #define BE_TO_HOST(x) (be32toh(x))
 
 #endif

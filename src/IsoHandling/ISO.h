@@ -14,6 +14,12 @@ struct IsoSection
 
     IsoSection(uint32_t d, uint32_t r, uint32_t s)
         : DOLoffset(d), RAMaddress(r), size(s) {}
+
+    /* for sorting */
+    bool operator<(const IsoSection& other) const
+    {
+        return RAMaddress < other.RAMaddress;
+    }
 };
 
 class ISO
@@ -23,7 +29,7 @@ private:
 
     /* file stream */
     std::fstream* mFile;
-    
+
     /* DOL - address table */
     std::vector<IsoSection> mDOLtable;
     
@@ -33,9 +39,6 @@ private:
     /* address of first and last line of code */
     uint32_t mCodeStart, mCodeEnd;
 
-    /* place file stream at RAM address */
-    uint32_t dolOffset(uint32_t);
-
 public:
 
     /* constructor from file path */
@@ -43,6 +46,9 @@ public:
 
     /* destructor - close file stream */
     ~ISO();
+
+    /* find DOL offset corresponding to RAM address */
+    uint32_t dolOffset(uint32_t);
 
     /* read 32-bit address */
     uint32_t read(uint32_t);

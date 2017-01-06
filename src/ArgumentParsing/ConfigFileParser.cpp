@@ -3,48 +3,74 @@
 
 #include <string>
 #include <algorithm>
+#include <iostream>
 
 /* parse config file */
 void ConfigParser::parse(Arguments& args)
 {
     /* get tokens */
-    TokenList tokens = ConfigParser::getTokens(args);
-
-    /* remove comments */
-    ConfigParser::removeComments(tokens);
+    TokenList tokens = ConfigParser::getTokens(args.configFile);
 
     /* store all variables in file */
     ConfigParser::storeAllVariables(tokens, args);
+
+    /* check variables */
+    ConfigParser::checkArgs(args);
+}
+
+/* parse single line of file, add to token list */
+void ConfigParser::parseLine(std::string line, TokenList& tokens)
+{
+   /* separate equal signs */
+    if (line.find("=") != std::string::npos)
+    {
+        /* add string before equal sign */
+        if (line.front() != '=')
+        {
+            tokens.push_back(line.substr(0, line.find("=")));
+        }
+
+        /* add equal sign */
+        tokens.push_back("=");
+
+        /* add string after equal sign */
+        if (line.back() != '=')
+        {
+            tokens.push_back(line.substr(line.find("=") + 1));
+        }
+    }
+    else
+    {
+        tokens.push_back(line);
+    }
 }
 
 /* convert file to vector of strings */
-TokenList ConfigParser::getTokens(Arguments& args)
+TokenList ConfigParser::getTokens(std::string fileName)
 {
     /* open up config file */
-    std::ifstream configFile (args.configFile, std::ios::in);
+    std::ifstream configFile (fileName, std::ios::in);
 
-    /* read first line */
-    std::string line;
-    configFile >> line;
-
-    /* add each line to vector */
+    /* list of tokens to return */
     TokenList tokens;
+
+    /* iterate through each line */
+    std::string line;
     while (!configFile.eof())
     {
-        /* separate equal signs */
-        if (line.find("=") != std::string::npos)
+        /* throw away whitespace, look for comment/section start */
+        configFile >> std::ws;
+        if (configFile.peek() == ';' || configFile.peek() == '[')
         {
-            tokens.push_back(line.substr(0, line.find("=")));
-            tokens.push_back("=");
-            tokens.push_back(line.substr(line.find("=") + 1));
+            /* ignore comment */
+            configFile.ignore(std::numeric_limits<int>::max(), '\n');
         }
-        else
+        else if (configFile.peek() != EOF)
         {
-            tokens.push_back(line);
+            /* parse single line */
+            configFile >> line;
+            ConfigParser::parseLine(line, tokens); 
         }
-
-        /* read next line */
-        configFile >> line;
     }
 
     /* close config file */
@@ -54,44 +80,47 @@ TokenList ConfigParser::getTokens(Arguments& args)
     return tokens;
 }
 
-/* remove all comments from config file */
-void ConfigParser::removeComments(TokenList& tokens)
-{
-    /* iterate through all tokens */
-    for (auto it = tokens.begin(); it != tokens.end(); ++it)
-    {
-        /* check if beginning of comment */
-        if ((*it).find(";") != std::string::npos)
-        {
-            /* find end of comment */
-            auto commentStart = it;
-            while ((*it).find("\n") == std::string::npos) { ++it;}
-
-            /* erase comment */
-            tokens.erase(commentStart, it + 1);
-        }
-    }
-}
-
 /* store all variables in file */
 void ConfigParser::storeAllVariables(TokenList& tokens, Arguments& args)
 {
     /* find all equals signs */
     for (auto it = tokens.begin(); it != tokens.end(); ++it)
     {
-        if ((*it) == "=")
+        /* find variable with some values */
+        if (*it == "=" && *(it + 2) != "=")
         {
-            /* store variable name */
+            /* store variable name, get first value */
             std::string name = *(it - 1);
-        
-            /* find list of values for this variable */
-            auto first = ++it;
-            while ((*it) != "=") { ++it;}
-            auto last = --(--it);
+            TokenList::iterator last, first = ++it;
 
-            /* store this variable */
+            /* read values until next variable */
+            while (it != tokens.end() && *it != "=") { ++it;}
+            if (it != tokens.end())
+            {
+                last = (--it)--;
+            }
+            else
+            {
+                last = it--;
+            }
+    
+            /* store variable */            
             ConfigParser::storeVariable(args, name, TokenList(first, last));
         }
+    }
+}
+
+/* store the memory regions variable */
+void ConfigParser::storeMemRegions(Arguments& args, TokenList table)
+{
+    for (auto it = table.begin(); it != table.end(); ++it)
+    {
+        /* get beginning and end of region */
+        std::string begin = (*it).substr(0, (*it).find("-"));
+        std::string end = (*it).substr((*it).find("-") + 1);
+
+        /* add region */
+        args.memRegions.push_back(MemRegion(begin, end));
     }
 }
 
@@ -102,7 +131,7 @@ TokenList values)
     /* find variable name */
     TokenList variables = {"REGIONS", "SOURCES", "LIBRARIES",
         "INCLUDE_PATHS", "COMPILER_FLAGS", "LINKER_FLAGS",
-        "ENTRY", "ADDRESS", "INSTRUCTION"};
+        "ADDRESS", "INSTRUCTION", "ENTRY"};
     
     auto pos = std::find(variables.begin(), variables.end(), name);
 
@@ -128,13 +157,17 @@ TokenList values)
             args.linkFlags = values;
             break;
         case 6:
-            args.entry = values[0];
-            break;
-        case 7:
             args.injectAddress = stoul(values[0], nullptr, 16);
-            break;
-        case 8:
+            if (values.size() == 1) {break;}
+        case 7:
             args.originalInstruction = stoul(values[0], nullptr, 16);
+            if (values.size() == 1) {break;}
+        case 8:
+            args.entry = values[0];
+            if (values.size() == 1) {break;}
+        case ' ':
+            throw std::invalid_argument("too many values in config file"
+                " for variable " + name);
             break;
         default:
             throw std::invalid_argument("unrecognized variable in"
@@ -143,17 +176,27 @@ TokenList values)
     }
 }
 
-/* store the memory regions variable */
-void ConfigParser::storeMemRegions(Arguments& args, TokenList table)
+/* verify corect arguments were given in config file */
+void ConfigParser::checkArgs(Arguments& args)
 {
-    for (auto it = table.begin(); it != table.end(); ++it)
+    if (args.injectAddress == 0)
     {
-        /* get beginning and end of region */
-        std::string begin = (*it).substr(0, (*it).find("-"));
-        std::string end = (*it).substr((*it).find("-") + 1);
+        throw std::invalid_argument("missing inject address (config file)");
+    }
 
-        /* add region */
-        args.memRegions.push_back(MemRegion(begin, end));
+    if (args.originalInstruction == 0)
+    {
+        throw std::invalid_argument("missing instruction (config file)");
+    }
+
+    if (args.entry == "")
+    {
+        throw std::invalid_argument("missing entry point (config file)");
+    }   
+
+    if (args.sources.empty())
+    {
+        throw std::invalid_argument("no source files given");
     }
 }
 

@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <vector>
 #include <fstream>
+#include <algorithm>
+#include <iostream>
 
 /* constructor from file path */
 ISO::ISO(std::string path)
@@ -14,30 +16,35 @@ ISO::ISO(std::string path)
 
     /* find DOL start */
     mFile->seekg(0x0420);
-    mFile->read(reinterpret_cast<char *>(&mStartDOL), sizeof(mStartDOL));
+    mFile->read(reinterpret_cast<char*>(&mStartDOL), sizeof(mStartDOL));
+    mStartDOL = HOST_TO_BE(mStartDOL);
 
     /* populate DOL table */
     uint32_t dol, ram, size;
-    for (uint32_t offset = 0; offset < 0x47; offset += 0x4)
+    for (uint32_t offset = 0; offset < 0x47; offset += 0x04)
     {
         /* get dol offset */
         mFile->seekg(mStartDOL + offset);
-        mFile->read(reinterpret_cast<char *>(dol), sizeof(dol));
+        mFile->read(reinterpret_cast<char*>(&dol), sizeof(dol));
     
         /* get ram address */
         mFile->seekg(mStartDOL + offset + 0x48);
-        mFile->read(reinterpret_cast<char *>(ram), sizeof(ram));
+        mFile->read(reinterpret_cast<char*>(&ram), sizeof(ram));
 
         /* get section size */
         mFile->seekg(mStartDOL + offset + 0x90);
-        mFile->read(reinterpret_cast<char *>(size), sizeof(size));
+        mFile->read(reinterpret_cast<char*>(&size), sizeof(size));
 
         /* add section if non-zero size */
         if (size > 0)
         {
-            mDOLtable.push_back(IsoSection(dol, ram, size));
+            mDOLtable.push_back(IsoSection(HOST_TO_BE(dol),
+                HOST_TO_BE(ram), HOST_TO_BE(size)));
         }
     }
+
+    /* sort DOL table on RAM addresses */
+    std::sort(mDOLtable.begin(), mDOLtable.end());
 
     /* get code start and end */
     mCodeStart = mDOLtable.front().RAMaddress;
@@ -52,7 +59,7 @@ ISO::~ISO()
     delete mFile;
 }
 
-/* place file stream at RAM address */
+/* find DOL offset corresponding to RAM address */
 uint32_t ISO::dolOffset(uint32_t address)
 {
     /* find section that contains this address */
@@ -67,12 +74,18 @@ uint32_t ISO::dolOffset(uint32_t address)
 /* read 32-bit address */
 uint32_t ISO::read(uint32_t address)
 {
+    /* check that address is valid */
+    if (address < mCodeStart || address > mCodeEnd)
+    {
+        throw std::invalid_argument("iso read: RAM address out of range");
+    }
+    
     /* put stream at correct address */
     mFile->seekg(dolOffset(address));
 
     /* read 32-bits */
     uint32_t value;
-    mFile->read(reinterpret_cast<char *>(value), sizeof(value));
+    mFile->read(reinterpret_cast<char *>(&value), sizeof(value));
     
     /* return value, account for endianess */
     return HOST_TO_BE(value);
@@ -168,9 +181,9 @@ void ISO::loadState(std::string fileName)
 void ISO::injectCode(std::vector< std::pair<uint32_t, uint32_t> >& code)
 {
     /* loop through code and write each (address, value) pair */
-    for (auto it = code.begin(); it != code.end(); ++it)
+    for (auto& line : code)
     {
-        write((*it).first, (*it).second);
+        write(line.first, line.second);
     }
 }
 
