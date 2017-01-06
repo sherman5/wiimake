@@ -21,7 +21,7 @@ namespace CMDparser
 
     /* check if user passed in option */
     bool optionExists(TokenList&, std::string);
-};
+}
 
 namespace ConfigParser
 {
@@ -45,6 +45,6 @@ namespace ConfigParser
 
     /* verify corect arguments were given in config file */
     void checkArgs(Arguments&);
-};
+}
 
 #endif

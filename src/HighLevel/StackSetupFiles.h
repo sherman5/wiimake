@@ -14,6 +14,6 @@ namespace StackSetupFiles
     ".global inject_point\n"
     "inject_point:\n"
     "bl stack_setup\n";
-};
+}
 
 #endif

@@ -25,6 +25,9 @@ int System::runCMD(std::string cmd, bool display)
     {
         std::cout << cmd << std::endl;
     }
+
+    //TODO: return status of command
+    return 0;
 }
 
 

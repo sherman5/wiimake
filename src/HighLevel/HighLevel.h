@@ -32,7 +32,7 @@ namespace Builder
 
     /* remove all temporary files created in the build process */
     void cleanDirectory();
-};
+}
 
 /* manage sections of code in object file */
 namespace CodeSections
@@ -42,7 +42,7 @@ namespace CodeSections
 
     /* get sizes of each section */
     void storeSizes(SectionList&);
-};
+}
 
 /* manage memory regions in RAM */
 namespace Memory
@@ -57,7 +57,7 @@ namespace Memory
 
     /* verify allocation was done correctly */
     void checkAllocation(const SectionList&);
-};
+}
 
 /* handle creation of linker scripts */
 namespace LinkerScript
@@ -67,7 +67,7 @@ namespace LinkerScript
 
     /* create linker script to put sections in correct addresses */
     void CreateFinalScript(SectionList&, std::string);
-};
+}
 
 #endif
 

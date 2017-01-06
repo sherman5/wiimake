@@ -1,4 +1,4 @@
-#include "TimesTwo.h"
+#include "source2.h"
 
 double TimesTwo (double num) {
 

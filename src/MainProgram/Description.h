@@ -45,6 +45,6 @@ namespace Description
 
     const std::string help = "";
 
-};
+}
 
 #endif

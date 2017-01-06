@@ -87,7 +87,8 @@ void ConfigParser::storeAllVariables(TokenList& tokens, Arguments& args)
     for (auto it = tokens.begin(); it != tokens.end(); ++it)
     {
         /* find variable with some values */
-        if (*it == "=" && *(it + 2) != "=")
+        if (*it == "=" && !(it + 1 == tokens.end()
+            || (it + 2 != tokens.end() && *(it + 2) == "=")))
         {
             /* store variable name, get first value */
             std::string name = *(it - 1);

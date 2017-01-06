@@ -48,17 +48,17 @@ public:
     ~ISO();
 
     /* find DOL offset corresponding to RAM address */
-    uint32_t dolOffset(uint32_t);
+    uint32_t dolOffset(uint32_t) const;
 
     /* read 32-bit address */
-    uint32_t read(uint32_t);
-    uint32_t read(std::string);
+    uint32_t read(uint32_t) const;
+    uint32_t read(std::string) const;
 
     /* write 32-bit value to 32-bit RAM address */
     void write(uint32_t, uint32_t);
 
     /* save the current state of the iso file */
-    void saveState(std::string);
+    void saveState(std::string) const;
 
     /* load code from save file */
     void loadState(std::string);

@@ -4,41 +4,71 @@
 
 #include <iostream>
 
-int main(int argc, const char** argv)
+void run(TokenList& tokens)
 {
-    /* get command line arguments */
-    TokenList tokens = CMDparser::getTokens(argc, argv);
-
-    /* parse meta options */
-    CMDparser::parseMetaOptions(tokens);
-
     /* check for correct number of arguments */
     if (tokens.size() != 3)
     {
         throw std::invalid_argument("incorrect number of arguments");
-        std::cout << Description::usage << std::endl;
-        exit(0);
     }
     
     /* create iso handler */
-    ISO iso (tokens[1]);
+    ISO iso (tokens[0]);
     
     /* run the program */
-    if (tokens.front() == "--save")
+    if (tokens[1] == "--save")
     {
         iso.saveState(tokens.back());
     }
-    else if (tokens.front() == "--load")
+    else if (tokens[1] == "--load")
     {
         iso.loadState(tokens.back());
     }
-    else if (tokens.front() == "--read")
+    else if (tokens[1] == "--read")
     {
-        std::cout << iso.read(tokens.back());
+        /* make sure valid address is given */
+        try
+        {
+            std::cout << std::hex << iso.read(tokens.back()) << std::endl;
+        }
+        catch (std::invalid_argument& e)
+        {
+            if (std::string(e.what()) == "stoul")
+            {
+                throw std::invalid_argument("invalid address: "
+                    + tokens.back());
+            }
+            else
+            {
+                throw e;
+            }
+        }
     }
     else
     {
-        throw std::invalid_argument("invalid option: " + tokens.front());
+        throw std::invalid_argument("invalid option: " + tokens[1]);
+    }
+}
+
+int main(int argc, const char** argv)
+{
+    try
+    {
+        /* get command line arguments */
+        TokenList tokens = CMDparser::getTokens(argc, argv);
+
+        /* parse meta options */
+        CMDparser::parseMetaOptions(tokens);
+
+        /* run program */
+        run(tokens);
+    }
+    catch (std::exception& e)
+    {
+        /* handle error */
+        std::cout << e.what() << std::endl;
+        std::cout << Description::usage << std::endl;
+        return 1;
     }
 
     /* return without error */

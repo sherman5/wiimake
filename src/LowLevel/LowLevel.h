@@ -36,7 +36,7 @@ namespace System
 
     /* runs a command and waits for it to finish */
     int runCMD(std::string, bool=false);
-};
+}
 
 /* parse symbol table */
 namespace SymbolTable
@@ -46,7 +46,7 @@ namespace SymbolTable
     
     /* gret sizes of all sections in this symbol table */
     std::vector<unsigned> getSizes(std::string, int);
-};
+}
 
 /* manipulate and parse object files */
 namespace ObjectFile
@@ -66,20 +66,20 @@ namespace ObjectFile
     /* verify current line is beginning of line of code */
     bool lineOfCode(std::string);
 
-};
+}
 
 /* compile lists of C files */
 namespace Compiler
 {
     /* compile files in directory, using include paths given */
     FileList compile(FileList&, FileList = FileList());
-};
+}
 
 /* link lists of object files */
 namespace Linker
 {
     /* link all sections, using linker script provided */
     void link(SectionList&, std::string, std::string);
-};  
+}  
 
 #endif

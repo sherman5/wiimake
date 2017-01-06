@@ -9,9 +9,11 @@ TEST_CASE("compile files in directory")
     displayHeader("Testing Compiler.cpp");
 
     FileList sources, includes;
-    sources.push_back("../tests/files/source/source1.c");
-    sources.push_back("../tests/files/source/source2.c");
-    includes.push_back("../tests/include");
+    sources.push_back("../tests/files/Compiler/source1.c");
+    sources.push_back("../tests/files/Compiler/source2.c");
+    includes.push_back("../tests/files/Compiler/include");
     auto objects = Compiler::compile(sources, includes);
     REQUIRE(objects.size() == 2);
+    REQUIRE(objects[0] == "../tests/files/Compiler/source1.o");
+    REQUIRE(objects[1] == "../tests/files/Compiler/source2.o");
 }

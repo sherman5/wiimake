@@ -1,8 +1,7 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../src/MainProgram/Parser.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/HighLevel/HighLevel.h"
+#include "HeaderDisplay.h"
 
 TEST_CASE("find code allocation")
 {
@@ -11,12 +10,10 @@ TEST_CASE("find code allocation")
 
     /* get arguments for testing */
     Arguments args;
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));    
-    
-    /* get memory regions */    
-    ConfigParser::parse(args);
+    args.memRegions.push_back(MemRegion(0x803fa3e8, 0x803fc2ec));
+    args.memRegions.push_back(MemRegion(0x803fc420, 0x803fdc1c));
+    args.memRegions.push_back(MemRegion(0x801910e0, 0x80192930));
+    args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
 
     /* create section list */
     SectionList sections;

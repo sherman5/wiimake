@@ -1,7 +1,9 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/LowLevel/LowLevel.h"
+#include "HeaderDisplay.h"
+
+static const std::string prefix = "../tests/files/SymbolTable/";
 
 TEST_CASE ("parsing single line")
 {
@@ -13,7 +15,7 @@ TEST_CASE ("parsing single line")
     sizes.resize(7);
 
     /* open up text file with symbol table */
-    std::ifstream file ("../tests/symbolTable.txt", std::ios::in);
+    std::ifstream file (prefix + "symbolTable.txt", std::ios::in);
     std::string line;
 
     /* expect error since not at first column of table */
@@ -52,7 +54,7 @@ TEST_CASE ("parsing single line")
 
 TEST_CASE("parse whole table")
 {
-    auto sz = SymbolTable::getSizes("../tests/symbolTable.out", 7);
+    auto sz = SymbolTable::getSizes(prefix + "symbolTable.out", 7);
     REQUIRE(sz[0] == 16);
     REQUIRE(sz[1] == 20);
     REQUIRE(sz[2] == 160);

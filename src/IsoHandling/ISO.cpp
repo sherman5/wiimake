@@ -16,7 +16,7 @@ ISO::ISO(std::string path)
 
     /* find DOL start */
     mFile->seekg(0x0420);
-    mFile->read(reinterpret_cast<char*>(&mStartDOL), sizeof(mStartDOL));
+    mFile->read(reinterpret_cast<char*>(&mStartDOL), sizeof(uint32_t));
     mStartDOL = HOST_TO_BE(mStartDOL);
 
     /* populate DOL table */
@@ -25,15 +25,15 @@ ISO::ISO(std::string path)
     {
         /* get dol offset */
         mFile->seekg(mStartDOL + offset);
-        mFile->read(reinterpret_cast<char*>(&dol), sizeof(dol));
+        mFile->read(reinterpret_cast<char*>(&dol), sizeof(uint32_t));
     
         /* get ram address */
         mFile->seekg(mStartDOL + offset + 0x48);
-        mFile->read(reinterpret_cast<char*>(&ram), sizeof(ram));
+        mFile->read(reinterpret_cast<char*>(&ram), sizeof(uint32_t));
 
         /* get section size */
         mFile->seekg(mStartDOL + offset + 0x90);
-        mFile->read(reinterpret_cast<char*>(&size), sizeof(size));
+        mFile->read(reinterpret_cast<char*>(&size), sizeof(uint32_t));
 
         /* add section if non-zero size */
         if (size > 0)
@@ -60,7 +60,7 @@ ISO::~ISO()
 }
 
 /* find DOL offset corresponding to RAM address */
-uint32_t ISO::dolOffset(uint32_t address)
+uint32_t ISO::dolOffset(uint32_t address) const
 {
     /* find section that contains this address */
     unsigned i = 0;
@@ -72,27 +72,27 @@ uint32_t ISO::dolOffset(uint32_t address)
 }
 
 /* read 32-bit address */
-uint32_t ISO::read(uint32_t address)
+uint32_t ISO::read(uint32_t address) const
 {
     /* check that address is valid */
     if (address < mCodeStart || address > mCodeEnd)
     {
         throw std::invalid_argument("iso read: RAM address out of range");
     }
-    
+
     /* put stream at correct address */
     mFile->seekg(dolOffset(address));
 
     /* read 32-bits */
     uint32_t value;
-    mFile->read(reinterpret_cast<char *>(&value), sizeof(value));
+    mFile->read(reinterpret_cast<char *>(&value), sizeof(uint32_t));
     
     /* return value, account for endianess */
     return HOST_TO_BE(value);
 }
     
 /* read 32-bit address */
-uint32_t ISO::read(std::string address)
+uint32_t ISO::read(std::string address) const
 {
     return read(stoul(address, nullptr, 16));
 }
@@ -107,31 +107,24 @@ void ISO::write(uint32_t address, uint32_t value)
     value = BE_TO_HOST(value);
 
     /* write value */
-    mFile->write(reinterpret_cast<char *>(&value), sizeof(value));
+    mFile->write(reinterpret_cast<char *>(&value), sizeof(uint32_t));
 }
 
 /* save the current state of the iso file */
-void ISO::saveState(std::string fileName)
+void ISO::saveState(std::string fileName) const
 {
     /* data vector to write to file */
-    uint32_t value;
     std::vector<uint32_t> data;
 
     /* first and last address - store at front of data */
     data.push_back(mCodeStart);
     data.push_back(mCodeEnd);
-
-    /* put stream at correct address */
-    mFile->seekg(dolOffset(mCodeStart));
     
     /* loop through all code */
     for (uint32_t addr = mCodeStart; addr <= mCodeEnd; addr += 0x04)
     {
-        /* read value */
-        mFile->read(reinterpret_cast<char *>(&value), sizeof(value));
-
         /* store instruction */
-        data.push_back(HOST_TO_BE(value));
+        data.push_back(read(addr));
     }
     
     /* open save file */
@@ -152,25 +145,19 @@ void ISO::loadState(std::string fileName)
     /* open up binary file for reading */
     std::ifstream loadFile (fileName, std::ios::in | std::ios::binary);
     
-    /* first and last address, temp variable for reading */
+    /* first and last address, temp value for reading */
     uint32_t start, end, value;
-    loadFile.read(reinterpret_cast<char *>(&start), sizeof(start));
-    loadFile.read(reinterpret_cast<char *>(&end), sizeof(end));
-
-    /* put stream at start address */
-    mFile->seekp(dolOffset(start));
+    loadFile.read(reinterpret_cast<char *>(&start), sizeof(uint32_t));
+    loadFile.read(reinterpret_cast<char *>(&end), sizeof(uint32_t));
 
     /* loop through stored values */
     for (uint32_t addr = start; addr <= end; addr += 0x04)
     {
         /* read in values as (addr, instruction) pairs */
-        loadFile.read(reinterpret_cast<char *>(&value), sizeof(value));
-   
-        /* account for endianess */
-        value = BE_TO_HOST(value);
-    
+        loadFile.read(reinterpret_cast<char *>(&value), sizeof(uint32_t));
+       
         /* write value to iso */    
-        mFile->write(reinterpret_cast<char *>(&value), sizeof(value));
+        write(addr, value);
     }
 
     /* close file */

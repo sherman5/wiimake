@@ -11,7 +11,7 @@ TokenList CMDparser::getTokens(int argc, const char** argv)
 {
     /* store each argument in vector */ 
     TokenList tokens;
-    for (unsigned i = 1; i < argc; ++i)
+    for (int i = 1; i < argc; ++i)
     {
         tokens.push_back(std::string(argv[i]));
     }

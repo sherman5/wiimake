@@ -1,11 +1,13 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../src/MainProgram/Parser.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/HighLevel/HighLevel.h"
+#include "../src/ArgumentParsing/Parser.h"
+#include "HeaderDisplay.h"
 
 #include <algorithm>
 #include <string>
+
+static const std::string prefix = "../tests/files/Builder/";
 
 /* ignore back/forward slashes in windows */
 #ifdef GCI_WINDOWS
@@ -37,18 +39,19 @@ TEST_CASE("create library")
 
     /* needed args */
     Arguments args;
-    args.cmdOptions.insert(std::make_pair("--ar", "../tests/lib"));
-    args.cmdOptions.insert(std::make_pair("--output",
-        "../tests/libtest.a"));
+    args.name = prefix + "libtest.a";
+    args.sources.push_back(prefix + "lib/Controller.c");
+    args.sources.push_back(prefix + "lib/Math.c");
+    args.sources.push_back(prefix + "lib/Random.c");
 
     /* remove old library */
-    System::runCMD(System::rm + " ../tests/libtest.a");
+    System::runCMD(System::rm + " " + prefix + "libtest.a");
     
     /* create library */
     REQUIRE_NOTHROW(Builder::buildLibrary(args));
 
     /* get sections */
-    auto libSections = ObjectFile::getNamedSections("../tests/libtest.a");
+    auto libSections = ObjectFile::getNamedSections(prefix + "libtest.a");
 
     /* check section names */
     REQUIRE(libSections.size() == 8);
@@ -66,8 +69,8 @@ TEST_CASE("add original instruction")
 {
     /* needed args */
     Arguments args;
-    args.configOptions.insert(std::make_pair("inject_address", 0x125));
-    args.configOptions.insert(std::make_pair("original_instruction", 0xe));
+    args.injectAddress = 0x125;
+    args.originalInstruction = 0xe;
     args.memRegions.push_back(MemRegion(0x120, 0x200));
 
     /* create sample code */
@@ -93,41 +96,44 @@ TEST_CASE("allocate sections given object files")
 {
     /* needed args */
     Arguments args;
-    args.cmdOptions.insert(std::make_pair("--inject", "../tests/source"));
-    args.libs.push_back("../tests/lib1.a");
-    args.includePaths.push_back("../tests/include");
-
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));
-    ConfigParser::parse(args);
+    args.sources.push_back(prefix + "source/source1.c");
+    args.sources.push_back(prefix + "source/source2.c");
+    args.libs.push_back(prefix + "lib1.a");
+    args.includePaths.push_back(prefix + "include");
+    args.injectAddress = 0x80377998;
+    args.originalInstruction = 0x7ee3bb78;
+    args.memRegions.push_back(MemRegion(0x803fa3e8, 0x803fc2ec));
+    args.memRegions.push_back(MemRegion(0x803fc420, 0x803fdc1c));
+    args.memRegions.push_back(MemRegion(0x801910e0, 0x80192930));
+    args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
 
     /* compile source files, return object files */
-    auto objects = Builder::getObjectFiles(args.cmdOptions["--inject"], 
+    auto objects = Builder::getObjectFiles(args.sources, 
         args.includePaths, args.libs);
     
     REQUIRE(objects.size() == 3);    
-    REQUIRE(STR_EQ(objects[0], "../tests/source/source1.o"));    
-    REQUIRE(STR_EQ(objects[1], "../tests/source/source2.o"));
-    REQUIRE(STR_EQ(objects[2], "../tests/lib1.a"));
+    REQUIRE(STR_EQ(objects[0], prefix + "source/source1.o"));    
+    REQUIRE(STR_EQ(objects[1], prefix + "source/source2.o"));
+    REQUIRE(STR_EQ(objects[2], prefix + "lib1.a"));
 
     /* find addresses for each section */
     auto sections = Builder::getSectionAddresses(objects, args);
 
     REQUIRE(sections.size() == 13);
 
-    REQUIRE(STR_EQ(sections[0].path, "../tests/source/source1.o (text)"));
-    REQUIRE(STR_EQ(sections[1].path, "../tests/source/source1.o (rodata)"));
-    REQUIRE(STR_EQ(sections[2].path, "../tests/source/source1.o (attr)"));REQUIRE(STR_EQ(sections[3].path, "../tests/source/source2.o (text)"));
-    REQUIRE(STR_EQ(sections[4].path, "../tests/source/source2.o (attr)"));
-    REQUIRE(STR_EQ(sections[5].path, "../tests/lib1.a (text0)"));
-    REQUIRE(STR_EQ(sections[6].path, "../tests/lib1.a (attr0)"));
-    REQUIRE(STR_EQ(sections[7].path, "../tests/lib1.a (text1)"));
-    REQUIRE(STR_EQ(sections[8].path, "../tests/lib1.a (rodata1)"));
-    REQUIRE(STR_EQ(sections[9].path, "../tests/lib1.a (attr1)"));
-    REQUIRE(STR_EQ(sections[10].path, "../tests/lib1.a (text2)"));
-    REQUIRE(STR_EQ(sections[11].path, "../tests/lib1.a (rodata2)"));
-    REQUIRE(STR_EQ(sections[12].path, "../tests/lib1.a (attr2)"));
+    REQUIRE(STR_EQ(sections[0].path, prefix + "source/source1.o (text)"));
+    REQUIRE(STR_EQ(sections[1].path, prefix + "source/source1.o (rodata)"));
+    REQUIRE(STR_EQ(sections[2].path, prefix + "source/source1.o (attr)"));
+    REQUIRE(STR_EQ(sections[3].path, prefix + "source/source2.o (text)"));
+    REQUIRE(STR_EQ(sections[4].path, prefix + "source/source2.o (attr)"));
+    REQUIRE(STR_EQ(sections[5].path, prefix + "lib1.a (text0)"));
+    REQUIRE(STR_EQ(sections[6].path, prefix + "lib1.a (attr0)"));
+    REQUIRE(STR_EQ(sections[7].path, prefix + "lib1.a (text1)"));
+    REQUIRE(STR_EQ(sections[8].path, prefix + "lib1.a (rodata1)"));
+    REQUIRE(STR_EQ(sections[9].path, prefix + "lib1.a (attr1)"));
+    REQUIRE(STR_EQ(sections[10].path, prefix + "lib1.a (text2)"));
+    REQUIRE(STR_EQ(sections[11].path, prefix + "lib1.a (rodata2)"));
+    REQUIRE(STR_EQ(sections[12].path, prefix + "lib1.a (attr2)"));
 
     REQUIRE(sections[0].size == 0xc0);
     REQUIRE(sections[1].size == 0x14);
@@ -173,17 +179,19 @@ TEST_CASE("link sections and extract code")
 {
     /* needed args */
     Arguments args;
-    args.cmdOptions.insert(std::make_pair("--inject", "../tests/source"));
-    args.libs.push_back("../tests/lib1.a");
-    args.includePaths.push_back("../tests/include");
-
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));
-    ConfigParser::parse(args);
+    args.sources.push_back(prefix + "source/source1.c");
+    args.sources.push_back(prefix + "source/source2.c");
+    args.libs.push_back(prefix + "lib1.a");
+    args.includePaths.push_back(prefix + "include");
+    args.injectAddress = 0x80377998;
+    args.originalInstruction = 0x7ee3bb78;
+    args.memRegions.push_back(MemRegion(0x803fa3e8, 0x803fc2ec));
+    args.memRegions.push_back(MemRegion(0x803fc420, 0x803fdc1c));
+    args.memRegions.push_back(MemRegion(0x801910e0, 0x80192930));
+    args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
 
     /* compile source files, return object files */
-    auto objects = Builder::getObjectFiles(args.cmdOptions["--inject"], 
+    auto objects = Builder::getObjectFiles(args.sources, 
         args.includePaths, args.libs);
 
     /* find addresses for each section */
@@ -215,4 +223,6 @@ TEST_CASE("link sections and extract code")
 
     REQUIRE(code[243].first == 0x80377998);
     REQUIRE(code[243].second == 0x48082a51);
+
+    Builder::cleanDirectory();
 }

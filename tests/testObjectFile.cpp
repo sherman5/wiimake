@@ -1,7 +1,9 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/LowLevel/LowLevel.h"
+#include "HeaderDisplay.h"
+
+static const std::string prefix = "../tests/files/ObjectFile/";
 
 TEST_CASE("recognize single line of code")
 {
@@ -21,7 +23,7 @@ TEST_CASE("recognize single line of code")
 TEST_CASE("parse single line of code")
 {
     /* open up test file */
-    std::ifstream file ("../tests/objectFile.txt", std::ios::in);
+    std::ifstream file (prefix + "objectFile.txt", std::ios::in);
     std::string line;
 
     /* find first line of code */
@@ -42,7 +44,7 @@ TEST_CASE("parse single line of code")
 TEST_CASE("extract asm from object file")
 {
    /* get asm code */
-    auto code = ObjectFile::extractASM("../tests/objectFile.out");
+    auto code = ObjectFile::extractASM(prefix + "objectFile.out");
 
     /* check number of lines */
     REQUIRE(code.size() == 68);
@@ -59,7 +61,7 @@ TEST_CASE("extract asm from object file")
 TEST_CASE("get named sections from object file")
 {
     /* get sections */
-    auto sect = ObjectFile::getNamedSections("../tests/objectFile.out");
+    auto sect = ObjectFile::getNamedSections(prefix + "objectFile.out");
 
     /* check number of sections */
     REQUIRE(sect.size() == 7);
