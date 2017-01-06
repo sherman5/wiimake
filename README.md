@@ -99,6 +99,7 @@ ENTRY = entry_function_name
 ADDRESS = 0xFFFFFFFF
 
 INSTRUCTION = 0xFFFFFFFF
+```
 
 ## wiimake-ar
 
