@@ -1,35 +1,32 @@
-# Gamecube Code Injector
+# wiimake
 
 ## Introduction
 
-GCI is an automated tool for compiling, allocating, linking, and injecting C code into games for the Wii/Gamecube.
+`wiimake` is an automated tool for compiling, allocating, linking, and injecting C code into games for the Wii/Gamecube.
 
 ## Installation 
 
-### Install Dependencies
+### install dependencies
 
 The only dependency of this software is `devkitPPC`. For installation instructions,
 
 `http://devkitpro.org/wiki/Getting_Started/devkitPPC`
 
-To check if you can run the program try typing `powerpc-eabi-gcc` is your terminal. If you get
+To check if you can run the program try typing `powerpc-eabi-gcc` in your terminal. If you get
 
 `powerpc-eabi-gcc: fatal error: no input files` then it has succesfully installed.
 
-
-### Install GCI
+### install wiimake from source (requires CMake)
 
 1. download zip file of release
 
-   `wget https://github.com/tsherma4/GamecubeCodeInjector/releases/download/v0.3/gci-0.3.tar.gz`
-
 2. unpack
 
-   `tar -xf gci-0.3.tar.gz`
+   `tar -xf gci-1.0.tar.gz`
 
 3. make build directory
 
-   `mkdir gci-0.3/build && cd gci-0.3/build`
+   `mkdir gci-1.0/build && cd gci-1.0/build`
    
 4. run these commands to build the program with cmake
 
@@ -43,53 +40,90 @@ To check if you can run the program try typing `powerpc-eabi-gcc` is your termin
 ## Usage
 
 ```
-Usage: GCI [-?V] [-I DIR] [-l DIR] [--inject=DIR] [--include=DIR] [--load=FILE]
-            [--lib=DIR] [--save=FILE] [--help] [--usage] [--version]
-            ISOFILE REGIONFILE
+Usage:
+wiimake ISO CONFIGFILE [--save-temps]
+wiimake-ar LIBNAME file1 file2 ...
+wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
 ```
 
-The main program is `GCI`. This requires three command line arguments. The first is the path to an .iso file of the game, the second is a file specifying the memory regions and injection address of the code, and the third has a few possiblities. To use the main function of `GCI`, run the command with the `--inject` flag and specify the directory containing all of your C code. `GCI` will then compile, allocate, link, and inject your C code to the .iso file you provided. It may also be neccesary to specify include directories with the `-I` flag and libraries with the `-l` flag. `GCI` can also be run with either the `--save` or `--load` command.
-
-## Additional Features
-
-The software comes with two additional tools, `GCI_AR` and `GCI_isotool`.
+## wiimake
 
 ```
-Usage: GCI_ar LIB_NAME PATH_TO_SOURCE_FILES
+wiimake ISO CONFIGFILE [--save-temps]
 ```
 
-```
-Usage: GCI_isotool ISO_FILE READ_ADDRESS
-```
+`wiimake` requires the user to provide an iso file and a configuration file (explained in next section). From here, wiimake proceeds as follows: (1) compile all source files (2) find sizes of each section of code that needs to be injected - object files from sources and libraries (3) find an arrangement of the code that fits within the memory regions provided by the user in the config file (4) run the linker (5) inject the code into the appropiate addresses. In one command the user can take their raw C files and produce a runnable iso file that has their main function injected at a specified address.
 
-Currently, `GCI_isotool` just displays the 32-bit instruction at a given address in an .iso file. This is useful for finding the default instruction at the injection point. The user must provide this in the region file.
-
-`GCI_ar` is a custom tool for creating static libraries. It works very similiar to the usual `ar` command, except it adds section flags so that the library can be broken down into smaller pieces for injection -- something very useful in this context. Simply provide the directory containing all source files for the library and the desired library name.
-
-## Region File
-
-The provided region file must be in a specific format:
+## wiimake-ar
 
 ```
-inject addr - default instruction
-mem region 1 begin - mem region 1 end
-mem region 2 begin - mem region 2 end
-...
+wiimake-ar LIBNAME file1 file2 ...
 ```
 
-For example, 
+`wiimake-ar` is a tool for creating static libraries. It works very similiar to the usual `powerpc-eabi-ar` command, except it adds section flags so that the library can be broken down into smaller pieces for injection. This makes it easier to find an arrangement that fits in the memory regions available.
+
+## wiimake-isotool
 
 ```
-80377998-7ee3bb78
-803fa3e8-803fc2ec
-803fc420-803fdc1c
-801910e0-80192930
-803001dc-80301e40
+wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
 ```
 
-would tell `GCI` to inject the code at address `0x80377998` and execute the instuction `7ee3bb78` before returning the game. In addition, `GCI` will only inject code into addresses between the start and end of the 4 provided regions. Use this exact format, no extra spaces.
+`wiimake-isotool` is useful for operating on an iso file directly. The --read flag allows the user to read any RAM address from the iso, which is useful when trying to find the original instruction that is being overwritten at the injection point. There is also --save and --load which allow for easy distribution of mods.
 
-## Main Function Name
+## Config File
 
-A very important detail is that `GCI` will look for `_main()` instead of the usual `main()` function when searching for the entry point into your code
+The configuration file provides `wiimake` with all the necessary information about the source files and target iso file.
 
+The config file format should be `.ini`. `wiimake` treats any line starting with `;` as a comment (standard) and allows for spaces between `=` as well as variables to have a list of values. Section headers in `[]` are ignored.
+
+This file should have 9 variables defined: `REGIONS, SOURCES, LIBRARIES, INCLUDE_PATHS, COMPILER_FLAGS, LINKER_FLAGS, ENTRY, ADDRESS, INSTRUCTION`.
+
+See `./examples/config.ini` for an example configuration file.
+
+### REGIONS
+
+```
+REGIONS =
+
+    FFFFFFFF-FFFFFFFF
+    FFFFFFFF-FFFFFFFF
+    ...
+```
+
+This variable specifies the regions in the game memory that are avialable to be overwritten. The regions must have the format of `start_address-end_address` with no spaces.
+
+### SOURCES, LIRARIES, INCLUDE_PATHS
+
+```
+SOURCES = file1.c file2.c ...
+
+LIBRARIES = file1.c file2.c ...
+
+INCLUDE_PATHS = path/to/dir1 path/to/dir2 ...
+```
+
+These variables tell `wiimake` which source files to compile, which directories to look for `.h` files, and which libraries to link against.
+
+### COMPILER_FLAGS, LINKER_FLAGS
+
+```
+COMPILER_FLAGS = -flag1 -flag2 ...
+ 
+LINKER_FLAGS = -flag1 -flag2 ...
+```
+
+These variables allow for flags to be passed directly to the `powerpc-eabi-gcc` and `powerpc-eabi-ld`.
+
+### ENTRY, ADDRESS, INSTRUCTION
+
+```
+ENTRY = entry_function_name
+
+ADDRESS = 0xFFFFFFFF
+
+INSTRUCTION = 0xFFFFFFFF
+```
+
+`ENTRY` specifies the function name that the user's program should start with. This would typically be `main` but in this case that is an invalid name.
+
+`ADDRESS` is the address in game memory that the function in `ENTRY` gets injected into. `INSTRUCTION` is the original instruction at this address and gets called after the function in `ENTRY` is run. If the user wants to overwrite this line completely, just set `INSTRUCTION = 0x60000000` (nop).

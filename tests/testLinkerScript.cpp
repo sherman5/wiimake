@@ -1,13 +1,15 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../src/MainProgram/Parser.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/HighLevel/HighLevel.h"
+#include "../src/ArgumentParsing/Parser.h"
+#include "HeaderDisplay.h"
+
+static const std::string prefix = "../tests/files/LinkerScript/";
 
 TEST_CASE("create sample scripts")
 {
     /* display header in first test case */
-    displayHeader("Testing LinkeScript.cpp");
+    displayHeader("Testing LinkerScript.cpp");
 
     /* create section list */
     SectionList sections;
@@ -21,7 +23,7 @@ TEST_CASE("create sample scripts")
     sections.push_back(Section("section8"));
 
     /* create script to record sizes */
-    LinkerScript::CreateTempScript(sections, "../tests/script1.txt");
+    LinkerScript::CreateTempScript(sections, prefix + "script1.txt");
 
     /* add addresses to sections */
     sections[0].address = 0x100;
@@ -34,5 +36,5 @@ TEST_CASE("create sample scripts")
     sections[7].address = 0x800;    
     
     /* create final linker script with addresses */
-    LinkerScript::CreateFinalScript(sections, "../tests/script2.txt");
+    LinkerScript::CreateFinalScript(sections, prefix + "script2.txt");
 }

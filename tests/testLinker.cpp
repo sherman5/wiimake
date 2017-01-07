@@ -1,7 +1,10 @@
 #include "catch.hpp"
 
-#include "../src/HelperFunctions/HelperFunctions.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/LowLevel/LowLevel.h"
+#include "../src/HighLevel/HighLevel.h"
+#include "HeaderDisplay.h"
+
+static const std::string prefix = "../tests/files/Linker/";
 
 TEST_CASE("test linker")
 {
@@ -10,14 +13,13 @@ TEST_CASE("test linker")
 
     /* create sections */
     SectionList sections;
-    sections.push_back(Section("../tests/object1.o", 0x80003000));
-    sections.push_back(Section("../tests/object2.o", 0x80004000));
-    sections.push_back(Section("../tests/lib1.a", 0x80005000));
+    sections.push_back(Section(prefix + "object1.o", 0x80003000));
+    sections.push_back(Section(prefix + "object2.o", 0x80004000));
+    sections.push_back(Section(prefix + "lib1.a", 0x80005000));
 
     /* create script */ 
-    LinkerScript::CreateFinalScript(sections, "../tests/linkScript.txt");
+    LinkerScript::CreateFinalScript(sections, prefix + "linkScript.txt");
 
     /* link code */
-    Linker::link(sections, "../tests/linkScript.txt",
-        "../tests/linked.out");
+    Linker::link(sections, prefix + "linkScript.txt", prefix + "linked.out");
 }

@@ -1,145 +1,183 @@
 #include "catch.hpp"
 
-#include "../src/MainProgram/Parser.h"
-#include "../tests/HeaderDisplay.h"
+#include "../src/ArgumentParsing/Parser.h"
+#include "../src/ArgumentParsing/Arguments.h"
+#include "HeaderDisplay.h"
 
-TEST_CASE("correct game is found")
+TEST_CASE("convert file to tokens")
 {
     /* display header in first test case */
     displayHeader("Testing ConfigFileParser.cpp");
 
-    /* arguments used for testing */
-    Arguments args;
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
-
-    /* go one line past game_id */
-    std::ifstream file ("../tests/config.ini", std::ios::in);
-    ConfigParser::findGame(args, file);
-    std::string line;
-    file >> line;
-
-    /* this string was put in a comment for testing */
-    REQUIRE(line == "CORRECT");
-}
-
-TEST_CASE("parse table")
-{
-    /* arguments used for testing */
-    Arguments args;
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
-
-    /* find starting point in config file */
-    std::ifstream file("../tests/config.ini", std::ios::in);
-    ConfigParser::findGame(args, file);
-    std::string line;
-
-    /* read until memory_regions variable is found */
-    while (line != "memory_regions=") { file >> line;}
-
-    /* store regions */
-    ConfigParser::storeMemoryRegions(file, args);
+    /* get tokens */
+    TokenList tokens = ConfigParser::getTokens(
+        "../tests/files/ConfigFileParser/config.ini");
 
     /* check values */
-    REQUIRE(args.memRegions[0] == MemRegion(0x803fa3e8, 0x803fc2ec));
-    REQUIRE(args.memRegions[1] == MemRegion(0x803fc420, 0x803fdc1c));
-    REQUIRE(args.memRegions[2] == MemRegion(0x801910e0, 0x80192930));
-    REQUIRE(args.memRegions[3] == MemRegion(0x803001dc, 0x80301e40));
+    REQUIRE(tokens.size() == 31);   
+    
+    REQUIRE(tokens[5] == "803001dc-80301e40");
+    REQUIRE(tokens[9] == "testSource2.c");
+    REQUIRE(tokens[12] == "=");
+    REQUIRE(tokens[19] == "-testFlag");
+    REQUIRE(tokens[24] == "_main");
+    REQUIRE(tokens[30] == "7ee3bb78");
 }
 
-TEST_CASE("parse single option")
+TEST_CASE("store single variable")
 {
-    /* arguments used for testing */
+    /* create arguments struct */
     Arguments args;
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
 
-    /* find starting point in config file */
-    std::ifstream file ("../tests/config.ini", std::ios::in);
-    ConfigParser::findGame(args, file);
-    std::string line;
-
-    /* read until code_end variable is found */
-    while (line.find("end=") == std::string::npos) { file >> line;}
+    /* create data */
+    std::string name = "LINKER_FLAGS";
+    TokenList values = {"-flag1", "-flag-2", "-flag3"};
 
     /* store variable */
-    ConfigParser::storeVariable(file, line, args);
+    REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
 
-    /* check values */      
-    REQUIRE(args.configOptions["code_end"] == 0x804dec00);
+    /* check args */
+    REQUIRE(args.linkFlags.size() == 3);
+    REQUIRE(args.linkFlags[0] == "-flag1");
+    REQUIRE(args.linkFlags[1] == "-flag-2");
+    REQUIRE(args.linkFlags[2] == "-flag3");
 }
 
-TEST_CASE("parse full config file")
+TEST_CASE("store single string variable")
 {
-    /* arguments used for testing */
+    /* create arguments struct */
     Arguments args;
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
 
-    /* parse all args */
+    /* create data */
+    std::string name = "ENTRY";
+    TokenList values = {"test"};
+
+    /* store variable */
+    REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
+
+    /* check args */
+    REQUIRE(args.entry == "test");
+}
+
+TEST_CASE("store numeric varaible")
+{
+    /* create arguments struct */
+    Arguments args;
+
+    /* create data */
+    std::string name = "ADDRESS";
+    TokenList values = {"1234abcd"};
+
+    /* store variable */
+    REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
+
+    /* check args */
+    REQUIRE(args.injectAddress == 0x1234abcd);
+}
+
+TEST_CASE("store variable with empty values")
+{
+    /* create arguments struct */
+    Arguments args;
+
+    /* create data */
+    std::string name = "SOURCES";
+    TokenList values;
+
+    /* store variable */
+    REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
+
+    /* check args */
+    REQUIRE(args.sources.empty());
+}
+
+TEST_CASE("store variable with too many values")
+{
+    /* create arguments struct */
+    Arguments args;
+
+    /* create data */
+    std::string name = "ENTRY";
+    TokenList values = {"first", "second"};
+
+    /* store variable */
+    REQUIRE_THROWS(ConfigParser::storeVariable(args, name, values));
+}
+
+TEST_CASE("store invalid variable")
+{
+    /* create arguments struct */
+    Arguments args;
+
+    /* create data */
+    std::string name = "SOURCESSS";
+    TokenList values = {"source1"};
+
+    /* store variable */
+    REQUIRE_THROWS(ConfigParser::storeVariable(args, name, values));
+}
+
+TEST_CASE("storing memory regions")
+{
+    /* create arguments struct */
+    Arguments args;
+
+    /* create data */
+    std::string name = "REGIONS";
+    TokenList values = {"803fa3e8-803fc2ec", "803fc420-803fdc1c"};
+
+    /* store variable */
+    REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
+
+    /* check args */
+    REQUIRE(args.memRegions.size() == 2);
+    REQUIRE(args.memRegions[0].start == 0x803fa3e8);
+    REQUIRE(args.memRegions[0].end == 0x803fc2ec);
+    REQUIRE(args.memRegions[1].start == 0x803fc420);
+    REQUIRE(args.memRegions[1].end == 0x803fdc1c);
+}
+
+TEST_CASE("store entire config file")
+{
+    /* create arguments */
+    Arguments args;
+    args.configFile = "../tests/files/ConfigFileParser/config.ini";
+
+    /* parse file */
     ConfigParser::parse(args);
 
-    /* check values */
-    REQUIRE(args.configOptions.size() == 5);
-    REQUIRE(args.configOptions["code_start"] == 0x80003100);
-    REQUIRE(args.configOptions["code_end"] == 0x804dec00);
-    REQUIRE(args.configOptions["inject_address"] == 0x80377998);
-    REQUIRE(args.configOptions["original_instruction"] == 0x7ee3bb78);
-    REQUIRE(args.configOptions["DOL_start"] == 0x1e800);
+    /* check args */
+    REQUIRE(args.memRegions.size() == 4);
+    REQUIRE(args.memRegions[0].start == 0x803fa3e8);
+    REQUIRE(args.memRegions[0].end == 0x803fc2ec);
+    REQUIRE(args.memRegions[1].start == 0x803fc420);
+    REQUIRE(args.memRegions[1].end == 0x803fdc1c);
+    REQUIRE(args.memRegions[2].start == 0x801910e0);
+    REQUIRE(args.memRegions[2].end == 0x80192930);
+    REQUIRE(args.memRegions[3].start == 0x803001dc);
+    REQUIRE(args.memRegions[3].end == 0x80301e40);
 
-    REQUIRE(args.memRegions[0] == MemRegion(0x803fa3e8, 0x803fc2ec));
-    REQUIRE(args.memRegions[1] == MemRegion(0x803fc420, 0x803fdc1c));
-    REQUIRE(args.memRegions[2] == MemRegion(0x801910e0, 0x80192930));
-    REQUIRE(args.memRegions[3] == MemRegion(0x803001dc, 0x80301e40));
+    REQUIRE(args.sources.size() == 3);
+    REQUIRE(args.sources[0] == "testSource1.c");
+    REQUIRE(args.sources[1] == "testSource2.c");
+    REQUIRE(args.sources[2] == "../path/testSource3.c");
 
-    REQUIRE(args.addressTable.size() == 6);
-    REQUIRE(args.addressTable[0].first == 0x000100);
-    REQUIRE(args.addressTable[0].second == 0x80003100);
-    REQUIRE(args.addressTable[3].first == 0x3b4240);
-    REQUIRE(args.addressTable[3].second == 0x803b7240);
-    REQUIRE(args.addressTable[5].first == 0x4313c0);
-    REQUIRE(args.addressTable[5].second == 0x804d79e0);
+    REQUIRE(args.libs.size() == 2);
+    REQUIRE(args.libs[0] == "testlib1.a");
+    REQUIRE(args.libs[1] == "../path/testlib2.a");
+
+    REQUIRE(args.includePaths.empty());
+       
+    REQUIRE(args.compileFlags.size() == 1);
+    REQUIRE(args.compileFlags[0] == "-testFlag");
+    
+    REQUIRE(args.linkFlags.empty());
+        
+    REQUIRE(args.entry == "_main");
+    
+    REQUIRE(args.injectAddress == 0x80377998);
+    REQUIRE(args.originalInstruction == 0x7ee3bb78);
 }
-
-TEST_CASE("error when value is missing in variable")
-{
-    Arguments args;
-    args.cmdOptions.insert(std::make_pair("--game-id", "2"));    
-    args.cmdOptions.insert(std::make_pair("--config-file",
-        "../tests/config.ini"));
-    std::ifstream file ("../tests/config.ini", std::ios::in);
-    ConfigParser::findGame(args, file);
-    std::string line = "variable=";
-
-    REQUIRE_THROWS_AS(ConfigParser::storeVariable(file, line, args),
-        std::invalid_argument);
-}
-
-TEST_CASE("no config file provided")
-{
-    Arguments args;
-    REQUIRE_NOTHROW(ConfigParser::parse(args));
-
-    args.cmdOptions.insert(std::make_pair("--config-file", ""));
-    REQUIRE_NOTHROW(ConfigParser::parse(args));
-}
-
-TEST_CASE("test getting game titles")
-{
-    /* get titles */
-    auto list = ConfigParser::getGameTitles("../tests/config.ini");
-
-    REQUIRE(list.size() == 3);
-    REQUIRE(list[0] == "Dummy 1");
-    REQUIRE(list[1] == "Test Config");
-    REQUIRE(list[2] == "Dummy 2");
-}
-
 
 
 

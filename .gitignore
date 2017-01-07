@@ -1,55 +1,14 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
 *~
 *.iso
-
-GCI
-GCI_ar
-GCI_isotool
+!tests/files/reference.iso
 *.data
-
-*.m4
-*.log
-*.status
-configure
-depcomp
-install-sh
-Makefile
-Makefile.in
-missing
-README.html
-autom4te.cache/*
-*.deps
-*.dirstamp
+examples/*.o
+examples/lib/*.o
+tests/files/Builder/libtest.a
+tests/files/ISO/test.iso
+tests/files/Builder/lib/*.o
+tests/files/Builder/source/*.o
+tests/files/Compiler/*.o
 
 build/*
-!tests/*
-tests/files/*
-tests/test.iso
-tests/libtest.a
+

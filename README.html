@@ -1,0 +1,70 @@
+<h1 id="wiimake">wiimake</h1>
+<h2 id="introduction">Introduction</h2>
+<p><code>wiimake</code> is an automated tool for compiling, allocating, linking, and injecting C code into games for the Wii/Gamecube.</p>
+<h2 id="installation">Installation</h2>
+<h3 id="install-dependencies">install dependencies</h3>
+<p>The only dependency of this software is <code>devkitPPC</code>. For installation instructions,</p>
+<p><code>http://devkitpro.org/wiki/Getting_Started/devkitPPC</code></p>
+<p>To check if you can run the program try typing <code>powerpc-eabi-gcc</code> in your terminal. If you get</p>
+<p><code>powerpc-eabi-gcc: fatal error: no input files</code> then it has succesfully installed.</p>
+<h3 id="install-wiimake-from-source-requires-cmake">install wiimake from source (requires CMake)</h3>
+<ol>
+<li><p>download zip file of release</p></li>
+<li><p>unpack</p></li>
+</ol>
+<p><code>tar -xf gci-1.0.tar.gz</code></p>
+<ol>
+<li>make build directory</li>
+</ol>
+<p><code>mkdir gci-1.0/build &amp;&amp; cd gci-1.0/build</code></p>
+<ol>
+<li>run these commands to build the program with cmake</li>
+</ol>
+<p><code>cmake ..    make    make install</code><br />
+(may need to be run with root privileges)</p>
+<h2 id="usage">Usage</h2>
+<pre><code>Usage:
+wiimake ISO CONFIGFILE [--save-temps]
+wiimake-ar LIBNAME file1 file2 ...
+wiimake-isotool ISO [--save &lt;file&gt;] [--load &lt;file&gt;] [--read &lt;addr&gt;]</code></pre>
+<h2 id="wiimake-1">wiimake</h2>
+<pre><code>wiimake ISO CONFIGFILE [--save-temps]</code></pre>
+<p><code>wiimake</code> requires the user to provide an iso file and a configuration file (explained in next section). From here, wiimake proceeds as follows: (1) compile all source files (2) find sizes of each section of code that needs to be injected - object files from sources and libraries (3) find an arrangement of the code that fits within the memory regions provided by the user in the config file (4) run the linker (5) inject the code into the appropiate addresses. In one command the user can take their raw C files and produce a runnable iso file that has their main function injected at a specified address.</p>
+<h2 id="wiimake-ar">wiimake-ar</h2>
+<pre><code>wiimake-ar LIBNAME file1 file2 ...</code></pre>
+<p><code>wiimake-ar</code> is a tool for creating static libraries. It works very similiar to the usual <code>powerpc-eabi-ar</code> command, except it adds section flags so that the library can be broken down into smaller pieces for injection. This makes it easier to find an arrangement that fits in the memory regions available.</p>
+<h2 id="wiimake-isotool">wiimake-isotool</h2>
+<pre><code>wiimake-isotool ISO [--save &lt;file&gt;] [--load &lt;file&gt;] [--read &lt;addr&gt;]</code></pre>
+<p><code>wiimake-isotool</code> is useful for operating on an iso file directly. The --read flag allows the user to read any RAM address from the iso, which is useful when trying to find the original instruction that is being overwritten at the injection point. There is also --save and --load which allow for easy distribution of mods.</p>
+<h2 id="config-file">Config File</h2>
+<p>The configuration file provides <code>wiimake</code> with all the necessary information about the source files and target iso file.</p>
+<p>The config file format should be <code>.ini</code>. <code>wiimake</code> treats any line starting with <code>;</code> as a comment (standard) and allows for spaces between <code>=</code> as well as variables to have a list of values. Section headers in <code>[]</code> are ignored.</p>
+<p>This file should have 9 variables defined: <code>REGIONS, SOURCES, LIBRARIES, INCLUDE_PATHS, COMPILER_FLAGS, LINKER_FLAGS, ENTRY, ADDRESS, INSTRUCTION</code>.</p>
+<p>See <code>./examples/config.ini</code> for an example configuration file.</p>
+<h3 id="regions">REGIONS</h3>
+<pre><code>REGIONS =
+
+    FFFFFFFF-FFFFFFFF
+    FFFFFFFF-FFFFFFFF
+    ...</code></pre>
+<p>This variable specifies the regions in the game memory that are avialable to be overwritten. The regions must have the format of <code>start_address-end_address</code> with no spaces.</p>
+<h3 id="sources-liraries-include_paths">SOURCES, LIRARIES, INCLUDE_PATHS</h3>
+<pre><code>SOURCES = file1.c file2.c ...
+
+LIBRARIES = file1.c file2.c ...
+
+INCLUDE_PATHS = path/to/dir1 path/to/dir2 ...</code></pre>
+<p>These variables tell <code>wiimake</code> which source files to compile, which directories to look for <code>.h</code> files, and which libraries to link against.</p>
+<h3 id="compiler_flags-linker_flags">COMPILER_FLAGS, LINKER_FLAGS</h3>
+<pre><code>COMPILER_FLAGS = -flag1 -flag2 ...
+ 
+LINKER_FLAGS = -flag1 -flag2 ...</code></pre>
+<p>These variables allow for flags to be passed directly to the <code>powerpc-eabi-gcc</code> and <code>powerpc-eabi-ld</code>.</p>
+<h3 id="entry-address-instruction">ENTRY, ADDRESS, INSTRUCTION</h3>
+<pre><code>ENTRY = entry_function_name
+
+ADDRESS = 0xFFFFFFFF
+
+INSTRUCTION = 0xFFFFFFFF</code></pre>
+<p><code>ENTRY</code> specifies the function name that the user's program should start with. This would typically be <code>main</code> but in this case that is an invalid name.</p>
+<p><code>ADDRESS</code> is the address in game memory that the function in <code>ENTRY</code> gets injected into. <code>INSTRUCTION</code> is the original instruction at this address and gets called after the function in <code>ENTRY</code> is run. If the user wants to overwrite this line completely, just set <code>INSTRUCTION = 0x60000000</code> (nop).</p>
