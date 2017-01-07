@@ -1,7 +1,6 @@
 *~
 *.iso
 *.data
-README.html
 examples/*.o
 examples/lib/*.o
 tests/files/Builder/libtest.a

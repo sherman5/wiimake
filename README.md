@@ -16,21 +16,17 @@ To check if you can run the program try typing `powerpc-eabi-gcc` in your termin
 
 `powerpc-eabi-gcc: fatal error: no input files` then it has succesfully installed.
 
-### use install tool
-
 ### install wiimake from source (requires CMake)
 
 1. download zip file of release
 
-   `https://github.com/tsherma4/GamecubeCodeInjector/releases/download/v0.3/gci-0.3.tar.gz`
-
 2. unpack
 
-   `tar -xf gci-0.3.tar.gz`
+   `tar -xf gci-1.0.tar.gz`
 
 3. make build directory
 
-   `mkdir gci-0.3/build && cd gci-0.3/build`
+   `mkdir gci-1.0/build && cd gci-1.0/build`
    
 4. run these commands to build the program with cmake
 
@@ -57,6 +53,22 @@ wiimake ISO CONFIGFILE [--save-temps]
 ```
 
 `wiimake` requires the user to provide an iso file and a configuration file (explained in next section). From here, wiimake proceeds as follows: (1) compile all source files (2) find sizes of each section of code that needs to be injected - object files from sources and libraries (3) find an arrangement of the code that fits within the memory regions provided by the user in the config file (4) run the linker (5) inject the code into the appropiate addresses. In one command the user can take their raw C files and produce a runnable iso file that has their main function injected at a specified address.
+
+## wiimake-ar
+
+```
+wiimake-ar LIBNAME file1 file2 ...
+```
+
+`wiimake-ar` is a tool for creating static libraries. It works very similiar to the usual `powerpc-eabi-ar` command, except it adds section flags so that the library can be broken down into smaller pieces for injection. This makes it easier to find an arrangement that fits in the memory regions available.
+
+## wiimake-isotool
+
+```
+wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
+```
+
+`wiimake-isotool` is useful for operating on an iso file directly. The --read flag allows the user to read any RAM address from the iso, which is useful when trying to find the original instruction that is being overwritten at the injection point. There is also --save and --load which allow for easy distribution of mods.
 
 ## Config File
 
@@ -115,22 +127,3 @@ INSTRUCTION = 0xFFFFFFFF
 `ENTRY` specifies the function name that the user's program should start with. This would typically be `main` but in this case that is an invalid name.
 
 `ADDRESS` is the address in game memory that the function in `ENTRY` gets injected into. `INSTRUCTION` is the original instruction at this address and gets called after the function in `ENTRY` is run. If the user wants to overwrite this line completely, just set `INSTRUCTION = 0x60000000` (nop).
-## wiimake-ar
-
-```
-wiimake-ar LIBNAME file1 file2 ...
-```
-
-`wiimake-ar` is a tool for creating static libraries. It works very similiar to the usual `powerpc-eabi-ar` command, except it adds section flags so that the library can be broken down into smaller pieces for injection. This makes it easier to find an arrangement that fits in the memory regions available.
-
-## wiimake-isotool
-
-```
-wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
-```
-
-`wiimake-isotool` is useful for operating on an iso file directly. The --read flag allows the user to read any RAM address from the iso, which is useful when trying to find the original instruction that is being overwritten at the injection point. There is also --save and --load which allow for easy distribution of mods.
-
-## Examples
-
-
