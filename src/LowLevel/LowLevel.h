@@ -81,7 +81,8 @@ namespace Compiler
 namespace Linker
 {
     /* link all sections, using linker script provided */
-    void link(SectionList&, std::string, std::string);
+    void link(SectionList&, std::string, std::string,
+        TokenList = TokenList());
 }  
 
 #endif

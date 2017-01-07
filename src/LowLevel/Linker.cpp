@@ -5,16 +5,16 @@
 
 //TODO: throw exception with linker error
 void Linker::link(SectionList& sections, std::string script,
-    std::string name)
+std::string name, TokenList linkerFlags)
 {
     /* strings for storing info */
     std::string allFiles, sectionName;
     
     /* get list of file names */
-    for (auto it = sections.begin(); it != sections.end(); ++it)
+    for (auto& section : sections)
     {
         /* get first token of section path (name) */
-        std::stringstream ss((*it).path);
+        std::stringstream ss(section.path);
         ss >> sectionName;
     
         /* check if name is unique */        
@@ -24,9 +24,16 @@ void Linker::link(SectionList& sections, std::string script,
         }
     }
 
+    /* get all flags */
+    std::string flags;
+    for (auto& flag : linkerFlags)
+    {
+        flags += flag + " ";
+    }
+
     /* run linker - output command */
-    std::string cmd = "powerpc-eabi-ld -e _main -o " + name + " --script "
-        + script + " " + allFiles;
+    std::string cmd = "powerpc-eabi-ld -e _main " + flags + " -o " + name
+        + " --script " + script + " " + allFiles;
 
     System::runCMD(cmd, true);
 }
