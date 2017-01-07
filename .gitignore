@@ -50,5 +50,6 @@ autom4te.cache/*
 
 build/*
 !tests/*
+tests/files/*
 tests/test.iso
 tests/libtest.a
