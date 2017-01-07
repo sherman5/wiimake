@@ -1,55 +1,10 @@
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
-
 *~
 *.iso
-
-wiimake
-wiimake-ar
-wiimake-isotool
-wiimake-gui
 *.data
-
-*.m4
-*.log
-*.status
-configure
-depcomp
-install-sh
-Makefile
-Makefile.in
-missing
 README.html
-autom4te.cache/*
-*.deps
-*.dirstamp
-
+examples/*.o
+examples/lib/*.o
+tests/files/Builder/libtest.a
+tests/files/ISO/test.iso
 build/*
-!tests/*
-tests/test.iso
-tests/libtest.a
+
