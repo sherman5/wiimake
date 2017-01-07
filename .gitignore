@@ -1,5 +1,6 @@
 *~
 *.iso
+!tests/files/reference.iso
 *.data
 examples/*.o
 examples/lib/*.o
