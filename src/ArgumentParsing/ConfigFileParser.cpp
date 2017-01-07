@@ -21,8 +21,9 @@ void ConfigParser::parse(Arguments& args)
 /* parse single line of file, add to token list */
 void ConfigParser::parseLine(std::string line, TokenList& tokens)
 {
-   /* separate equal signs */
-    if (line.find("=") != std::string::npos)
+   /* separate equal signs (except in flags) */
+    if (line.find("=") != std::string::npos
+        && line.find("-") == std::string::npos)
     {
         /* add string before equal sign */
         if (line.front() != '=')

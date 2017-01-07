@@ -14,14 +14,14 @@ TEST_CASE("convert file to tokens")
         "../tests/files/ConfigFileParser/config.ini");
 
     /* check values */
-    REQUIRE(tokens.size() == 31);   
+    REQUIRE(tokens.size() == 32);   
     
     REQUIRE(tokens[5] == "803001dc-80301e40");
     REQUIRE(tokens[9] == "testSource2.c");
     REQUIRE(tokens[12] == "=");
-    REQUIRE(tokens[19] == "-testFlag");
-    REQUIRE(tokens[24] == "_main");
-    REQUIRE(tokens[30] == "7ee3bb78");
+    REQUIRE(tokens[19] == "-std=c99");
+    REQUIRE(tokens[25] == "_main");
+    REQUIRE(tokens[31] == "7ee3bb78");
 }
 
 TEST_CASE("store single variable")
@@ -168,8 +168,8 @@ TEST_CASE("store entire config file")
 
     REQUIRE(args.includePaths.empty());
        
-    REQUIRE(args.compileFlags.size() == 1);
-    REQUIRE(args.compileFlags[0] == "-testFlag");
+    REQUIRE(args.compileFlags.size() == 2);
+    REQUIRE(args.compileFlags[0] == "-std=c99");
     
     REQUIRE(args.linkFlags.empty());
         
