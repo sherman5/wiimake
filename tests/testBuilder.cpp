@@ -108,7 +108,7 @@ TEST_CASE("allocate sections given object files")
     args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
 
     /* compile source files, return object files */
-    auto objects = Builder::getObjectFiles(args.sources, 
+    auto objects = Builder::getObjectFiles(args.sources, TokenList(), 
         args.includePaths, args.libs);
     
     REQUIRE(objects.size() == 3);    
@@ -191,7 +191,7 @@ TEST_CASE("link sections and extract code")
     args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
 
     /* compile source files, return object files */
-    auto objects = Builder::getObjectFiles(args.sources, 
+    auto objects = Builder::getObjectFiles(args.sources, TokenList(),
         args.includePaths, args.libs);
 
     /* find addresses for each section */

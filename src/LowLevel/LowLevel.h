@@ -73,8 +73,8 @@ namespace ObjectFile
 namespace Compiler
 {
     /* compile files in directory, using include paths given */
-    FileList compile(FileList&, FileList = FileList(),
-        TokenList = TokenList());
+    FileList compile(FileList&, TokenList = TokenList(),
+        FileList = FileList());
 }
 
 /* link lists of object files */

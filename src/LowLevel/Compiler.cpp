@@ -3,8 +3,8 @@
 #include <iostream>
 
 //TODO: throw exception with compiler error
-FileList Compiler::compile(FileList& sources, FileList includePaths,
-TokenList compileFlags)
+FileList Compiler::compile(FileList& sources, TokenList compileFlags,
+FileList includePaths)
 {
     /* list of object files */
     FileList objects;

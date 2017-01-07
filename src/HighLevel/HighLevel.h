@@ -12,8 +12,8 @@ namespace Builder
 
     /* compile files in directory, return list of all object files
        (including files from libraries) */
-    FileList getObjectFiles(FileList, FileList = FileList(),
-        FileList = FileList());
+    FileList getObjectFiles(FileList, TokenList = TokenList(),
+        FileList = FileList(), FileList = FileList());
 
     /* calculate sizes of sections and find allocation in memory */
     SectionList getSectionAddresses(FileList&, Arguments&);

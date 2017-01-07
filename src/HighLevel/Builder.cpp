@@ -8,7 +8,7 @@ ASMcode Builder::getASM(Arguments& args)
 {
     /* compile source files, return object files */
     auto objects = Builder::getObjectFiles(args.sources, 
-        args.includePaths, args.libs);
+        args.compileFlags, args.includePaths, args.libs);
 
     /* find addresses for each section */
     auto sections = Builder::getSectionAddresses(objects, args);
@@ -29,11 +29,12 @@ ASMcode Builder::getASM(Arguments& args)
 /* compile files in directory, return list of all object files
    (including files from libraries) */
 FileList Builder::getObjectFiles(FileList sources,
+                                 TokenList flags,
                                  FileList includeDirs,
                                  FileList libs)
 {       
     /* compile source files */
-    auto objects = Compiler::compile(sources, includeDirs);
+    auto objects = Compiler::compile(sources, flags, includeDirs);
 
     /* rename sections */
     for (auto it = objects.begin(); it != objects.end(); ++it)
@@ -128,7 +129,7 @@ void Builder::addOriginalInstruction(ASMcode& code, Arguments& args)
 void Builder::buildLibrary(Arguments& args)
 {
     /* compile source files, get object names */
-    auto objects = Compiler::compile(args.sources);
+    auto objects = Compiler::compile(args.sources, args.compileFlags);
 
     /* create archive command */
     std::string cmd = "powerpc-eabi-ar -cvr " + args.name;
