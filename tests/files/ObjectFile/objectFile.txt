@@ -1,5 +1,5 @@
 
-../tests/files/ObjectFile/objectFile.out:     file format elf32-powerpc
+..\tests\files\ObjectFile\objectFile.out:     file format elf32-powerpc
 
 
 Disassembly of section gci_1:
@@ -109,5 +109,5 @@ Disassembly of section .comment:
   14:	61 73 65 20 	ori     r19,r11,25888
   18:	32 37 29 20 	addic   r17,r23,10528
   1c:	34 2e 38 2e 	addic.  r1,r14,14382
-  20:	Address 0x0000000000000020 is out of bounds.
+  20:	Address 0x00000020 is out of bounds.
 
