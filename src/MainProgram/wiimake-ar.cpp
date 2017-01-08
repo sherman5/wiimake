@@ -15,6 +15,15 @@ void run(TokenList& tokens)
 
     /* parse command line arguments */
     Arguments args;
+    
+    /* get flags */
+    while (tokens.front().find("-") != std::string::npos)
+    {
+        args.compileFlags.push_back(tokens.front());
+        tokens.erase(tokens.begin());
+    }
+
+    /* get name and sources */
     args.name = tokens.front();
     args.sources = TokenList(tokens.begin() + 1, tokens.end());
 

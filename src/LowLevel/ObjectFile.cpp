@@ -84,6 +84,8 @@ void ObjectFile::renameSections(std::string file, std::string id)
     cmd += " --rename-section .rodata=rodata" + id;
     cmd += " --rename-section .sdata=sdata" + id;
     cmd += " --rename-section .data=data" + id;
+    cmd += " --rename-section .sbss=sbss" + id;
+    cmd += " --rename-section .bss=bss" + id;
     cmd += " --rename-section .gnu.attributes=attr" + id;
     cmd += " " + file;
 

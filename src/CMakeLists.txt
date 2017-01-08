@@ -28,6 +28,9 @@ SET (TEST_SRCS ../tests/Runner.cpp
                ../tests/testBuilder.cpp
                )
 
+set(BUILD_SHARED_LIBRARIES OFF)
+set(CMAKE_EXE_LINKER_FLAGS "-static")
+
 # add unit tests
 add_executable (testWiiMake ${TEST_SRCS} ${CORE_SRCS})
 
