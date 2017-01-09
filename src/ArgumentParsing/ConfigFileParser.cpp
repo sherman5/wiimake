@@ -63,7 +63,7 @@ TokenList ConfigParser::getTokens(std::string fileName)
         configFile >> std::ws;
         if (configFile.peek() == ';' || configFile.peek() == '[')
         {
-            /* ignore comment */
+            /* ignore comment/section start */
             configFile.ignore(std::numeric_limits<int>::max(), '\n');
         }
         else if (configFile.peek() != EOF)
@@ -167,18 +167,40 @@ TokenList values)
         case 8:
             args.entry = values[0];
             if (values.size() == 1) {break;}
-        case ' ':
+        case ' ': //for handling errors in above 3 cases
             throw std::invalid_argument("too many values in config file"
                 " for variable " + name);
             break;
         default:
-            throw std::invalid_argument("unrecognized variable in"
-                " config file: " + name);
+            ConfigParser::storeStaticOverwrite(args, name, values);
             break;
     }
 }
 
-/* verify corect arguments were given in config file */
+/* store static overwrite given, default call, need to handle errors */
+void ConfigParser::storeStaticOverwrite(Arguments& args, std::string name,
+TokenList values)
+{
+    if (values.size() > 1)
+    {
+        throw std::invalid_argument("too many values in config file"
+             " for static overwrite: " + name);
+    }
+
+    try 
+    {
+        uint32_t address = stoul(name, nullptr, 16);
+        uint32_t value = stoul(values.front(), nullptr, 16);
+        args.staticOverwrites.push_back(std::make_pair(address, value));
+    }
+    catch(std::exception& e)
+    {
+        throw std::invalid_argument("invalid address/value for static"
+            " overwrite given in config file: " + name);
+    }
+}
+
+/* verify correct arguments were given in config file */
 void ConfigParser::checkArgs(Arguments& args)
 {
     if (args.injectAddress == 0)

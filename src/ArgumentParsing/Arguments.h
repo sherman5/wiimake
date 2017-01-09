@@ -1,6 +1,11 @@
 #ifndef ARGUMENTS_H
 #define ARGUMENTS_H
 
+#include <stdint.h>
+#include <vector>
+#include <string>
+#include <utility>
+
 /* single region of memory (struct used for sorting) */
 struct MemRegion
 {
@@ -50,6 +55,9 @@ struct Arguments
 
     /* available memory regions */
     std::vector<MemRegion> memRegions;
+
+    /* static overwrites to make */
+    std::vector< std::pair<uint32_t, uint32_t> > staticOverwrites;
 };
 
 #endif

@@ -33,6 +33,7 @@ void run(TokenList& tokens)
         ISO iso (tokens.front());
 
         /* inject code into iso */
+        iso.injectCode(args.staticOverwrites);        
         auto code = Builder::getASM(args);
         iso.injectCode(code);
         if (!args.saveTemps) {Builder::cleanDirectory();}

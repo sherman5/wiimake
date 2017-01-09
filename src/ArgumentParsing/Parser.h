@@ -40,6 +40,9 @@ namespace ConfigParser
     /* store a single variable */
     void storeVariable(Arguments&, std::string, TokenList);
 
+    /* store static overwrite given, default call, need to handle errors */
+    void storeStaticOverwrite(Arguments&, std::string, TokenList);
+
     /* store the memory regions variable */
     void storeMemRegions(Arguments&, TokenList);
 

@@ -14,7 +14,7 @@ TEST_CASE("convert file to tokens")
         "../tests/files/ConfigFileParser/config.ini");
 
     /* check values */
-    REQUIRE(tokens.size() == 32);   
+    REQUIRE(tokens.size() == 38);   
     
     REQUIRE(tokens[5] == "803001dc-80301e40");
     REQUIRE(tokens[9] == "testSource2.c");

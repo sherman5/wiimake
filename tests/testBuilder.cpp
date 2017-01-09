@@ -222,7 +222,7 @@ TEST_CASE("link sections and extract code")
     REQUIRE(code[180].second == 0xc8080208);
 
     REQUIRE(code[243].first == 0x80377998);
-    REQUIRE(code[243].second == 0x48082a51);
+    REQUIRE(code[243].second == 0x48082a50);
 
     Builder::cleanDirectory();
 }
