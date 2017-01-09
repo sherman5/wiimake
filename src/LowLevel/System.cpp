@@ -18,16 +18,13 @@ int System::runCMD(std::string cmd, bool display)
         std::replace(cmd.begin(), cmd.end(), '/', '\\');
     #endif
 
-    FILE* cmdExe = popen(cmd.c_str(), "r");
-    pclose(cmdExe);
-
     if (display)
     {
         std::cout << cmd << std::endl;
     }
 
-    //TODO: return status of command
-    return 0;
+    FILE* cmdExe = popen(cmd.c_str(), "r");
+    return pclose(cmdExe);
 }
 
 

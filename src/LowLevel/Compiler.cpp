@@ -34,7 +34,10 @@ FileList includePaths)
         objects.push_back(CHANGE_EXT(file, "o"));
     
         /* display and run command */
-        System::runCMD(cmd, true);
+        if(System::runCMD(cmd, true) != 0)
+        {
+            throw std::runtime_error("Compiler Error");
+        }
      }
 
     /* return list of objects */

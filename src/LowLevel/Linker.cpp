@@ -35,5 +35,8 @@ std::string name, TokenList linkerFlags)
     std::string cmd = "powerpc-eabi-ld -e _main " + flags + " -o " + name
         + " --script " + script + " " + allFiles;
 
-    System::runCMD(cmd, true);
+    if(System::runCMD(cmd, true) != 0)
+    {
+        throw std::runtime_error("Linker Error");
+    }
 }
