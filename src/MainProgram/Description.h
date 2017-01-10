@@ -1,10 +1,13 @@
 #ifndef DESCRIPTION_H
 #define DESCRIPTION_H
 
+#include "Version.h"
+
 namespace Description
 {
 
-    const std::string version = "\nwiimake v1.0\nJanuary 5, 2016\n";
+    const std::string version = "\nwiimake " VERSION_MAJOR "."
+        VERSION_MINOR "." FIX_NUMBER;
 
     const std::string summary = "\n"
     "\t wiimake is an automated tool for compiling, allocating,\n"
