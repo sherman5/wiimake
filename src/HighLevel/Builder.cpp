@@ -1,5 +1,4 @@
 #include "HighLevel.h"
-#include "StackSetupFiles.h"
 
 #include <algorithm>
 
@@ -74,12 +73,13 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
 {
     /* this file sets up the call the main() */
     std::ofstream stackSetup ("stack_setup.s");   
-    stackSetup << StackSetupFiles::stackSetupContents;
+    stackSetup << ".global stack_setup\nstack_setup:\nbl "
+         + args.entry + "_main\nnop\nb inject_point + 0x04\n";
     stackSetup.close();
 
     /* this file sets up the call to stack_setup */
     std::ofstream injectPoint ("inject_point.s");   
-    injectPoint << StackSetupFiles::injectPointContents;
+    injectPoint << ".global inject_point\ninject_point:\nb stack_setup\n";
     injectPoint.close();
     
     /* compile both files */

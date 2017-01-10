@@ -11,4 +11,5 @@ tests/files/Builder/source/*.o
 tests/files/Compiler/*.o
 
 build/*
-
+wiimake/*
+wiimake.zip
