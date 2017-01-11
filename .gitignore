@@ -13,3 +13,4 @@ tests/files/Compiler/*.o
 build/*
 wiimake/*
 wiimake*
+releases/*
