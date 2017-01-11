@@ -20,13 +20,13 @@ void CodeSections::storeNames(SectionList& sections, FileList& objects)
     }
 }
 
-void CodeSections::storeSizes(SectionList& sections)
+void CodeSections::storeSizes(SectionList& sections, std::string entry)
 {
     /* linker script that saves section sizes in symbol table */
     LinkerScript::CreateTempScript(sections, "temp_linker_script.txt");
 
     /* link code */
-    Linker::link(sections, "temp_linker_script.txt", "sizes.out");
+    Linker::link(sections, "temp_linker_script.txt", "sizes.out", entry);
 
     /* get the sizes for each section */
     std::vector<unsigned> sizes = SymbolTable::getSizes("sizes.out",

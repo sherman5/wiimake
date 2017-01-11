@@ -82,7 +82,7 @@ namespace Linker
 {
     /* link all sections, using linker script provided */
     void link(SectionList&, std::string, std::string,
-        TokenList = TokenList());
+        std::string, TokenList = TokenList());
 }  
 
 #endif

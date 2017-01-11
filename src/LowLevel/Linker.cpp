@@ -5,7 +5,7 @@
 
 //TODO: throw exception with linker error
 void Linker::link(SectionList& sections, std::string script,
-std::string name, TokenList linkerFlags)
+std::string name, std::string entry, TokenList linkerFlags)
 {
     /* strings for storing info */
     std::string allFiles, sectionName;
@@ -32,8 +32,8 @@ std::string name, TokenList linkerFlags)
     }
 
     /* run linker - output command */
-    std::string cmd = "powerpc-eabi-ld -e _main " + flags + " -o " + name
-        + " --script " + script + " " + allFiles;
+    std::string cmd = "powerpc-eabi-ld -e " + entry + " " + flags +
+        " -o " + name + " --script " + script + " " + allFiles;
 
     if(System::runCMD(cmd, true) != 0)
     {

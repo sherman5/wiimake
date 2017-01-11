@@ -14,7 +14,7 @@ project (WiiMake)
 # project version
 set (WiiMake_VERSION_MAJOR 1)
 set (WiiMake_VERSION_MINOR 0)
-set (WiiMake_FIX_NUMBER 1)
+set (WiiMake_FIX_NUMBER 2)
 
 # create header for version number
 configure_file (

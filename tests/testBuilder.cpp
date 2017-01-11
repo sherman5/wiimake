@@ -100,6 +100,7 @@ TEST_CASE("allocate sections given object files")
     args.sources.push_back(prefix + "source/source2.c");
     args.libs.push_back(prefix + "lib1.a");
     args.includePaths.push_back(prefix + "include");
+    args.entry = "_main";
     args.injectAddress = 0x80377998;
     args.originalInstruction = 0x7ee3bb78;
     args.memRegions.push_back(MemRegion(0x803fa3e8, 0x803fc2ec));
@@ -185,6 +186,7 @@ TEST_CASE("link sections and extract code")
     args.includePaths.push_back(prefix + "include");
     args.injectAddress = 0x80377998;
     args.originalInstruction = 0x7ee3bb78;
+    args.entry = "_main";
     args.memRegions.push_back(MemRegion(0x803fa3e8, 0x803fc2ec));
     args.memRegions.push_back(MemRegion(0x803fc420, 0x803fdc1c));
     args.memRegions.push_back(MemRegion(0x801910e0, 0x80192930));
@@ -202,7 +204,7 @@ TEST_CASE("link sections and extract code")
 
     /* link all code in sections */
     System::runCMD(System::rm + " final.out");
-    ASMcode code = Builder::getLinkedCode(sections);
+    ASMcode code = Builder::getLinkedCode(sections, args);
 
     REQUIRE(code.size() == 244);
 

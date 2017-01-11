@@ -16,7 +16,7 @@ ASMcode Builder::getASM(Arguments& args)
     Builder::addStackSetup(sections, args);
 
     /* get linked code */
-    ASMcode code = Builder::getLinkedCode(sections);
+    ASMcode code = Builder::getLinkedCode(sections, args);
 
     /* add original instruction */
     Builder::addOriginalInstruction(code, args);
@@ -58,8 +58,8 @@ SectionList Builder::getSectionAddresses(FileList& objects,
     /* store sections from object files */
     CodeSections::storeNames(sections, objects);
 
-    /* store the section sizes */
-    CodeSections::storeSizes(sections);
+    /* store the section sizes, needs entry point for linker */
+    CodeSections::storeSizes(sections, args.entry);
     
     /* calculate optimal code allocation */
     Memory::findCodeAllocation(sections, args);
@@ -74,7 +74,7 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
     /* this file sets up the call the main() */
     std::ofstream stackSetup ("stack_setup.s");   
     stackSetup << ".global stack_setup\nstack_setup:\nbl "
-         + args.entry + "_main\nnop\nb inject_point + 0x04\n";
+         + args.entry + "\nnop\nb inject_point + 0x04\n";
     stackSetup.close();
 
     /* this file sets up the call to stack_setup */
@@ -95,11 +95,11 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
 }
 
 /* link code into final executable */
-ASMcode Builder::getLinkedCode(SectionList& sections)
+ASMcode Builder::getLinkedCode(SectionList& sections, Arguments& args)
 {
     /* create linker script, use addresses in 'sections' */
     LinkerScript::CreateFinalScript(sections, "linker_script.txt");   
-    Linker::link(sections, "linker_script.txt", "final.out");     
+    Linker::link(sections, "linker_script.txt", "final.out", args.entry);
 
     /* extract assembly code from object file */
     return ObjectFile::extractASM("final.out");

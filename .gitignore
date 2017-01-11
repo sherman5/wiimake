@@ -12,4 +12,4 @@ tests/files/Compiler/*.o
 
 build/*
 wiimake/*
-wiimake.zip
+wiimake*
