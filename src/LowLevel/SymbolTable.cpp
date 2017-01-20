@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <string>
+#include <iostream>
 
 /* get sizes of each section in binary file (needs special symbols) */
 std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
@@ -20,10 +21,11 @@ std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
     {
         /* if keyword found, store size in proper id */
         std::getline(file, line);
-        if (line.find("_sizeof_wiimake_section_") != std::string::npos)
+        if (line.find("_sizeof_wmake_section_") != std::string::npos)
         {
-            size = line.substr(line.find(":") + 1, line.find(":") +  9);
-            id = line.substr(line.find("_sizeof_wiimake_section_"));
+            size = line.substr(line.find(":")).substr(2, 8);
+            id = line.substr(line.find("_size")).substr(22,
+                std::string::npos);
             sizes[stoul(id, nullptr, 0) - 1] = stoul(size, nullptr, 16);
         }
     }

@@ -15,7 +15,7 @@ void LinkerScript::CreateSizeScript(SectionList& sections, std::string name)
     for (auto& sect : sections)
     {
         script << "wiimake_section_" << std::dec << num << " :\n{\n\t"
-            << sect.path << "\n}\n_sizeof_wiimake_section_" << num <<
+            << sect.path << "\n}\n_sizeof_wmake_section_" << num <<
             "=SIZEOF(wiimake_section_" << num << ");\n";
 
         num++; //increment here to avoid warning -Wsequence-point

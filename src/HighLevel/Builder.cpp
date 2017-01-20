@@ -13,6 +13,9 @@ ASMcode Builder::getASM(Arguments& args)
     /* add libraries to END of object file list */
     objects.insert(objects.end(), args.libs.begin(), args.libs.end());
 
+    /* remove unnecessary sections from object files */
+    for (auto& obj : objects) { ObjectFile::removeSections(obj);}
+
     /* get names and sizes of sections */
     SectionList sections;
     CodeSections::storeNames(sections, objects);

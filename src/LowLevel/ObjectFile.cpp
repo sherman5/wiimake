@@ -14,7 +14,13 @@ TokenList ObjectFile::getTokens(std::string fileName)
     std::string line;
     TokenList tokens;
 
-    while (!file.eof()) { file >> line; tokens.push_back(line);}
+    /* read whole file */
+    while (file.peek() != EOF)
+    {
+        file >> line;
+        tokens.push_back(line);
+        file >> std::ws; //discard white space (so it can see EOF)
+    }
 
     /* close and delete file */
     file.close();
@@ -39,7 +45,8 @@ std::pair<uint32_t, uint32_t> ObjectFile::getCode(TokenList::iterator& it)
 {
     /* current position is address, next 4 lines are the instruction */
     std::string address = (*it).substr(0, (*it).find(":"));
-    std::string instruction = *(++it) + *(++it) + *(++it) + *(++it);
+    std::string instruction = *(it+1) + *(it+2) + *(it+3) + *(it+4);
+    it += 4;
 
     /* return unsigned int versions of (address, instruction) */
     return std::make_pair(stoul(address, nullptr, 16),

@@ -4,18 +4,20 @@
 #include "../src/ISO.h"
 #include "../src/LowLevel/LowLevel.h"
 
+static const std::string path = "../tests/files/ISO/";
+
 TEST_CASE("test all functions in ISO.cpp")
 {
     /* display header in first test case */
     displayHeader("Testing ISO.cpp");
 
     /* creat iso for testing */
-    System::runCMD(System::rm + " ../tests/files/ISO/test.iso");
+    System::runCMD(System::rm + " " + path + "test.iso");
     System::runCMD(System::cp + " ../tests/files/reference.iso "
-        "../tests/files/ISO/test.iso");
+        + path + "test.iso");
 
     /* create iso object */
-    ISO iso("../tests/files/ISO/test.iso");
+    ISO iso(path + "test.iso");
 
     /* check DOL offset calculations */
     REQUIRE(iso.dolOffset(0x80003150) == 0x1e950);

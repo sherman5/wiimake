@@ -38,16 +38,15 @@ install (TARGETS wiimake-isotool DESTINATION ${CMAKE_INSTALL_PREFIX})
 add_executable (testWiiMake ../tests/Runner.cpp
                             ../tests/testSystem.cpp
                             ../tests/testConfigFileParser.cpp
-                            #../tests/testISO.cpp
-                            #../tests/testCompiler.cpp
-                            #../tests/testLinker.cpp
-                            #../tests/testLinkerScript.cpp
-                            #../tests/testObjectFile.cpp
-                            #../tests/testSymbolTable.cpp  
-                            #../tests/testMemory.cpp
-                            #../tests/testCodeSections.cpp
-                            #../tests/testBuilder.cpp
-)
+                            ../tests/testISO.cpp
+                            ../tests/testCompiler.cpp
+                            ../tests/testLinker.cpp
+                            ../tests/testLinkerScript.cpp
+                            ../tests/testObjectFile.cpp
+                            ../tests/testSymbolTable.cpp  
+                            ../tests/testMemory.cpp
+                            ../tests/testCodeSections.cpp
+                            ../tests/testBuilder.cpp)
 
 target_link_libraries (testWiiMake core)
 install (TARGETS testWiiMake DESTINATION ${CMAKE_BINARY_DIR})
