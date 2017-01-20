@@ -29,12 +29,6 @@ struct MemRegion
 
 struct Arguments
 {
-    /* name of library/save/load file */
-    std::string name;
-
-    /* address to read from iso */
-    std::string address;
-
     /* configuration file */
     std::string configFile;
     

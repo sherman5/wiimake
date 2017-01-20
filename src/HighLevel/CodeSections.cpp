@@ -1,32 +1,30 @@
 #include "HighLevel.h"
+#include "../LowLevel/LowLevel.h"
 
 #include <algorithm>
 
 void CodeSections::storeNames(SectionList& sections, FileList& objects)
 {
-    /* iterate through objects */
-    for (auto objIt = objects.begin(); objIt != objects.end(); ++objIt)
+    /* get a list of sections in each object file, add to master list */
+    for (auto& obj : objects)
     {
-        /* get a vector of all named sections (no '.') in object file */
-        auto namedSections = ObjectFile::getNamedSections(*objIt);
-
-        /* iterate through named sections */
-        auto sectionIt = namedSections.begin();
-        for (; sectionIt != namedSections.end(); ++sectionIt)
+        auto sectionNames = ObjectFile::getSections(obj);
+        for (auto& sec : sectionNames)
         {
-            /* store section */
-            sections.push_back(Section(*objIt + " (" + *sectionIt + ")"));
+            sections.push_back(Section(obj + " (" + sec + ")"));
         }
     }
 }
 
-void CodeSections::storeSizes(SectionList& sections, std::string entry)
+void CodeSections::storeSizes(SectionList& sections, FileList& objects,
+Arguments& args)
 {
     /* linker script that saves section sizes in symbol table */
-    LinkerScript::CreateTempScript(sections, "temp_linker_script.txt");
+    LinkerScript::CreateSizeScript(sections, "size_linker_script.txt");
 
     /* link code */
-    Linker::link(sections, "temp_linker_script.txt", "sizes.out", entry);
+    Linker::link(objects, "size_linker_script.txt", "sizes.out",
+        args.entry, args.linkFlags);
 
     /* get the sizes for each section */
     std::vector<unsigned> sizes = SymbolTable::getSizes("sizes.out",

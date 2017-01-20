@@ -19,30 +19,20 @@ void ConfigParser::parse(Arguments& args)
 }
 
 /* parse single line of file, add to token list */
-void ConfigParser::parseLine(std::string line, TokenList& tokens)
+void ConfigParser::parseLine(std::string s, TokenList& tokens)
 {
    /* separate equal signs (except in flags) */
-    if (line.find("=") != std::string::npos
-        && line.find("-") == std::string::npos)
+    if (s.find("=") != std::string::npos
+        && s.find("-") == std::string::npos)
     {
-        /* add string before equal sign */
-        if (line.front() != '=')
-        {
-            tokens.push_back(line.substr(0, line.find("=")));
-        }
-
-        /* add equal sign */
+        /* separate equal sign from string */
+        if (s.front() != '=') {tokens.push_back(s.substr(0, s.find("=")));}
         tokens.push_back("=");
-
-        /* add string after equal sign */
-        if (line.back() != '=')
-        {
-            tokens.push_back(line.substr(line.find("=") + 1));
-        }
+        if (s.back() != '=') {tokens.push_back(s.substr(s.find("=") + 1));}
     }
     else
     {
-        tokens.push_back(line);
+        tokens.push_back(s);
     }
 }
 
@@ -74,10 +64,8 @@ TokenList ConfigParser::getTokens(std::string fileName)
         }
     }
 
-    /* close config file */
+    /* close config file, return tokens */
     configFile.close();
-
-    /* return vector of tokens */
     return tokens;
 }
 
@@ -181,12 +169,7 @@ TokenList values)
 void ConfigParser::storeStaticOverwrite(Arguments& args, std::string name,
 TokenList values)
 {
-    if (values.size() > 1)
-    {
-        throw std::invalid_argument("too many values in config file"
-             " for static overwrite: " + name);
-    }
-
+    /* store address-value pair from config file */
     try 
     {
         uint32_t address = stoul(name, nullptr, 16);
@@ -198,29 +181,18 @@ TokenList values)
         throw std::invalid_argument("invalid address/value for static"
             " overwrite given in config file: " + name);
     }
+
+    /* check that only one value was given */
+    INVALID_ARG(values.size() > 1, "too many values in config file"
+        " for static overwrite: " + name);
 }
 
 /* verify correct arguments were given in config file */
 void ConfigParser::checkArgs(Arguments& args)
 {
-    if (args.injectAddress == 0)
-    {
-        throw std::invalid_argument("missing inject address (config file)");
-    }
-
-    if (args.originalInstruction == 0)
-    {
-        throw std::invalid_argument("missing instruction (config file)");
-    }
-
-    if (args.entry == "")
-    {
-        throw std::invalid_argument("missing entry point (config file)");
-    }   
-
-    if (args.sources.empty())
-    {
-        throw std::invalid_argument("no source files given");
-    }
+    INVALID_ARG(!args.injectAddress, "missing ADDRESS (config file)");
+    INVALID_ARG(args.entry.empty(), "missing ENTRY (config file)");
+    INVALID_ARG(args.sources.empty(), "no SOURCES (config file)");
+    INVALID_ARG(!args.originalInstruction,
+        "missing INSTRUCTION (config file)");
 }
-

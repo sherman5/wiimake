@@ -1,108 +1,69 @@
 #include "HighLevel.h"
+#include "../LowLevel/LowLevel.h"
 
 #include <algorithm>
 
 /* compile, allocate, link code */
 ASMcode Builder::getASM(Arguments& args)
 {
-    /* compile source files, return object files */
-    auto objects = Builder::getObjectFiles(args.sources, 
-        args.compileFlags, args.includePaths, args.libs);
+    /* compile source files */
+    auto objects = Compiler::compileAll(args.sources, args.compileFlags,
+        args.includePaths);
 
-    /* find addresses for each section */
-    auto sections = Builder::getSectionAddresses(objects, args);
+    /* add libraries to END of object file list */
+    objects.insert(objects.end(), args.libs.begin(), args.libs.end());
+
+    /* get names and sizes of sections */
+    SectionList sections;
+    CodeSections::storeNames(sections, objects);
+    CodeSections::storeSizes(sections, objects, args);
+    
+    /* calculate optimal code allocation */
+    Memory::findCodeAllocation(sections, args);
 
     /* add stack setup files */
     Builder::addStackSetup(sections, args);
 
-    /* get linked code */
-    ASMcode code = Builder::getLinkedCode(sections, args);
+    /* create linker script, use addresses in 'sections' */
+    LinkerScript::CreateFinalScript(sections, "linker_script.txt");   
+    
+    /* link all object files using the linker script */
+    Linker::link(objects, "linker_script.txt", "final.out", args.entry,
+        args.linkFlags);
 
-    /* add original instruction */
+    /* extract assembly code from object file */
+    ASMcode code = ObjectFile::extractASM("final.out");
+
+    /* add original instruction from game code */
     Builder::addOriginalInstruction(code, args);
 
     /* return code */
     return code;    
 }
 
-/* compile files in directory, return list of all object files
-   (including files from libraries) */
-FileList Builder::getObjectFiles(FileList sources,
-                                 TokenList flags,
-                                 FileList includeDirs,
-                                 FileList libs)
-{       
-    /* compile source files */
-    auto objects = Compiler::compile(sources, flags, includeDirs);
-
-    /* rename sections */
-    for (auto it = objects.begin(); it != objects.end(); ++it)
-    {
-        ObjectFile::renameSections(*it);
-    }
-
-    /* add libraries to END of object file list */
-    objects.insert(objects.end(), libs.begin(), libs.end());
-
-    /* return list of all object files */
-    return objects;
-}
-
-/* calculate sizes of sections and find allocation in memory */
-SectionList Builder::getSectionAddresses(FileList& objects,
-                                         Arguments& args)
-{
-    /* list of section information */
-    std::vector<Section> sections;
-
-    /* store sections from object files */
-    CodeSections::storeNames(sections, objects);
-
-    /* store the section sizes, needs entry point for linker */
-    CodeSections::storeSizes(sections, args.entry);
-    
-    /* calculate optimal code allocation */
-    Memory::findCodeAllocation(sections, args);
-
-    /* return the sections object */    
-    return sections;
-}
-
 /* add stack setup to call back after code is run */
 void Builder::addStackSetup(SectionList& sections, Arguments& args)
 {
+    /* this file sets up the call to stack_setup */
+    std::ofstream injectPoint ("inject_point.s");   
+    injectPoint << ".global inject_point\ninject_point:\nb stack_setup\n";
+    injectPoint.close();
+
     /* this file sets up the call the main() */
     std::ofstream stackSetup ("stack_setup.s");   
     stackSetup << ".global stack_setup\nstack_setup:\nbl "
          + args.entry + "\nnop\nb inject_point + 0x04\n";
     stackSetup.close();
-
-    /* this file sets up the call to stack_setup */
-    std::ofstream injectPoint ("inject_point.s");   
-    injectPoint << ".global inject_point\ninject_point:\nb stack_setup\n";
-    injectPoint.close();
     
     /* compile both files */
-    System::runCMD("powerpc-eabi-as stack_setup.s -o stack_setup.o");
     System::runCMD("powerpc-eabi-as inject_point.s -o inject_point.o");
+    System::runCMD("powerpc-eabi-as stack_setup.s -o stack_setup.o");
 
-    /* add both to section list */
-    Section ss ("stack_setup.o", args.memRegions.front().start);
-    Section ip ("inject_point.o", args.injectAddress);
+    /* add both files to section list */
+    sections.push_back(Section("inject_point.o", args.injectAddress));
+    sections.push_back(Section("stack_setup.o",
+        args.memRegions.front().start));
 
-    sections.push_back(ss);
-    sections.push_back(ip);
-}
-
-/* link code into final executable */
-ASMcode Builder::getLinkedCode(SectionList& sections, Arguments& args)
-{
-    /* create linker script, use addresses in 'sections' */
-    LinkerScript::CreateFinalScript(sections, "linker_script.txt");   
-    Linker::link(sections, "linker_script.txt", "final.out", args.entry);
-
-    /* extract assembly code from object file */
-    return ObjectFile::extractASM("final.out");
 }
 
 /* add original instruction, overwrite nop line in code */
@@ -125,32 +86,6 @@ void Builder::addOriginalInstruction(ASMcode& code, Arguments& args)
     (*it).second = args.originalInstruction;
 }
 
-/* create static library from files in given directory */
-void Builder::buildLibrary(Arguments& args)
-{
-    /* compile source files, get object names */
-    auto objects = Compiler::compile(args.sources, args.compileFlags);
-
-    /* create archive command */
-    std::string cmd = "powerpc-eabi-ar -cvr " + args.name;
-
-    /* add object files to command */
-    for (auto it = objects.begin(); it != objects.end(); ++it)
-    {
-        cmd += " " + *it;
-    }
-
-    /* rename sections in a unique way to differentiate
-       between object files */
-    for (unsigned int i = 0; i < objects.size(); ++i)
-    {
-        ObjectFile::renameSections(objects[i], std::to_string(i));
-    }
-
-    /* run archive command to create static library */
-    System::runCMD(cmd, true);
-}
-
 /* remove all temporary files created in the build process */
 void Builder::cleanDirectory()
 {
@@ -170,9 +105,5 @@ void Builder::cleanDirectory()
     };
 
     /* iterate through the vector and run each cmd */
-    auto it = files.begin();
-    for (; it != files.end(); ++it)
-    {
-        System::runCMD(System::rm + " " + *it);
-    }
+    for (auto& f : files) { System::runCMD(System::rm + " " + f);}
 }

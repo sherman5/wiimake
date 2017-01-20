@@ -23,7 +23,7 @@ TEST_CASE("create sample scripts")
     sections.push_back(Section("section8"));
 
     /* create script to record sizes */
-    LinkerScript::CreateTempScript(sections, prefix + "script1.txt");
+    LinkerScript::CreateSizeScript(sections, prefix + "script1.txt");
 
     /* add addresses to sections */
     sections[0].address = 0x100;

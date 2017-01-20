@@ -20,7 +20,4 @@ TEST_CASE("test linker")
     /* create script */ 
     LinkerScript::CreateFinalScript(sections, prefix + "linkScript.txt");
 
-    /* link code */
-    Linker::link(sections, prefix + "linkScript.txt", prefix + "linked.out",
-        "_main");
 }

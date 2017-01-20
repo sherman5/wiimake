@@ -1,5 +1,6 @@
 #include "../ArgumentParsing/Parser.h"
-#include "../IsoHandling/ISO.h"
+#include "../ISO.h"
+#include "../Global.h"
 #include "Description.h"
 
 #include <iostream>
@@ -7,24 +8,13 @@
 void run(TokenList& tokens)
 {
     /* check for correct number of arguments */
-    if (tokens.size() != 3)
-    {
-        throw std::invalid_argument("incorrect number of arguments");
-    }
+    INVALID_ARG(tokens.size() != 3, "incorrect number of arguments");
     
     /* create iso handler */
     ISO iso (tokens[0]);
     
     /* run the program */
-    if (tokens[1] == "--save")
-    {
-        iso.saveState(tokens.back());
-    }
-    else if (tokens[1] == "--load")
-    {
-        iso.loadState(tokens.back());
-    }
-    else if (tokens[1] == "--read")
+    if (tokens[1] == "--read")
     {
         /* make sure valid address is given */
         try
@@ -33,21 +23,15 @@ void run(TokenList& tokens)
         }
         catch (std::invalid_argument& e)
         {
-            if (std::string(e.what()) == "stoul")
-            {
-                throw std::invalid_argument("invalid address: "
-                    + tokens.back());
-            }
-            else
-            {
-                throw e;
-            }
+            INVALID_ARG(std::string(e.what()) == "stoul",
+                "invalid address: " + tokens.back());
+
+            throw e;
         }
     }
-    else
-    {
-        throw std::invalid_argument("invalid option: " + tokens[1]);
-    }
+    else if (tokens[1] == "--save") { iso.saveState(tokens.back());}
+    else if (tokens[1] == "--load") { iso.loadState(tokens.back());}
+    else { throw std::invalid_argument("invalid option: " + tokens[1]);}
 }
 
 int main(int argc, const char** argv)

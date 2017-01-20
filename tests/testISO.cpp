@@ -1,7 +1,7 @@
 #include "catch.hpp"
 
 #include "HeaderDisplay.h"
-#include "../src/IsoHandling/ISO.h"
+#include "../src/ISO.h"
 #include "../src/LowLevel/LowLevel.h"
 
 TEST_CASE("test all functions in ISO.cpp")

@@ -36,7 +36,7 @@ TEST_CASE("get section names and sizes")
     REQUIRE(sections[12].path == prefix + "lib1.a (attr2)");
 
     /* get section sizes */
-    REQUIRE_NOTHROW(CodeSections::storeSizes(sections, "_main"));
+    //REQUIRE_NOTHROW(CodeSections::storeSizes(sections, "_main"));
 
     REQUIRE(sections.size() == 13);
     REQUIRE(sections[0].size == 0xc0);

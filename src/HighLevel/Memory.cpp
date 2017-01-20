@@ -30,61 +30,24 @@ const Arguments& args)
                 return section.path == (*it).path;
             });
 
-        /* store address */
+        /* store address and re-sort regions */
         Memory::storeAddress(*orig, regions.back());
-
-        /* re-sort regions */
         std::sort(regions.begin(), regions.end());
     }
-
-    /* check allocation */
-    Memory::checkAllocation(sections);
 }
 
 /* store the address from given region for this section */
 void Memory::storeAddress(Section& section, MemRegion& region)
 {
     /* ignore sections with zero size */
-    if (section.size == 0)
-    {
-        section.address = 0;
-    }
-    else
+    if (section.size != 0)
     {
         /* check if region can contain section */
-        if (section.size > region.end - region.start)
-        {
-            throw std::runtime_error("can't find allocation of code"
-                " with given memory regions");
-        }
+        RUNTIME_ERROR(section.size + 0x04 > region.end - region.start,
+            "can't find allocation of code with given memory regions");
 
-        /* put section at beginning of region */
+        /* put section at beginning of region, update region start address */
         section.address = region.start;
-
-        /* update region size (with buffer)*/
         region.start += section.size + 0x04;
-    }
-}    
-
-/* verify allocation was done correctly - can't change section order */
-void Memory::checkAllocation(const SectionList& sections)
-{
-    /* can't sort const reference */    
-    auto copy = sections;
-
-    /* sort copy of sections by address - ascending */
-    std::sort(copy.begin(), copy.end(),
-        [](const Section& a, const Section& b)
-        {
-            return a.address < b.address;
-        });
-
-    /* check for section overlap */
-    for (unsigned i = 0; i < copy.size() - 1; ++i)
-    {
-        if (copy[i].address + copy[i].size > copy[i+1].address)
-        {
-            throw std::runtime_error("error allocating code");
-        }
     }
 }

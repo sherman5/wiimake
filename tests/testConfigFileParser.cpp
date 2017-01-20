@@ -177,6 +177,10 @@ TEST_CASE("store entire config file")
     
     REQUIRE(args.injectAddress == 0x80377998);
     REQUIRE(args.originalInstruction == 0x7ee3bb78);
+
+    REQUIRE(args.staticOverwrites[0].first == 0x8045bf28);
+    REQUIRE(args.staticOverwrites[1].first == 0x8045bf2c);
+    REQUIRE(args.staticOverwrites[1].second == 0xffffffff);
 }
 
 

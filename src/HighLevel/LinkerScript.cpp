@@ -2,64 +2,48 @@
 
 #include <fstream>
 
-void LinkerScript::CreateTempScript(SectionList& sections, std::string name)
+void LinkerScript::CreateSizeScript(SectionList& sections, std::string name)
 {
-    /* open up text file */
+    /* open up text file, write first line */
     std::ofstream script (name, std::ios::out | std::ios::trunc);
-
-    /* write first line of linker script */
     script << "SECTIONS {" << std::endl;
 
     /* section number */
     unsigned int num = 1;
 
-    /* iterate through all sections */
-    for (auto it = sections.begin(); it != sections.end(); ++it)
+    /* iterate through all sections, write contents to script */
+    for (auto& sect : sections)
     {
-        /* write section header */
-        script << "gci_" << std::dec << num << " :\n{\n\t" << (*it).path
-            << "\n}\n";
+        script << "wiimake_section_" << std::dec << num << " :\n{\n\t"
+            << sect.path << "\n}\n_sizeof_wiimake_section_" << num <<
+            "=SIZEOF(wiimake_section_" << num << ");\n";
 
-        /* save size in symbol */
-        script << "_sizeof_gci_" << num << "=SIZEOF(gci_" << num << ");\n";
-
-        /* increment section number */
-        num++;
+        num++; //increment here to avoid warning -Wsequence-point
     }
 
-    /* write final line of linker script */
+    /* write final line of linker script and close file */
     script << "}" << std::endl;
-
-    /* close linker script */
     script.close();
 }
 
 void LinkerScript::CreateFinalScript(SectionList& sections, std::string name)
 {
-   /* open up text file */
+    /* open up text file, write first line */
     std::ofstream script (name, std::ios::out | std::ios::trunc);
-
-    /* write first line of linker script */
     script << "SECTIONS {" << std::endl;
     
     /* section number */
     unsigned int num = 1;
 
-    /* iterate through all sections */
-    for (auto it = sections.begin(); it != sections.end(); ++it)
+    /* iterate through all sections, write contents to script */
+    for (auto& sec : sections)
     {
-        /* write section header for each section */
-        script << "gci_" << std::dec << num << " 0x" << std::hex <<
-            (*it).address << " :\n{\n\t" << (*it).path << "\n}\n";
-
-        /* increment section number */
-        num++;
+        script << "wiimake_section_" << std::dec << num++ << " 0x" 
+            << std::hex << sec.address << " :\n{\n\t" << sec.path << "\n}\n";
     }
 
-    /* write final line of linker script */
+    /* write final line of linker script and close file */
     script << "}" << std::endl;
-    
-    /* close linker script */
     script.close();
 }
 

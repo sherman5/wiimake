@@ -20,27 +20,6 @@ TEST_CASE("recognize single line of code")
     REQUIRE(!ObjectFile::lineOfCode(".comment:"));
 }
 
-TEST_CASE("parse single line of code")
-{
-    /* open up test file */
-    std::ifstream file (prefix + "objectFile.txt", std::ios::in);
-    std::string line;
-
-    /* find first line of code */
-    while (!ObjectFile::lineOfCode(line))
-    {
-        file >> line;
-    }
-    
-    /* first line of code - (803fa4f0, 41000000) */
-    auto codeLine = ObjectFile::getLine(line, file);
-    REQUIRE(codeLine.first == 0x803fa4f0);
-    REQUIRE(codeLine.second == 0x41000000);
-
-    /* close file */
-    file.close();
-}
-
 TEST_CASE("extract asm from object file")
 {
    /* get asm code */
@@ -61,7 +40,7 @@ TEST_CASE("extract asm from object file")
 TEST_CASE("get named sections from object file")
 {
     /* get sections */
-    auto sect = ObjectFile::getNamedSections(prefix + "objectFile.out");
+    auto sect = ObjectFile::getSections(prefix + "objectFile.out");
 
     /* check number of sections */
     REQUIRE(sect.size() == 7);

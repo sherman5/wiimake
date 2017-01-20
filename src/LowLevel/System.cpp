@@ -18,10 +18,8 @@ int System::runCMD(std::string cmd, bool display)
         std::replace(cmd.begin(), cmd.end(), '/', '\\');
     #endif
 
-    if (display)
-    {
-        std::cout << cmd << std::endl;
-    }
+    if (display) { std::cout << cmd << std::endl;}
+    else { cmd += " 2>&1";} //send stderr to stdout
 
     FILE* cmdExe = popen(cmd.c_str(), "r");
     return pclose(cmdExe);

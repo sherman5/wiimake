@@ -7,8 +7,8 @@
 #include <iterator>
 
 #include "Arguments.h"
+#include "../Global.h"
 
-typedef std::vector<std::string> TokenList;
 typedef std::istreambuf_iterator<std::string> fileIterator;
 
 namespace CMDparser

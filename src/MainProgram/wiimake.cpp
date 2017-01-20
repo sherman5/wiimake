@@ -1,8 +1,9 @@
 #include "../HighLevel/HighLevel.h"
-#include "../IsoHandling/ISO.h"
+#include "../ISO.h"
 #include "../ArgumentParsing/Parser.h"
 #include "../ArgumentParsing/Arguments.h"
 #include "Description.h"
+#include "../Global.h"
 
 #include <iostream>
 #include <algorithm>
@@ -18,26 +19,21 @@ void run(TokenList& tokens)
         tokens.erase(pos);
     }    
 
-    /* parse remaining two options */
-    if (tokens.size() != 2)
-    {
-        throw std::invalid_argument("incorrect number of options");
-    }
-    else 
-    {
-        /* parse file arguments */
-        args.configFile = tokens.back();
-        ConfigParser::parse(args);
+    /* only two options should remain */
+    INVALID_ARG(tokens.size() != 2, "incorrect number of options");
 
-        /* create iso handler */
-        ISO iso (tokens.front());
+    /* parse file arguments */
+    args.configFile = tokens.back();
+    ConfigParser::parse(args);
 
-        /* inject code into iso */
-        iso.injectCode(args.staticOverwrites);        
-        auto code = Builder::getASM(args);
-        iso.injectCode(code);
-        if (!args.saveTemps) {Builder::cleanDirectory();}
-    }    
+    /* create iso handler */
+    ISO iso (tokens.front());
+
+    /* inject code into iso */
+    iso.injectCode(args.staticOverwrites);        
+    auto code = Builder::getASM(args);
+    iso.injectCode(code);
+    if (!args.saveTemps) {Builder::cleanDirectory();}
 }
 
 int main(int argc, const char** argv)

@@ -32,39 +32,6 @@ static const std::string prefix = "../tests/files/Builder/";
 
 #endif
 
-TEST_CASE("create library")
-{
-    /* display header in first test case */
-    displayHeader("Testing Builder.cpp");
-
-    /* needed args */
-    Arguments args;
-    args.name = prefix + "libtest.a";
-    args.sources.push_back(prefix + "lib/Controller.c");
-    args.sources.push_back(prefix + "lib/Math.c");
-    args.sources.push_back(prefix + "lib/Random.c");
-
-    /* remove old library */
-    System::runCMD(System::rm + " " + prefix + "libtest.a");
-    
-    /* create library */
-    REQUIRE_NOTHROW(Builder::buildLibrary(args));
-
-    /* get sections */
-    auto libSections = ObjectFile::getNamedSections(prefix + "libtest.a");
-
-    /* check section names */
-    REQUIRE(libSections.size() == 8);
-    REQUIRE(libSections[0] == "text0");
-    REQUIRE(libSections[1] == "attr0");
-    REQUIRE(libSections[2] == "text1");
-    REQUIRE(libSections[3] == "rodata1");
-    REQUIRE(libSections[4] == "attr1");
-    REQUIRE(libSections[5] == "text2");
-    REQUIRE(libSections[6] == "rodata2");
-    REQUIRE(libSections[7] == "attr2");
-}
-
 TEST_CASE("add original instruction")
 {
     /* needed args */
@@ -91,7 +58,7 @@ TEST_CASE("add original instruction")
     REQUIRE_THROWS_AS(Builder::addOriginalInstruction(testCode, args),
         std::runtime_error);
 }
-
+#if 0
 TEST_CASE("allocate sections given object files")
 {
     /* needed args */
@@ -228,3 +195,4 @@ TEST_CASE("link sections and extract code")
 
     Builder::cleanDirectory();
 }
+#endif
