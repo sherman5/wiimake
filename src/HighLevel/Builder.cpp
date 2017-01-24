@@ -96,7 +96,7 @@ void Builder::cleanDirectory()
     std::vector<std::string> files =
     {
         "sizes.txt",
-        "temp_linker_script.txt",
+        "size_linker_script.txt",
         "sizes.out",
         "stack_setup.s",
         "stack_setup.o",
