@@ -31,9 +31,6 @@ struct Arguments
 {
     /* configuration file */
     std::string configFile;
-    
-    /* save temporary files */
-    bool saveTemps;
 
     /* entry symbol */
     std::string entry = "";

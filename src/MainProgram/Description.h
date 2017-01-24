@@ -7,7 +7,7 @@ namespace Description
 {
 
     const std::string version = "\nwiimake " VERSION_MAJOR "."
-        VERSION_MINOR "." FIX_NUMBER;
+        VERSION_MINOR "." VERSION_REVISION;
 
     const std::string summary = "\n"
     "\t wiimake is an automated tool for compiling, allocating,\n"
