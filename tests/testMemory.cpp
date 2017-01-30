@@ -10,6 +10,8 @@ TEST_CASE("find code allocation")
 
     /* get arguments for testing */
     Arguments args;
+    args.fixedSymbols.push_back(FixedSymbol("", 0, 0));
+    args.fixedSymbols.push_back(FixedSymbol("", 0, 0));
     args.memRegions.push_back(MemRegion(0x803fa3e8, 0x803fc2ec));
     args.memRegions.push_back(MemRegion(0x803fc420, 0x803fdc1c));
     args.memRegions.push_back(MemRegion(0x801910e0, 0x80192930));
@@ -40,11 +42,11 @@ TEST_CASE("find code allocation")
     /* check addresses */
     REQUIRE(sections[0].address == 0x801920e4);                
     REQUIRE(sections[1].address == 0x803fc420);
-    REQUIRE(sections[2].address == 0x803001dc);
+    REQUIRE(sections[2].address == 0x803001f4);
     REQUIRE(sections[3].address == 0x801910e0);
     REQUIRE(sections[4].address == 0x803fd424);
-    REQUIRE(sections[5].address == 0x803fb8f8);    
-    REQUIRE(sections[6].address == 0x803fa3f4);
+    REQUIRE(sections[5].address == 0x803fb8ec);    
+    REQUIRE(sections[6].address == 0x803fa3e8);
     
     /* should not be able to find allocation now */
     sections[5].size = 0x1100;

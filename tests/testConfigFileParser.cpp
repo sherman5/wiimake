@@ -14,14 +14,14 @@ TEST_CASE("convert file to tokens")
         "../tests/files/ConfigFileParser/config.ini");
 
     /* check values */
-    REQUIRE(tokens.size() == 38);   
+    REQUIRE(tokens.size() == 34);   
     
     REQUIRE(tokens[5] == "803001dc-80301e40");
     REQUIRE(tokens[9] == "testSource2.c");
     REQUIRE(tokens[12] == "=");
     REQUIRE(tokens[19] == "-std=c99");
     REQUIRE(tokens[25] == "_main");
-    REQUIRE(tokens[31] == "7ee3bb78");
+    REQUIRE(tokens[27] == "7ee3bb78");
 }
 
 TEST_CASE("store single variable")
@@ -43,36 +43,24 @@ TEST_CASE("store single variable")
     REQUIRE(args.linkFlags[2] == "-flag3");
 }
 
-TEST_CASE("store single string variable")
+TEST_CASE("store fixed symbols list")
 {
     /* create arguments struct */
     Arguments args;
 
     /* create data */
-    std::string name = "ENTRY";
-    TokenList values = {"test"};
+    std::string name = "FIXED_SYMBOLS";
+    TokenList values = {"_sym1", "80105000", "abcdabcd", "_sym2",
+        "80030040", "deadbabe"};
 
     /* store variable */
     REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
 
     /* check args */
-    REQUIRE(args.entry == "test");
-}
-
-TEST_CASE("store numeric varaible")
-{
-    /* create arguments struct */
-    Arguments args;
-
-    /* create data */
-    std::string name = "ADDRESS";
-    TokenList values = {"1234abcd"};
-
-    /* store variable */
-    REQUIRE_NOTHROW(ConfigParser::storeVariable(args, name, values));
-
-    /* check args */
-    REQUIRE(args.injectAddress == 0x1234abcd);
+    REQUIRE(args.fixedSymbols.size() == 2);
+    REQUIRE(args.fixedSymbols[0].name == "_sym1");
+    REQUIRE(args.fixedSymbols[1].address == 0x80030040);
+    REQUIRE(args.fixedSymbols[1].instruction == 0xdeadbabe);
 }
 
 TEST_CASE("store variable with empty values")
@@ -89,19 +77,6 @@ TEST_CASE("store variable with empty values")
 
     /* check args */
     REQUIRE(args.sources.empty());
-}
-
-TEST_CASE("store variable with too many values")
-{
-    /* create arguments struct */
-    Arguments args;
-
-    /* create data */
-    std::string name = "ENTRY";
-    TokenList values = {"first", "second"};
-
-    /* store variable */
-    REQUIRE_THROWS(ConfigParser::storeVariable(args, name, values));
 }
 
 TEST_CASE("store invalid variable")
@@ -131,10 +106,10 @@ TEST_CASE("storing memory regions")
 
     /* check args */
     REQUIRE(args.memRegions.size() == 2);
-    REQUIRE(args.memRegions[0].start == 0x803fa3e8);
-    REQUIRE(args.memRegions[0].end == 0x803fc2ec);
-    REQUIRE(args.memRegions[1].start == 0x803fc420);
-    REQUIRE(args.memRegions[1].end == 0x803fdc1c);
+    REQUIRE(args.memRegions[0].start == 0x803fc420);
+    REQUIRE(args.memRegions[0].end == 0x803fdc1c);
+    REQUIRE(args.memRegions[1].start == 0x803fa3e8);
+    REQUIRE(args.memRegions[1].end == 0x803fc2ec);
 }
 
 TEST_CASE("store entire config file")
@@ -148,14 +123,14 @@ TEST_CASE("store entire config file")
 
     /* check args */
     REQUIRE(args.memRegions.size() == 4);
-    REQUIRE(args.memRegions[0].start == 0x803fa3e8);
-    REQUIRE(args.memRegions[0].end == 0x803fc2ec);
-    REQUIRE(args.memRegions[1].start == 0x803fc420);
-    REQUIRE(args.memRegions[1].end == 0x803fdc1c);
-    REQUIRE(args.memRegions[2].start == 0x801910e0);
-    REQUIRE(args.memRegions[2].end == 0x80192930);
-    REQUIRE(args.memRegions[3].start == 0x803001dc);
-    REQUIRE(args.memRegions[3].end == 0x80301e40);
+    REQUIRE(args.memRegions[0].start == 0x803fc420);
+    REQUIRE(args.memRegions[0].end == 0x803fdc1c);
+    REQUIRE(args.memRegions[1].start == 0x801910e0);
+    REQUIRE(args.memRegions[1].end == 0x80192930);
+    REQUIRE(args.memRegions[2].start == 0x803001dc);
+    REQUIRE(args.memRegions[2].end == 0x80301e40);
+    REQUIRE(args.memRegions[3].start == 0x803fa3e8);
+    REQUIRE(args.memRegions[3].end == 0x803fc2ec);
 
     REQUIRE(args.sources.size() == 3);
     REQUIRE(args.sources[0] == "testSource1.c");
@@ -173,15 +148,14 @@ TEST_CASE("store entire config file")
     
     REQUIRE(args.linkFlags.empty());
         
-    REQUIRE(args.entry == "_main");
-    
-    REQUIRE(args.injectAddress == 0x80377998);
-    REQUIRE(args.originalInstruction == 0x7ee3bb78);
+    REQUIRE(args.fixedSymbols.size() == 1);
+    REQUIRE(args.fixedSymbols[0].name == "_main");
+    REQUIRE(args.fixedSymbols[0].address == 0x80377998);
+    REQUIRE(args.fixedSymbols[0].instruction == 0x7ee3bb78);
 
     REQUIRE(args.staticOverwrites[0].first == 0x8045bf28);
     REQUIRE(args.staticOverwrites[1].first == 0x8045bf2c);
     REQUIRE(args.staticOverwrites[1].second == 0xffffffff);
 }
-
 
 

@@ -42,11 +42,9 @@ TokenList ConfigParser::getTokens(std::string fileName)
     /* open up config file */
     std::ifstream configFile (fileName, std::ios::in);
 
-    /* list of tokens to return */
-    TokenList tokens;
-
-    /* iterate through each line */
+    /* iterate through each line, separate tokens */
     std::string line;
+    TokenList tokens;
     while (!configFile.eof())
     {
         /* throw away whitespace, look for comment/section start */
@@ -112,6 +110,19 @@ void ConfigParser::storeMemRegions(Arguments& args, TokenList table)
         /* add region */
         args.memRegions.push_back(MemRegion(begin, end));
     }
+    std::sort (args.memRegions.begin(), args.memRegions.end());
+}
+
+/* store the fixed symbols variable */
+void ConfigParser::storeFixedSymbols(Arguments& args, TokenList symbols)
+{
+    for (auto it = symbols.begin(); it != symbols.end(); ++it)
+    {
+        std::string name = *(it);
+        uint32_t addr = stoul(*(++it), nullptr, 16);
+        uint32_t inst = stoul(*(++it), nullptr, 16);
+        args.fixedSymbols.push_back(FixedSymbol(name, addr, inst));
+    }
 }
 
 /* store a single variable */
@@ -121,7 +132,7 @@ TokenList values)
     /* find variable name */
     TokenList variables = {"REGIONS", "SOURCES", "LIBRARIES",
         "INCLUDE_PATHS", "COMPILER_FLAGS", "LINKER_FLAGS",
-        "ADDRESS", "INSTRUCTION", "ENTRY"};
+        "FIXED_SYMBOLS"};
     
     auto pos = std::find(variables.begin(), variables.end(), name);
 
@@ -147,17 +158,7 @@ TokenList values)
             args.linkFlags = values;
             break;
         case 6:
-            args.injectAddress = stoul(values[0], nullptr, 16);
-            if (values.size() == 1) {break;}
-        case 7:
-            args.originalInstruction = stoul(values[0], nullptr, 16);
-            if (values.size() == 1) {break;}
-        case 8:
-            args.entry = values[0];
-            if (values.size() == 1) {break;}
-        case ' ': //for handling errors in above 3 cases
-            throw std::invalid_argument("too many values in config file"
-                " for variable " + name);
+            ConfigParser::storeFixedSymbols(args, values);
             break;
         default:
             ConfigParser::storeStaticOverwrite(args, name, values);
@@ -190,9 +191,6 @@ TokenList values)
 /* verify correct arguments were given in config file */
 void ConfigParser::checkArgs(Arguments& args)
 {
-    INVALID_ARG(!args.injectAddress, "missing ADDRESS (config file)");
-    INVALID_ARG(args.entry.empty(), "missing ENTRY (config file)");
+    INVALID_ARG(args.fixedSymbols.empty(), "missing entry point");
     INVALID_ARG(args.sources.empty(), "no SOURCES (config file)");
-    INVALID_ARG(!args.originalInstruction,
-        "missing INSTRUCTION (config file)");
 }

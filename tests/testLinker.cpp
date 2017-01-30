@@ -25,8 +25,8 @@ TEST_CASE("linker success")
     LinkerScript::CreateFinalScript(sections, path + "linkScript.txt");
 
     /* link files */
-    REQUIRE_NOTHROW(Linker::link(objects, path + "linkScript.txt",
-        "linked.out", "_main"));
+    REQUIRE_NOTHROW(Linker::link(path + "linkScript.txt",
+        "linked.out"));
 }
 
 TEST_CASE("linker failure")
@@ -43,8 +43,8 @@ TEST_CASE("linker failure")
     LinkerScript::CreateFinalScript(sections, path + "linkScript.txt");
 
     /* link files */
-    REQUIRE_THROWS_AS(Linker::link(objects, path + "linkScript.txt",
-        "linked.out", "_main"), std::runtime_error);
+    REQUIRE_THROWS_AS(Linker::link(path + "linkScript.txt",
+        "linked.out"), std::runtime_error);
 
 }
 

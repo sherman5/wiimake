@@ -46,6 +46,9 @@ namespace ConfigParser
     /* store the memory regions variable */
     void storeMemRegions(Arguments&, TokenList);
 
+    /* store the fixed symbols variable */
+    void storeFixedSymbols(Arguments&, TokenList);
+
     /* verify corect arguments were given in config file */
     void checkArgs(Arguments&);
 }

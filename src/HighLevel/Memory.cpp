@@ -13,7 +13,7 @@ const Arguments& args)
     std::vector<Section> sortedSections = SectionList(sections);
 
     /* leave room for stack setup */
-    regions.front().start += 0xC;
+    regions.back().start += 0xC * args.fixedSymbols.size();
 
     /* sort regions and sections */
     std::sort (regions.begin(), regions.end());

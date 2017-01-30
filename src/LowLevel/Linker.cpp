@@ -1,16 +1,14 @@
 #include "LowLevel.h"
 
-void Linker::link(FileList& objects, std::string script,
-std::string name, std::string entry, TokenList linkerFlags)
+void Linker::link(std::string script, std::string name, TokenList flags)
 {
     /* put all object files and linker flags in individual strings */
-    std::string objectNames, flags;
-    for (auto& flg : linkerFlags) { flags += flg + " ";}
-    for (auto& obj : objects) { objectNames += obj + " ";}
+    std::string linkerFlags;
+    for (auto& flg : flags) { linkerFlags += flg + " ";}
 
     /* run linker - output command */
-    std::string cmd = "powerpc-eabi-ld -e " + entry + " " + flags +
-        " -o " + name + " --script " + script + " " + objectNames;
+    std::string cmd = "powerpc-eabi-ld " + linkerFlags +
+        " -o " + name + " --script " + script;
 
     if (System::runCMD(cmd, true) != 0)
     {

@@ -27,17 +27,23 @@ struct MemRegion
     }
 };
 
+struct FixedSymbol
+{
+    std::string name = "";
+    uint32_t address = 0, instruction = 0;
+
+    FixedSymbol(std::string n, uint32_t a, uint32_t i) : 
+        name(n), address(a), instruction(i) {}
+};
+
 struct Arguments
 {
     /* configuration file */
     std::string configFile;
 
-    /* entry symbol */
-    std::string entry = "";
+    /* fixed symbols */
+    std::vector<FixedSymbol> fixedSymbols;
 
-    /* inject point */
-    uint32_t injectAddress = 0, originalInstruction = 0;
-    
     /* source and lib files, include paths */
     std::vector<std::string> sources, libs, includePaths;
 

@@ -1,6 +1,7 @@
 #include "catch.hpp"
 
 #include "../src/HighLevel/HighLevel.h"
+#include "../src/ArgumentParsing/Arguments.h"
 #include "HeaderDisplay.h"
 
 static const std::string path = "../tests/files/CodeSections/";
@@ -36,11 +37,7 @@ TEST_CASE("get section names and sizes")
     REQUIRE(sections[12].path == path + "lib1.a (attr2)");
 
     /* get section sizes */
-    Arguments args;
-    args.entry = "_main";
-    FileList ob = {path + "object1.o", path + "object2.o", path + "lib1.a"};
-
-    REQUIRE_NOTHROW(CodeSections::storeSizes(sections, ob, args));
+    REQUIRE_NOTHROW(CodeSections::storeSizes(sections));
 
     REQUIRE(sections.size() == 13);
     REQUIRE(sections[0].size == 0xc0);

@@ -19,7 +19,7 @@ ASMcode Builder::getASM(Arguments& args)
     /* get names and sizes of sections */
     SectionList sections;
     CodeSections::storeNames(sections, objects);
-    CodeSections::storeSizes(sections, objects, args);
+    CodeSections::storeSizes(sections);
     
     /* calculate optimal code allocation */
     Memory::findCodeAllocation(sections, args);
@@ -31,14 +31,13 @@ ASMcode Builder::getASM(Arguments& args)
     LinkerScript::CreateFinalScript(sections, "linker_script.txt");   
     
     /* link all object files using the linker script */
-    Linker::link(objects, "linker_script.txt", "final.out", args.entry,
-        args.linkFlags);
+    Linker::link("linker_script.txt", "final.out", args.linkFlags);
 
     /* extract assembly code from object file */
     ASMcode code = ObjectFile::extractASM("final.out");
 
     /* add original instruction from game code */
-    Builder::addOriginalInstruction(code, args);
+    Builder::addOverwrittenASM(code, args);
 
     /* return code */
     return code;    
@@ -46,47 +45,58 @@ ASMcode Builder::getASM(Arguments& args)
 
 /* add stack setup to call back after code is run */
 void Builder::addStackSetup(SectionList& sections, Arguments& args)
-{
-    /* this file sets up the call to stack_setup */
-    std::ofstream injectPoint ("inject_point.s");   
-    injectPoint << ".global inject_point\ninject_point:\nb stack_setup\n";
-    injectPoint.close();
+{   
+    /* use the largest memory region to store the stack setup files */
+    uint32_t addr = args.memRegions.back().start;
 
-    /* this file sets up the call the main() */
-    std::ofstream stackSetup ("stack_setup.s");   
-    stackSetup << ".global stack_setup\nstack_setup:\nbl "
-         + args.entry + "\nnop\nb inject_point + 0x04\n";
-    stackSetup.close();
-    
-    /* compile both files */
-    System::runCMD("powerpc-eabi-as inject_point.s -o inject_point.o");
-    System::runCMD("powerpc-eabi-as stack_setup.s -o stack_setup.o");
+    /* set up the branching for each fixed symbol */
+    for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
+    {
+        std::string ip = "inject_point_" + std::to_string(i);
+        std::string ss = "stack_setup_" + std::to_string(i);
 
-    /* add both files to section list */
-    sections.push_back(Section("inject_point.o", args.injectAddress));
-    sections.push_back(Section("stack_setup.o",
-        args.memRegions.front().start));
+        /* this file sets up the call to stack_setup */
+        std::ofstream injectPoint (ip + ".s");   
+        injectPoint << ".global " + ip + "\n" + ip + ":\n\tb " + ss + "\n";
+        injectPoint.close();
 
+        /* this file sets up the call the main() */
+        std::ofstream stackSetup (ss + ".s");   
+        stackSetup << ".global " + ss + "\n" + ss + ":\n\tbl " + 
+            args.fixedSymbols[i].name + "\n\tnop\n\tb " + ip + " + 0x04\n";
+        stackSetup.close();
+        
+        /* compile both files */
+        System::runCMD("powerpc-eabi-as " + ip + ".s -o " + ip + ".o");
+        System::runCMD("powerpc-eabi-as " + ss + ".s -o " + ss + ".o");
+
+        /* add both files to section list, include addresses */
+        sections.push_back(Section(ip+".o", args.fixedSymbols[i].address));
+        sections.push_back(Section(ss+".o", addr));
+        addr += 0xC;
+    }
 }
 
 /* add original instruction, overwrite nop line in code */
-void Builder::addOriginalInstruction(ASMcode& code, Arguments& args)
+void Builder::addOverwrittenASM(ASMcode& code, Arguments& args)
 {
-    /* find line of code at (stack_setup + 0x04) */
-    auto it = std::find_if(code.begin(), code.end(),
-        [&](const std::pair<uint32_t, uint32_t>& element)
-        {
-            return element.first == args.memRegions.front().start + 0x04;
-        });
-
-    /* check that instruction is nop */
-    if ((*it).second != 0x60000000)
+    for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
     {
-        throw std::runtime_error("instruction in stack setup is not 'nop'");
-    }
+        /* find line of code at (stack_setup + 0x04) */
+        auto it = std::find_if(code.begin(), code.end(),
+            [&](const std::pair<uint32_t, uint32_t>& element)
+            {
+                return element.first == 0x04 + 
+                    args.memRegions.back().start + (0xC * i);
+            });
 
-    /* change to original instruction */
-    (*it).second = args.originalInstruction;
+        /* check that instruction is nop */
+        RUNTIME_ERROR((*it).second != 0x60000000, "instruction in stack"
+            " setup is not 'nop'");
+
+        /* change to original instruction */
+        (*it).second = args.fixedSymbols[i].instruction;
+    }
 }
 
 /* remove all temporary files created in the build process */
@@ -98,15 +108,15 @@ void Builder::cleanDirectory()
         "sizes.txt",
         "size_linker_script.txt",
         "sizes.out",
-        "stack_setup.s",
-        "stack_setup.o",
-        "inject_point.s",
-        "inject_point.o",
+        "stack_setup_*.s",
+        "stack_setup_*.o",
+        "inject_point_*.s",
+        "inject_point_*.o",
         "linker_script.txt",
         "final.out",
         "final.txt"
     };
 
     /* iterate through the vector and run each cmd */
-    for (auto& f : files) { System::runCMD(System::rm + " " + f);}
+    for (auto& f : files) {System::runCMD(System::rm + " " + f);}
 }
