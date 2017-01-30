@@ -62,8 +62,12 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
 
         /* this file sets up the call the main() */
         std::ofstream stackSetup (ss + ".s");   
-        stackSetup << ".global " + ss + "\n" + ss + ":\n\tbl " + 
-            args.fixedSymbols[i].name + "\n\tnop\n\tb " + ip + " + 0x04\n";
+        stackSetup << ".global " + ss + "\n" + ss + ":\n"
+        "\tsubi 1,1,132\n\tstmw 3,16(1)\n\tstw 0,12(1)\n\tmflr 0\n"
+        "\tstw 0,8(1)\n\tmfcr 0\n\tstw 0,4(1)\n\tmfctr 0\n\tstw 0,0(1)\n"
+        "\tbl " + args.fixedSymbols[i].name + "\n\tlwz 0,0(1)\n\tmtctr 0\n"
+        "\tlwz 0,4(1)\n\tmtcr 0\n""\tlwz 0,8(1)\n\tmtlr 0\n\tlwz 0,12(1)\n"
+        "\tlmw 3,16(1)\n\taddi 1,1,132\n\tnop\n\tb " + ip + " + 0x04\n";
         stackSetup.close();
         
         /* compile both files */
@@ -73,7 +77,7 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
         /* add both files to section list, include addresses */
         sections.push_back(Section(ip+".o", args.fixedSymbols[i].address));
         sections.push_back(Section(ss+".o", addr));
-        addr += 0xC;
+        addr += 0x54;
     }
 }
 
@@ -86,8 +90,8 @@ void Builder::addOverwrittenASM(ASMcode& code, Arguments& args)
         auto it = std::find_if(code.begin(), code.end(),
             [&](const std::pair<uint32_t, uint32_t>& element)
             {
-                return element.first == 0x04 + 
-                    args.memRegions.back().start + (0xC * i);
+                return element.first == 0x4C + 
+                    args.memRegions.back().start + (0x54 * i);
             });
 
         /* check that instruction is nop */
