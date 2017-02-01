@@ -37,7 +37,8 @@ bool ObjectFile::lineOfCode(std::string line)
     return line.find(".") == std::string::npos
            && line.find(">") == std::string::npos
            && line.find("_") == std::string::npos
-           && line.find(":") != std::string::npos;
+           && line.find(":") != std::string::npos
+           && line.find("Address") == std::string::npos;
 }
 
 /* parse a line of code from text file, return (address, instruction) */
