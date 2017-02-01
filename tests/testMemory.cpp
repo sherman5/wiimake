@@ -42,7 +42,7 @@ TEST_CASE("find code allocation")
     /* check addresses */
     REQUIRE(sections[0].address == 0x801920e4);                
     REQUIRE(sections[1].address == 0x803fc420);
-    REQUIRE(sections[2].address == 0x803001f4);
+    REQUIRE(sections[2].address == 0x80300284);
     REQUIRE(sections[3].address == 0x801910e0);
     REQUIRE(sections[4].address == 0x803fd424);
     REQUIRE(sections[5].address == 0x803fb8ec);    

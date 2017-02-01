@@ -21,10 +21,10 @@ std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
     {
         /* if keyword found, store size in proper id */
         std::getline(file, line);
-        if (line.find("_sizeof_wmake_section_") != std::string::npos)
+        if (line.find("_sizeof_section_") != std::string::npos)
         {
             size = line.substr(line.find(":")).substr(2, 8);
-            id = line.substr(line.find("_size")).substr(22,
+            id = line.substr(line.find("_size")).substr(16,
                 std::string::npos);
             sizes[stoul(id, nullptr, 0) - 1] = stoul(size, nullptr, 16);
         }
@@ -32,5 +32,6 @@ std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
 
     /* close file, return vector of sizes */
     file.close();
+    System::runCMD(System::rm + " sizes.txt");
     return sizes;
 }

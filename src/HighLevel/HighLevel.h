@@ -32,7 +32,7 @@ namespace Builder
     void addStackSetup(SectionList&, Arguments&);
 
     /* add original instruction, overwrite nop line in code */
-    void addOverwrittenASM(ASMcode&, Arguments&);
+    void addOverwrittenASM(ASMcode&, Arguments&, SectionList&);
 
     /* remove all temporary files created in the build process */
     void cleanDirectory();
@@ -45,7 +45,7 @@ namespace CodeSections
     void storeNames(SectionList&, FileList&);
 
     /* get sizes of each section */
-    void storeSizes(SectionList&);
+    void storeSizes(SectionList&, std::string);
 }
 
 /* manage memory regions in RAM */

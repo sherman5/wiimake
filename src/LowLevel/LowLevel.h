@@ -49,6 +49,9 @@ namespace ObjectFile
     /* parse a line of code from text file, return (address, instruction) */
     std::pair<uint32_t, uint32_t> getCode(TokenList::iterator&);
 
+    /* save the injected asm code to a text file */
+    void printASM(std::string);
+
     /* check if at beginning of valid line of code */
     bool lineOfCode(std::string);
 }
@@ -69,7 +72,8 @@ namespace Compiler
 namespace Linker
 {
     /* link all sections, using linker script provided */
-    void link(std::string, std::string, TokenList = TokenList());
+    void link(std::string, std::string, TokenList = TokenList(),
+        std::string="");
 }  
 
 #endif

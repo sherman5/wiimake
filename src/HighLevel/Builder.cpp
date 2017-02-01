@@ -16,16 +16,20 @@ ASMcode Builder::getASM(Arguments& args)
     /* remove unnecessary sections from object files */
     for (auto& obj : objects) { ObjectFile::removeSections(obj);}
 
-    /* get names and sizes of sections */
+    /* add stack setup files (manage branching from game code) */
     SectionList sections;
+    Builder::addStackSetup(sections, args);
+
+    /* get names and sizes of sections (check each entry point) */
     CodeSections::storeNames(sections, objects);
-    CodeSections::storeSizes(sections);
+    for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
+    {
+        CodeSections::storeSizes(sections, "inject_point_" +
+            std::to_string(i));
+    }
     
     /* calculate optimal code allocation */
     Memory::findCodeAllocation(sections, args);
-
-    /* add stack setup files */
-    Builder::addStackSetup(sections, args);
 
     /* create linker script, use addresses in 'sections' */
     LinkerScript::CreateFinalScript(sections, "linker_script.txt");   
@@ -37,7 +41,7 @@ ASMcode Builder::getASM(Arguments& args)
     ASMcode code = ObjectFile::extractASM("final.out");
 
     /* add original instruction from game code */
-    Builder::addOverwrittenASM(code, args);
+    Builder::addOverwrittenASM(code, args, sections);
 
     /* return code */
     return code;    
@@ -82,21 +86,29 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
 }
 
 /* add original instruction, overwrite nop line in code */
-void Builder::addOverwrittenASM(ASMcode& code, Arguments& args)
+void Builder::addOverwrittenASM(ASMcode& code, Arguments& args,
+SectionList& sections)
 {
     for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
     {
+        /* find address of this stack setup */
+        auto ss = std::find_if(sections.begin(), sections.end(),
+            [&](const Section& sect)
+            {
+                return sect.path.find("stack_setup_" + std::to_string(i))
+                    != std::string::npos;
+            });
+
         /* find line of code at (stack_setup + 0x04) */
         auto it = std::find_if(code.begin(), code.end(),
             [&](const std::pair<uint32_t, uint32_t>& element)
             {
-                return element.first == 0x4C + 
-                    args.memRegions.back().start + (0x54 * i);
+                return element.first == ss->address + 0x4c;
             });
 
         /* check that instruction is nop */
         RUNTIME_ERROR((*it).second != 0x60000000, "instruction in stack"
-            " setup is not 'nop'");
+            " setup is not 'nop' -- " + std::to_string((*it).first));
 
         /* change to original instruction */
         (*it).second = args.fixedSymbols[i].instruction;
@@ -118,7 +130,7 @@ void Builder::cleanDirectory()
         "inject_point_*.o",
         "linker_script.txt",
         "final.out",
-        "final.txt"
+        "injected_code.txt"
     };
 
     /* iterate through the vector and run each cmd */

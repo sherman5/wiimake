@@ -3,6 +3,29 @@
 #include <algorithm>
 #include <iostream>
 
+uint32_t junkAddress = 0;
+
+/* store the address from given region for this section */
+void Memory::storeAddress(Section& section, MemRegion& region)
+{
+    /* ignore sections with zero size */
+    if (section.size == 0)
+    {
+        section.address = junkAddress;
+        junkAddress += 0x10000; //jank
+    }
+    else if (section.path.find("inject_point_") == std::string::npos)
+    {
+        /* check if region can contain section */
+        RUNTIME_ERROR(section.size + 0x04 > region.end - region.start,
+            "can't find allocation of code with given memory regions");
+
+        /* put section at beginning of region, update region start address */
+        section.address = region.start;
+        region.start += section.size + 0x04;
+    }
+}
+
 /* find an allocation of code in available regions
    can't change section order! */
 void Memory::findCodeAllocation(SectionList& sections,
@@ -11,9 +34,6 @@ const Arguments& args)
     /* get local copies */
     std::vector<MemRegion> regions = args.memRegions;
     std::vector<Section> sortedSections = SectionList(sections);
-
-    /* leave room for stack setup */
-    regions.back().start += 0x54 * args.fixedSymbols.size();
 
     /* sort regions and sections */
     std::sort (regions.begin(), regions.end());
@@ -36,18 +56,4 @@ const Arguments& args)
     }
 }
 
-/* store the address from given region for this section */
-void Memory::storeAddress(Section& section, MemRegion& region)
-{
-    /* ignore sections with zero size */
-    if (section.size != 0)
-    {
-        /* check if region can contain section */
-        RUNTIME_ERROR(section.size + 0x04 > region.end - region.start,
-            "can't find allocation of code with given memory regions");
 
-        /* put section at beginning of region, update region start address */
-        section.address = region.start;
-        region.start += section.size + 0x04;
-    }
-}
