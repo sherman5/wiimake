@@ -1,4 +1,4 @@
-# wiimake
+# wiimake v1.1
 
 ## Introduction
 
@@ -12,7 +12,7 @@ The only dependency of this software is `devkitPPC`. For installation instructio
 
 `http://devkitpro.org/wiki/Getting_Started/devkitPPC`
 
-To check if you can run the program try typing `powerpc-eabi-gcc` in your terminal. If you get
+To check if you can run the program, try typing `powerpc-eabi-gcc` in your terminal. If you get
 
 `powerpc-eabi-gcc: fatal error: no input files` then it has succesfully installed.
 
@@ -22,11 +22,14 @@ To check if you can run the program try typing `powerpc-eabi-gcc` in your termin
 
 2. unpack
 
-   `tar -xf gci-1.0.tar.gz`
+   `tar -xf wiimake-1.1.0.tar.gz`
 
 3. make build directory
 
-   `mkdir gci-1.0/build && cd gci-1.0/build`
+   ```
+    mkdir wiimake-1.1.0/build
+    cd wiimake-1.1.0/build
+    ```
    
 4. run these commands to build the program with cmake
 
@@ -35,14 +38,13 @@ To check if you can run the program try typing `powerpc-eabi-gcc` in your termin
    make
    make install
    ```
-   (may need to be run with root privileges)
+   (`make install` may need to be run with root privileges)
 
 ## Usage
 
 ```
 Usage:
 wiimake ISO CONFIGFILE [--save-temps]
-wiimake-ar LIBNAME file1 file2 ...
 wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
 ```
 
@@ -53,14 +55,6 @@ wiimake ISO CONFIGFILE [--save-temps]
 ```
 
 `wiimake` requires the user to provide an iso file and a configuration file (explained in next section). From here, wiimake proceeds as follows: (1) compile all source files (2) find sizes of each section of code that needs to be injected - object files from sources and libraries (3) find an arrangement of the code that fits within the memory regions provided by the user in the config file (4) run the linker (5) inject the code into the appropiate addresses. In one command the user can take their raw C files and produce a runnable iso file that has their main function injected at a specified address.
-
-## wiimake-ar
-
-```
-wiimake-ar LIBNAME file1 file2 ...
-```
-
-`wiimake-ar` is a tool for creating static libraries. It works very similiar to the usual `powerpc-eabi-ar` command, except it adds section flags so that the library can be broken down into smaller pieces for injection. This makes it easier to find an arrangement that fits in the memory regions available.
 
 ## wiimake-isotool
 
@@ -76,9 +70,7 @@ The configuration file provides `wiimake` with all the necessary information abo
 
 The config file format should be `.ini`. `wiimake` treats any line starting with `;` as a comment (standard) and allows for spaces between `=` as well as variables to have a list of values. Section headers in `[]` are ignored.
 
-This file should have 9 variables defined: `REGIONS, SOURCES, LIBRARIES, INCLUDE_PATHS, COMPILER_FLAGS, LINKER_FLAGS, ENTRY, ADDRESS, INSTRUCTION`.
-
-See `./examples/config.ini` for an example configuration file.
+This file should have 7 variables defined: `REGIONS, SOURCES, LIBRARIES, INCLUDE_PATHS, COMPILER_FLAGS, LINKER_FLAGS, FIXED_SYMBOLS`.
 
 ### REGIONS
 
@@ -114,16 +106,46 @@ LINKER_FLAGS = -flag1 -flag2 ...
 
 These variables allow for flags to be passed directly to the `powerpc-eabi-gcc` and `powerpc-eabi-ld`.
 
-### ENTRY, ADDRESS, INSTRUCTION
+### FIXED_SYMBOLS
 
 ```
-ENTRY = entry_function_name
+FIXED_SYMBOLS = 
 
-ADDRESS = 0xFFFFFFFF
-
-INSTRUCTION = 0xFFFFFFFF
+    _main 80377998 7ee3bb78
+    other_function 801a633c 60000000
 ```
 
-`ENTRY` specifies the function name that the user's program should start with. This would typically be `main` but in this case that is an invalid name.
+format: `symbol_name inject_address overwritten_instruction`
 
-`ADDRESS` is the address in game memory that the function in `ENTRY` gets injected into. `INSTRUCTION` is the original instruction at this address and gets called after the function in `ENTRY` is run. If the user wants to overwrite this line completely, just set `INSTRUCTION = 0x60000000` (nop).
+These are symbols (functions) that the user wants injected at specific addresses in the game. `wiimake` sets up a branch to the symbol at the injection address and calls the overwritten instruction before returning to the code. If the user wants to ignore the line of code that is being overwritten, simply provide `nop` (60000000) as the instruction to overwrite. Before the code branches to the fixed symbol, all the registers are preserved on the stack. Thus, these functions can take input from the game registers, but any return values will be discarded when the registers are restored. If the user is unfamiliar with registers and how they are used to pass values to a function, it is always safe to have all fixed symbols simply be `void foo()` type functions.
+
+### Static Overwrites (DOL modding)
+
+The user can also provide lines of code to be written to the iso at specified RAM addresses. This is useful for changing lines of game code, but not useful for putting values in addresses the game reads from at run time. The format for these overwrites are as follows (note the separate section name is unnecessary but helpful for readability).
+
+```
+
+[Static Overwrites]
+
+; unlock all characters and stages, random stage select
+
+801648c8 = 38a007ff
+801644bc = 38a007ff
+80173580 = 38a007ff
+
+; debug menu replaces tournament mode 
+
+8022d638 = 38000006
+
+; default tournament settings
+
+803d4a48 = 00340100
+803d4a4c = 04000a00
+803d4a50 = 08010000
+803d4a60 = ff000000
+803d4a70 = 00000000
+803d4a78 = e70000b0
+
+```
+
+The overwrites in this example are known DOL mods for Super Smash Bros Melee v1.02
