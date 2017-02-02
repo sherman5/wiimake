@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <iostream>
+#include <cmath>
 
 /* get sizes of each section in binary file (needs special symbols) */
 std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
@@ -30,8 +31,18 @@ std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
         }
     }
 
+    /* round up sizes not divisble by 4 */
+    for (int i = 0; i < num; ++i)
+    {
+        unsigned rounded = 4 * floor((double) sizes[i] / 4.0);
+        if (rounded != sizes[i])
+        {
+            sizes[i] = rounded + 4;
+        }
+    }
+
     /* close file, return vector of sizes */
     file.close();
-    System::runCMD(System::rm + " sizes.txt");
+    //System::runCMD(System::rm + " sizes.txt");
     return sizes;
 }
