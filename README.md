@@ -151,7 +151,7 @@ The user can also provide lines of code to be written to the iso at specified RA
 The overwrites in this example are known DOL mods for Super Smash Bros Melee v1.02
 
 
-### config.ini example (from MeleeModdingLibrary)
+### Config file example from MeleeModdingLibrary
 
 ```
 
