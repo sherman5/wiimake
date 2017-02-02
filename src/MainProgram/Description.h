@@ -27,11 +27,6 @@ namespace Description
     "\t addresses. In one command the user can take their raw C files\n"
     "\t and produce a runnable iso file that has their main function\n"
     "\t injected at a specified address.\n\n\n"
-    "\t wiimake-ar is a tool for creating static libraries. It works\n"
-    "\t very similiar to the usual powerpc-eabi-ar command, except\n"
-    "\t it adds section flags so that the library can be broken down\n"
-    "\t into smaller pieces for injection. This makes it easier to find\n"
-    "\t an arrangement that fits in the memory regions available.\n\n\n"
     "\t wiimake-isotool is useful for operating on an iso file directly.\n"
     "\t The --read flag allows the user to read any RAM address from the\n"
     "\t iso, which is useful when trying to find the original instruction\n"
@@ -40,7 +35,6 @@ namespace Description
 
     const std::string usage = "\nUsage:\n"
     "wiimake ISO CONFIGFILE [--save-temps]\n"
-    "wiimake-ar LIBNAME file1 file2 ...\n"
     "wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]\n";
 
     const std::string space = "                            ";
