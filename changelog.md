@@ -1,6 +1,13 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.1.1] - 2/2/17
+### Added
+
+### Changed
+
+- Fixed bug with section mis-alignment
+
 ## [1.1.0] - 2/2/17
 ### Added
 
