@@ -14,6 +14,7 @@ void Memory::storeAddress(Section& section, MemRegion& region)
         section.address = junkAddress;
         junkAddress += 0x10000; //jank
     }
+    /* don't relocate injection point */
     else if (section.path.find("inject_point_") == std::string::npos)
     {
         /* check if region can contain section */

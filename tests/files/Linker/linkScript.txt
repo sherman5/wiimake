@@ -1,9 +1,9 @@
 SECTIONS {
-wiimake_section_1 0x80003000 :
+wiimake_section_1 0x80003000 : /* section size = 0x0 */
 {
 	../tests/files/Linker/object1.o
 }
-wiimake_section_2 0x80004000 :
+wiimake_section_2 0x80004000 : /* section size = 0x0 */
 {
 	../tests/files/Linker/object2.o
 }

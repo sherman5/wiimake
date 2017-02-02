@@ -16,25 +16,29 @@ void CodeSections::storeNames(SectionList& sections, FileList& objects)
     }
 }
 
-void CodeSections::storeSizes(SectionList& sections, std::string entry)
+void CodeSections::storeSizes(SectionList& sections, Arguments& args)
 {
     /* linker script that saves section sizes in symbol table */
     LinkerScript::CreateSizeScript(sections, "size_linker_script.txt");
 
-    /* link code */
-    Linker::link("size_linker_script.txt", "sizes.out",
-        TokenList(1, "--gc-sections"), entry);
-
-    /* get the sizes for each section */
-    std::vector<unsigned> sizes = SymbolTable::getSizes("sizes.out",
-        sections.size());
-    System::runCMD(System::rm + " sizes.out");
-
-    /* iterate through sections */
-    for (unsigned i = 0; i < sections.size(); ++i)
+    /* check size for each entry point */
+    for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
     {
-        /* store size */
-        if (sizes[i] > 0) {sections[i].size = sizes[i];}
+        /* link code */
+        Linker::link("size_linker_script.txt", "sizes.out",
+            TokenList(1, "--gc-sections"), "inject_point_"
+            + std::to_string(i));
+
+        /* get the sizes for each section */
+        std::vector<unsigned> sizes = SymbolTable::getSizes("sizes.out",
+            sections.size());
+        System::runCMD(System::rm + " sizes.out");
+
+        /* iterate through sections, store sizes */
+        for (unsigned j = 0; j < sections.size(); ++j)
+        {
+            if (sizes[j] > 0) {sections[j].size = sizes[j];}
+        }
     }
 }
 

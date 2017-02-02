@@ -54,7 +54,7 @@ TEST_CASE("extract asm from object file")
     auto code = ObjectFile::extractASM(path + "objectFile.out");
 
     /* check number of lines */
-    REQUIRE(code.size() == 77);
+    REQUIRE(code.size() == 68);
 
     /* check some lines of code */
     REQUIRE(code[0].first == 0x803fa4f0);

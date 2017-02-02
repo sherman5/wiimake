@@ -20,14 +20,10 @@ ASMcode Builder::getASM(Arguments& args)
     SectionList sections;
     Builder::addStackSetup(sections, args);
 
-    /* get names and sizes of sections (check each entry point) */
+    /* get names and sizes of sections */
     CodeSections::storeNames(sections, objects);
-    for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
-    {
-        CodeSections::storeSizes(sections, "inject_point_" +
-            std::to_string(i));
-    }
-    
+    CodeSections::storeSizes(sections, args);
+
     /* calculate optimal code allocation */
     Memory::findCodeAllocation(sections, args);
 
@@ -50,12 +46,10 @@ ASMcode Builder::getASM(Arguments& args)
 /* add stack setup to call back after code is run */
 void Builder::addStackSetup(SectionList& sections, Arguments& args)
 {   
-    /* use the largest memory region to store the stack setup files */
-    uint32_t addr = args.memRegions.back().start;
-
     /* set up the branching for each fixed symbol */
     for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
     {
+        /* names of each file */
         std::string ip = "inject_point_" + std::to_string(i);
         std::string ss = "stack_setup_" + std::to_string(i);
 
@@ -64,7 +58,7 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
         injectPoint << ".global " + ip + "\n" + ip + ":\n\tb " + ss + "\n";
         injectPoint.close();
 
-        /* this file sets up the call the main() */
+        /* this file sets up the call to the fixed symbol */
         std::ofstream stackSetup (ss + ".s");   
         stackSetup << ".global " + ss + "\n" + ss + ":\n"
         "\tsubi 1,1,132\n\tstmw 3,16(1)\n\tstw 0,12(1)\n\tmflr 0\n"
@@ -80,8 +74,7 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
 
         /* add both files to section list, include addresses */
         sections.push_back(Section(ip+".o", args.fixedSymbols[i].address));
-        sections.push_back(Section(ss+".o", addr));
-        addr += 0x54;
+        sections.push_back(Section(ss+".o"));
     }
 }
 
@@ -99,7 +92,7 @@ SectionList& sections)
                     != std::string::npos;
             });
 
-        /* find line of code at (stack_setup + 0x04) */
+        /* find line of code at (stack_setup + 0x4c) */
         auto it = std::find_if(code.begin(), code.end(),
             [&](const std::pair<uint32_t, uint32_t>& element)
             {
@@ -110,7 +103,7 @@ SectionList& sections)
         RUNTIME_ERROR((*it).second != 0x60000000, "instruction in stack"
             " setup is not 'nop' -- " + std::to_string((*it).first));
 
-        /* change to original instruction */
+        /* change to overwritten instruction */
         (*it).second = args.fixedSymbols[i].instruction;
     }
 }

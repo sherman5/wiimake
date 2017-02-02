@@ -45,7 +45,7 @@ namespace CodeSections
     void storeNames(SectionList&, FileList&);
 
     /* get sizes of each section */
-    void storeSizes(SectionList&, std::string);
+    void storeSizes(SectionList&, Arguments&);
 }
 
 /* manage memory regions in RAM */
