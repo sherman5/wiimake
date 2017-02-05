@@ -37,7 +37,7 @@ TEST_CASE("test all functions in ISO.cpp")
     REQUIRE(iso.read(0x804deb00) == 0x40000000);
     REQUIRE(iso.read(0x804dec00) == 0xdeadbabe);
     REQUIRE(iso.read(0x80191000) == iso.read("80191000"));
-    REQUIRE_THROWS(iso.read(0x800030fc));
+    REQUIRE_NOTHROW(iso.read(0x1e800));
     REQUIRE_THROWS(iso.read(0x804dec04));
 
     /* write value */

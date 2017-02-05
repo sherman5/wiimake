@@ -62,6 +62,12 @@ ISO::~ISO()
 /* find DOL offset corresponding to RAM address */
 uint32_t ISO::dolOffset(uint32_t address) const
 {
+    /* check if pure iso offset */
+    if (address < mCodeStart)
+    {
+        return address;
+    }
+
     /* find section that contains this address */
     unsigned i = 0;
     while (address > mDOLtable[i].RAMaddress + mDOLtable[i].size) { ++i;} 
@@ -75,9 +81,15 @@ uint32_t ISO::dolOffset(uint32_t address) const
 uint32_t ISO::read(uint32_t address) const
 {
     /* check that address is valid */
-    if (address < mCodeStart || address > mCodeEnd)
+    if (address > mCodeEnd)
     {
         throw std::invalid_argument("iso read: RAM address out of range");
+    }
+    else if (address < mCodeStart)
+    {
+        std::cout << "\n" << std::hex << address << " is too low for RAM,"
+            " will be interpreted\nas a pure offset in the iso file\n"
+            << std::endl;
     }
 
     /* put stream at correct address */

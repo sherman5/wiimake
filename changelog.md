@@ -1,6 +1,14 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.1.2] - 2/2/17
+### Added
+
+### Changed
+
+- Interpret addresses below start of code (in RAM) as pure
+    offsets in the iso file
+
 ## [1.1.1] - 2/2/17
 ### Added
 
