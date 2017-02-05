@@ -63,7 +63,7 @@ ISO::~ISO()
 uint32_t ISO::dolOffset(uint32_t address) const
 {
     /* check if pure iso offset */
-    if (address < mCodeStart)
+    if (address < 0x80000000)
     {
         return address;
     }
@@ -85,7 +85,7 @@ uint32_t ISO::read(uint32_t address) const
     {
         throw std::invalid_argument("iso read: RAM address out of range");
     }
-    else if (address < mCodeStart)
+    else if (address < 0x80000000)
     {
         std::cout << "\n" << std::hex << address << " is too low for RAM,"
             " will be interpreted\nas a pure offset in the iso file\n"
