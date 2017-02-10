@@ -22,8 +22,8 @@ void run(TokenList& tokens)
 
     /* inject code into iso */
     iso.injectCode(args.staticOverwrites);        
-    auto code = Builder::getASM(args);
-    iso.injectCode(code);
+    iso.injectCode(Builder::getZeroedMemory(args));
+    iso.injectCode(Builder::getASM(args));
 }
 
 int main(int argc, const char** argv)

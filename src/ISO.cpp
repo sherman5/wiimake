@@ -177,7 +177,8 @@ void ISO::loadState(std::string fileName)
 }
 
 /* inject code into iso */
-void ISO::injectCode(std::vector< std::pair<uint32_t, uint32_t> >& code)
+void ISO::injectCode(const std::vector< std::pair<uint32_t, uint32_t> >&
+code)
 {
     /* loop through code and write each (address, value) pair */
     for (auto& line : code)

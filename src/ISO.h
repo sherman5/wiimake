@@ -64,7 +64,7 @@ public:
     void loadState(std::string);
 
     /* inject code into iso */
-    void injectCode(std::vector< std::pair<uint32_t, uint32_t> >&);
+    void injectCode(const std::vector< std::pair<uint32_t, uint32_t> >&);
 };
 
 #endif

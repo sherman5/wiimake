@@ -1,6 +1,15 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.1.3] - 2/10/17
+### Added
+
+- memory regions given in config file are aligned to
+    multiples of 0x4
+- memory regions are zereod out before code is injected
+
+### Changed
+
 ## [1.1.2] - 2/5/17
 ### Added
 

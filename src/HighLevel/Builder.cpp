@@ -108,6 +108,22 @@ SectionList& sections)
     }
 }
 
+/* get regions of memory to zero out */
+ASMcode Builder::getZeroedMemory(Arguments& args)
+{
+    ASMcode zereodMem;
+
+    for (auto& region : args.memRegions)
+    {
+        uint32_t address = region.start;
+        for (; address <= region.end; address += 0x04)
+        {
+            zereodMem.push_back(std::make_pair(address, 0));
+        }
+    }
+    return zereodMem;
+}
+
 /* remove all temporary files created in the build process */
 void Builder::cleanDirectory()
 {

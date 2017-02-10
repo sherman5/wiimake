@@ -34,6 +34,9 @@ namespace Builder
     /* add original instruction, overwrite nop line in code */
     void addOverwrittenASM(ASMcode&, Arguments&, SectionList&);
 
+    /* get regions of memory to zero out */
+    ASMcode getZeroedMemory(Arguments&);
+
     /* remove all temporary files created in the build process */
     void cleanDirectory();
 }

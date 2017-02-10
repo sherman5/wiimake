@@ -5,17 +5,26 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <cmath>
 
 /* single region of memory (struct used for sorting) */
 struct MemRegion
 {
     uint32_t start, end;
 
-    MemRegion(uint32_t a, uint32_t b) : start(a), end(b) {}
+    MemRegion(uint32_t a, uint32_t b) : start(a), end(b)
+        {align();}
 
     MemRegion(std::string a, std::string b) :
-        start(stoul(a, nullptr, 16)), end(stoul(b, nullptr, 16)) {}
+        start(stoul(a, nullptr, 16)), end(stoul(b, nullptr, 16))
+        {align();}
     
+    void align()
+    {
+        start = 4 * floor((double) start / 4.0) + 4;
+        end = 4 * floor((double) end / 4.0) - 4;
+    }
+
     bool operator<(const MemRegion& other)
     {
         return end - start < other.end - other.start;
