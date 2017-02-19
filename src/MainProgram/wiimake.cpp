@@ -23,7 +23,9 @@ void run(TokenList& tokens)
     /* inject code into iso */
     iso.injectCode(args.staticOverwrites);        
     iso.injectCode(Builder::getZeroedMemory(args));
-    iso.injectCode(Builder::getASM(args));
+    unsigned size = 0;
+    iso.injectCode(Builder::getASM(args, size));
+    std::cout << "lines of code injected: " << size / 4 << std::endl;
 }
 
 int main(int argc, const char** argv)

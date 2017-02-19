@@ -26,7 +26,7 @@ typedef std::vector<Section> SectionList;
 namespace Builder
 {
     /* compile, allocate, link code */
-    ASMcode getASM(Arguments&);
+    ASMcode getASM(Arguments&, unsigned&);
 
     /* add stack setup to call back after code is run */
     void addStackSetup(SectionList&, Arguments&);
@@ -47,8 +47,8 @@ namespace CodeSections
     /* get names of all sections on list of object files */
     void storeNames(SectionList&, FileList&);
 
-    /* get sizes of each section */
-    void storeSizes(SectionList&, Arguments&);
+    /* get sizes of each section, return total size */
+    unsigned storeSizes(SectionList&, Arguments&);
 }
 
 /* manage memory regions in RAM */

@@ -4,7 +4,7 @@
 #include <algorithm>
 
 /* compile, allocate, link code */
-ASMcode Builder::getASM(Arguments& args)
+ASMcode Builder::getASM(Arguments& args, unsigned& codeSize)
 {
     /* compile source files */
     auto objects = Compiler::compileAll(args.sources, args.compileFlags,
@@ -22,7 +22,7 @@ ASMcode Builder::getASM(Arguments& args)
 
     /* get names and sizes of sections */
     CodeSections::storeNames(sections, objects);
-    CodeSections::storeSizes(sections, args);
+    codeSize = CodeSections::storeSizes(sections, args);
 
     /* calculate optimal code allocation */
     Memory::findCodeAllocation(sections, args);

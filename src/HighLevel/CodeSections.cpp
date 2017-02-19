@@ -16,7 +16,7 @@ void CodeSections::storeNames(SectionList& sections, FileList& objects)
     }
 }
 
-void CodeSections::storeSizes(SectionList& sections, Arguments& args)
+unsigned CodeSections::storeSizes(SectionList& sections, Arguments& args)
 {
     /* linker script that saves section sizes in symbol table */
     LinkerScript::CreateSizeScript(sections, "size_linker_script.txt");
@@ -40,5 +40,9 @@ void CodeSections::storeSizes(SectionList& sections, Arguments& args)
             if (sizes[j] > 0) {sections[j].size = sizes[j];}
         }
     }
+
+    unsigned size = 0;
+    for (auto& s : sections) { size += s.size;}
+    return size;
 }
 

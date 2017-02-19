@@ -64,7 +64,8 @@ TEST_CASE("get asm code to inject")
     args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
 
     /* compile source files, return object files */
-    auto code = Builder::getASM(args);
+    unsigned codeSize = 0;
+    auto code = Builder::getASM(args, codeSize);
 
     REQUIRE(code.size() == 120);
 
