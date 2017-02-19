@@ -46,6 +46,21 @@ ASMcode Builder::getASM(Arguments& args)
 /* add stack setup to call back after code is run */
 void Builder::addStackSetup(SectionList& sections, Arguments& args)
 {   
+    /* create file for saving/loading registers */
+    std::string pr = "preserve_registers";    
+
+    std::ofstream prStream (pr + ".s");
+    pr Stream << ".global backup_reg\nbackup_reg:\n\tsubi 1,1,128\n"
+    "\tstmw 3,12(1)\n\tstw 0,8(1)\n\tmfcr 0\n\tstw 0,4(1)\n\tmfctr 0\n"
+    "\tstw 0,0(1)\n\tblr\n\n.global restore_reg\nrestore_reg:\n"
+    "\tlwz 0,0(1)\n\tmtctr 0\n\tlwz 0,4(1)\n\tmtcr 0\n\tlwz 0,8(1)\n"
+    "\tmtlr 0\n\tlwz 0,12(1)\n\tlmw 3,16(1)\n\taddi 1,1,132\n\tblr";
+    prStream.close();
+
+    /* assemble and add to section list */
+    System::runCMD("powerpc-eabi-as " + pr + ".s -o " + pr + ".o");
+    sections.push_back(Section(pr+".o"));
+    
     /* set up the branching for each fixed symbol */
     for (unsigned i = 0; i < args.fixedSymbols.size(); ++i)
     {
@@ -61,11 +76,10 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
         /* this file sets up the call to the fixed symbol */
         std::ofstream stackSetup (ss + ".s");   
         stackSetup << ".global " + ss + "\n" + ss + ":\n"
-        "\tsubi 1,1,132\n\tstmw 3,16(1)\n\tstw 0,12(1)\n\tmflr 0\n"
-        "\tstw 0,8(1)\n\tmfcr 0\n\tstw 0,4(1)\n\tmfctr 0\n\tstw 0,0(1)\n"
-        "\tbl " + args.fixedSymbols[i].name + "\n\tlwz 0,0(1)\n\tmtctr 0\n"
-        "\tlwz 0,4(1)\n\tmtcr 0\n""\tlwz 0,8(1)\n\tmtlr 0\n\tlwz 0,12(1)\n"
-        "\tlmw 3,16(1)\n\taddi 1,1,132\n\tnop\n\tb " + ip + " + 0x04\n";
+        "\tsubi 1,1,4\n\tstw 0,4(1)\n\tmflr 0\tbl backup_reg\n"
+        "\tbl " + args.fixedSymbols[i].name + "\n\tbl restore_reg\n"
+        "\tmtlr 0\n\tlwz 0,4(1)\n\taddi 1,1,4\n\tnop\n"
+        "\tb " + ip + " + 0x04\n";
         stackSetup.close();
         
         /* compile both files */
