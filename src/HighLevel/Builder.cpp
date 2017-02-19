@@ -50,11 +50,11 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
     std::string pr = "preserve_registers";    
 
     std::ofstream prStream (pr + ".s");
-    pr Stream << ".global backup_reg\nbackup_reg:\n\tsubi 1,1,128\n"
+    prStream << ".global backup_reg\nbackup_reg:\n\tsubi 1,1,128\n"
     "\tstmw 3,12(1)\n\tstw 0,8(1)\n\tmfcr 0\n\tstw 0,4(1)\n\tmfctr 0\n"
     "\tstw 0,0(1)\n\tblr\n\n.global restore_reg\nrestore_reg:\n"
     "\tlwz 0,0(1)\n\tmtctr 0\n\tlwz 0,4(1)\n\tmtcr 0\n\tlwz 0,8(1)\n"
-    "\tmtlr 0\n\tlwz 0,12(1)\n\tlmw 3,16(1)\n\taddi 1,1,132\n\tblr";
+    "\tlmw 3,12(1)\n\taddi 1,1,128\n\tblr\n";
     prStream.close();
 
     /* assemble and add to section list */
@@ -69,18 +69,18 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
         std::string ss = "stack_setup_" + std::to_string(i);
 
         /* this file sets up the call to stack_setup */
-        std::ofstream injectPoint (ip + ".s");   
-        injectPoint << ".global " + ip + "\n" + ip + ":\n\tb " + ss + "\n";
-        injectPoint.close();
+        std::ofstream ipStream (ip + ".s");   
+        ipStream << ".global " + ip + "\n" + ip + ":\n\tb " + ss + "\n";
+        ipStream.close();
 
         /* this file sets up the call to the fixed symbol */
-        std::ofstream stackSetup (ss + ".s");   
-        stackSetup << ".global " + ss + "\n" + ss + ":\n"
-        "\tsubi 1,1,4\n\tstw 0,4(1)\n\tmflr 0\tbl backup_reg\n"
+        std::ofstream ssStream (ss + ".s");   
+        ssStream << ".global " + ss + "\n" + ss + ":\n"
+        "\tsubi 1,1,4\n\tstw 0,4(1)\n\tmflr 0\n\tbl backup_reg\n"
         "\tbl " + args.fixedSymbols[i].name + "\n\tbl restore_reg\n"
         "\tmtlr 0\n\tlwz 0,4(1)\n\taddi 1,1,4\n\tnop\n"
         "\tb " + ip + " + 0x04\n";
-        stackSetup.close();
+        ssStream.close();
         
         /* compile both files */
         System::runCMD("powerpc-eabi-as " + ip + ".s -o " + ip + ".o");
@@ -106,11 +106,11 @@ SectionList& sections)
                     != std::string::npos;
             });
 
-        /* find line of code at (stack_setup + 0x4c) */
+        /* find line of code at (stack_setup + 0x24) */
         auto it = std::find_if(code.begin(), code.end(),
             [&](const std::pair<uint32_t, uint32_t>& element)
             {
-                return element.first == ss->address + 0x4c;
+                return element.first == ss->address + 0x24;
             });
 
         /* check that instruction is nop */
@@ -151,6 +151,8 @@ void Builder::cleanDirectory()
         "stack_setup_*.o",
         "inject_point_*.s",
         "inject_point_*.o",
+        "preserve_registers.s",
+        "preserve_registers.o",
         "linker_script.txt",
         "final.out",
         "injected_code.txt"
