@@ -1,6 +1,14 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.2.0] - 2/19/17
+### Added
+
+- output code size
+- use generic function for saving/loading registers
+
+### Changed
+
 ## [1.1.3] - 2/10/17
 ### Added
 

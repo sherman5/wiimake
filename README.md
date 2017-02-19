@@ -1,4 +1,4 @@
-# wiimake v1.1
+# wiimake v1.2
 
 ## Introduction
 
