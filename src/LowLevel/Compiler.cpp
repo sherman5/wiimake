@@ -2,7 +2,7 @@
 #include "../Global.h"
 
 const std::string default_flags =
-    " -fno-builtin -ffunction-sections -fdata-sections ";
+    " -ffunction-sections -fdata-sections ";
 
 std::string Compiler::compile(std::string file, TokenList compileFlags,
 FileList includePaths)
