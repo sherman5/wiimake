@@ -1,7 +1,7 @@
 #ifndef LIB_H
 #define LIB_H
 
-float sin(float);
-float cos(float);
+float test_sin(float);
+float test_cos(float);
 
 #endif

@@ -65,6 +65,9 @@ public:
 
     /* inject code into iso */
     void injectCode(const std::vector< std::pair<uint32_t, uint32_t> >&);
+
+    /* calculate check sum of iso file */
+    uint64_t checkSum();
 };
 
 #endif

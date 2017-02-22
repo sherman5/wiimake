@@ -187,3 +187,20 @@ code)
     }
 }
 
+/* calculate check sum of iso file */
+uint64_t ISO::checkSum()
+{
+    uint64_t sum = 0, addr = 0;
+    uint32_t word = 0;
+    
+    mFile->seekg(0, std::ios::beg);
+
+    while (mFile->read(reinterpret_cast<char*>(&word), sizeof(word)))
+    {
+        sum += HOST_TO_BE(word) * addr;
+        addr += 4;
+    }
+
+    return sum;
+}
+

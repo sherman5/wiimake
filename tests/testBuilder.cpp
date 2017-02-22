@@ -28,17 +28,17 @@ TEST_CASE("add overwritten asm lines")
     testCode.push_back(std::make_pair(0x50, 0xabc));        
     testCode.push_back(std::make_pair(0x75, 0xabc));
     testCode.push_back(std::make_pair(0x100, 0xabc));
-    testCode.push_back(std::make_pair(0x14c, 0x60000000));
+    testCode.push_back(std::make_pair(0x124, 0x60000000));
     testCode.push_back(std::make_pair(0x200, 0xabc));
-    testCode.push_back(std::make_pair(0x24c, 0x60000000));
+    testCode.push_back(std::make_pair(0x224, 0x60000000));
     testCode.push_back(std::make_pair(0x300, 0xabc));
 
 
     /* overwrite nop */
     REQUIRE_NOTHROW(Builder::addOverwrittenASM(testCode, args, sections));
-    REQUIRE(testCode[3].first == 0x14c);
+    REQUIRE(testCode[3].first == 0x124);
     REQUIRE(testCode[3].second == 0xe1);
-    REQUIRE(testCode[5].first == 0x24c);
+    REQUIRE(testCode[5].first == 0x224);
     REQUIRE(testCode[5].second == 0xe2);
 
     /* should return error - instruction not nop */
@@ -62,33 +62,31 @@ TEST_CASE("get asm code to inject")
     args.memRegions.push_back(MemRegion(0x803fc420, 0x803fdc1c));
     args.memRegions.push_back(MemRegion(0x801910e0, 0x80192930));
     args.memRegions.push_back(MemRegion(0x803001dc, 0x80301e40));
+    args.compileFlags.push_back("-fno-builtin");
 
     /* compile source files, return object files */
     unsigned codeSize = 0;
     auto code = Builder::getASM(args, codeSize);
 
-    REQUIRE(code.size() == 120);
+    REQUIRE(code.size() == 116);
 
-    REQUIRE(code[0].first == 0x80377998);
-    REQUIRE(code[0].second == 0x48082b10);
+    REQUIRE(code[0].first == 0x803fa4ac);
+    REQUIRE(code[0].second == 0x3821ff80);
 
-    REQUIRE(code[21].first == 0x803fa4f8);
-    REQUIRE(code[21].second == 0x4bf7d4a4);
+    REQUIRE(code[27].first == 0x803fa518);
+    REQUIRE(code[27].second == 0x4bf7d484);
 
-    REQUIRE(code[22].first == 0x80001800);
-    REQUIRE(code[22].second == 0x483f8d00);
+    REQUIRE(code[28].first == 0x80001800);
+    REQUIRE(code[28].second == 0x483f8d20);
 
-    REQUIRE(code[60].first == 0x803fa428);
-    REQUIRE(code[60].second == 0x4fddf382);
+    REQUIRE(code[60].first == 0x803fa43c);
+    REQUIRE(code[60].second == 0x7c004fae);
 
-    REQUIRE(code[85].first == 0x803fa48c);
-    REQUIRE(code[85].second == 0x800b0004);
+    REQUIRE(code[85].first == 0x803fa4a0);
+    REQUIRE(code[85].second == 0x7d615b78);
 
-    REQUIRE(code[100].first == 0x803fa558);
-    REQUIRE(code[100].second == 0x9421ffe8);
+    REQUIRE(code[115].first == 0x803fa5a4);
+    REQUIRE(code[115].second == 0x00070401);
 
-    REQUIRE(code[119].first == 0x803fa5d4);
-    REQUIRE(code[119].second == 0x00070401);
-
-    Builder::cleanDirectory();
+    Builder::cleanDirectory(true);
 }

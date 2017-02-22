@@ -38,7 +38,7 @@ namespace Builder
     ASMcode getZeroedMemory(Arguments&);
 
     /* remove all temporary files created in the build process */
-    void cleanDirectory();
+    void cleanDirectory(bool);
 }
 
 /* manage sections of code in object file */

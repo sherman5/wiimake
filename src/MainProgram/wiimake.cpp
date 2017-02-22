@@ -58,6 +58,7 @@ int main(int argc, const char** argv)
         std::cout << Description::usage << std::endl;
     }
 
-    if (!saveTemps) {Builder::cleanDirectory();}
+    Builder::cleanDirectory(!saveTemps);
+
     return 0;   
 }

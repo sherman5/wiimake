@@ -139,13 +139,11 @@ ASMcode Builder::getZeroedMemory(Arguments& args)
 }
 
 /* remove all temporary files created in the build process */
-void Builder::cleanDirectory()
+void Builder::cleanDirectory(bool full)
 {
     /* put all file names in vector */
     std::vector<std::string> files =
     {
-        "sizes.txt",
-        "size_linker_script.txt",
         "sizes.out",
         "stack_setup_*.s",
         "stack_setup_*.o",
@@ -153,10 +151,17 @@ void Builder::cleanDirectory()
         "inject_point_*.o",
         "preserve_registers.s",
         "preserve_registers.o",
-        "linker_script.txt",
         "final.out",
-        "injected_code.txt"
+ 
     };
+
+    if (full)
+    {
+        files.push_back("sizes.txt");
+        files.push_back("size_linker_script.txt");
+        files.push_back("linker_script.txt");
+        files.push_back("injected_code.txt");
+    }
 
     /* iterate through the vector and run each cmd */
     for (auto& f : files) {System::runCMD(System::rm + " " + f);}

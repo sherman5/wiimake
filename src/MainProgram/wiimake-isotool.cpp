@@ -7,15 +7,13 @@
 
 void run(TokenList& tokens)
 {
-    /* check for correct number of arguments */
-    INVALID_ARG(tokens.size() != 3, "incorrect number of arguments");
-    
     /* create iso handler */
     ISO iso (tokens[0]);
     
     /* run the program */
     if (tokens[1] == "--read")
     {
+        INVALID_ARG(tokens.size() != 3, "incorrect number of arguments");
         /* make sure valid address is given */
         try
         {
@@ -29,9 +27,25 @@ void run(TokenList& tokens)
             throw e;
         }
     }
-    else if (tokens[1] == "--save") { iso.saveState(tokens.back());}
-    else if (tokens[1] == "--load") { iso.loadState(tokens.back());}
-    else { throw std::invalid_argument("invalid option: " + tokens[1]);}
+    else if (tokens[1] == "--checksum")
+    {
+        INVALID_ARG(tokens.size() != 2, "incorrect number of arguments");
+        std::cout << std::hex << iso.checkSum() << std::endl;
+    }
+    else if (tokens[1] == "--save")
+    {
+        INVALID_ARG(tokens.size() != 3, "incorrect number of arguments");
+        iso.saveState(tokens.back());
+    }
+    else if (tokens[1] == "--load") 
+    {
+        INVALID_ARG(tokens.size() != 3, "incorrect number of arguments");
+        iso.loadState(tokens.back());
+    }
+    else
+    {
+        throw std::invalid_argument("invalid option: " + tokens[1]);
+    }
 }
 
 int main(int argc, const char** argv)

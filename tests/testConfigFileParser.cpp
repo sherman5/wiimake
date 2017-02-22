@@ -106,10 +106,10 @@ TEST_CASE("storing memory regions")
 
     /* check args */
     REQUIRE(args.memRegions.size() == 2);
-    REQUIRE(args.memRegions[0].start == 0x803fc420);
-    REQUIRE(args.memRegions[0].end == 0x803fdc1c);
-    REQUIRE(args.memRegions[1].start == 0x803fa3e8);
-    REQUIRE(args.memRegions[1].end == 0x803fc2ec);
+    REQUIRE(args.memRegions[0].start == 0x803fc424);
+    REQUIRE(args.memRegions[0].end == 0x803fdc18);
+    REQUIRE(args.memRegions[1].start == 0x803fa3ec);
+    REQUIRE(args.memRegions[1].end == 0x803fc2e8);
 }
 
 TEST_CASE("store entire config file")
@@ -123,14 +123,14 @@ TEST_CASE("store entire config file")
 
     /* check args */
     REQUIRE(args.memRegions.size() == 4);
-    REQUIRE(args.memRegions[0].start == 0x803fc420);
-    REQUIRE(args.memRegions[0].end == 0x803fdc1c);
-    REQUIRE(args.memRegions[1].start == 0x801910e0);
-    REQUIRE(args.memRegions[1].end == 0x80192930);
-    REQUIRE(args.memRegions[2].start == 0x803001dc);
-    REQUIRE(args.memRegions[2].end == 0x80301e40);
-    REQUIRE(args.memRegions[3].start == 0x803fa3e8);
-    REQUIRE(args.memRegions[3].end == 0x803fc2ec);
+    REQUIRE(args.memRegions[0].start == 0x803fc424);
+    REQUIRE(args.memRegions[0].end == 0x803fdc18);
+    REQUIRE(args.memRegions[1].start == 0x801910e4);
+    REQUIRE(args.memRegions[1].end == 0x8019292c);
+    REQUIRE(args.memRegions[2].start == 0x803001e0);
+    REQUIRE(args.memRegions[2].end == 0x80301e3c);
+    REQUIRE(args.memRegions[3].start == 0x803fa3ec);
+    REQUIRE(args.memRegions[3].end == 0x803fc2e8);
 
     REQUIRE(args.sources.size() == 3);
     REQUIRE(args.sources[0] == "testSource1.c");
