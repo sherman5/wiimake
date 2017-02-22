@@ -13,7 +13,7 @@ project (WiiMake)
 
 # project version
 set (WiiMake_VERSION_MAJOR 1)
-set (WiiMake_VERSION_MINOR 2)
+set (WiiMake_VERSION_MINOR 3)
 set (WiiMake_VERSION_REVISION 0)
 
 # create header for version number

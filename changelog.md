@@ -1,6 +1,14 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.3.0] - 2/22/17
+### Added
+
+- checksum calculation in wiimake-isotool
+- keep only core files with --save-temps
+
+### Changed
+
 ## [1.2.0] - 2/19/17
 ### Added
 

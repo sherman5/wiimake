@@ -30,8 +30,10 @@ namespace Description
     "\t wiimake-isotool is useful for operating on an iso file directly.\n"
     "\t The --read flag allows the user to read any RAM address from the\n"
     "\t iso, which is useful when trying to find the original instruction\n"
-    "\t that is being overwritten at the injection point. There is also\n"
-    "\t --save and --load which allow for easy distribution of mods.\n";
+    "\t that is being overwritten at the injection point. The --checksum\n"
+    "\t option allows for simple verification of the iso version. There\n"
+    "\t is also --save and --load which allow for easy distribution\n"
+    "\t of mods.\n";
 
     const std::string usage = "\nUsage:\n"
     "wiimake ISO CONFIGFILE [--save-temps]\n"
