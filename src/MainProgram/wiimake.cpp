@@ -26,6 +26,8 @@ void run(TokenList& tokens)
     unsigned size = 0;
     iso.injectCode(Builder::getASM(args, size));
     std::cout << "lines of code injected: " << size / 4 << std::endl;
+    std::cout << "percent of memory used: " << 
+        100.f * (float) size / Memory::totalSize() << std::endl;
 }
 
 int main(int argc, const char** argv)

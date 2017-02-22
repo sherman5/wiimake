@@ -6,6 +6,7 @@ This documents all differences between versions of the program
 
 - checksum calculation in wiimake-isotool
 - keep only core files with --save-temps
+- display percent of memory used
 
 ### Changed
 

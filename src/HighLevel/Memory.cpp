@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <iostream>
 
-uint32_t junkAddress = 0;
+static uint32_t junkAddress = 0;
+static uint32_t memSize = 0;
 
 /* store the address from given region for this section */
 void Memory::storeAddress(Section& section, MemRegion& region)
@@ -32,6 +33,9 @@ void Memory::storeAddress(Section& section, MemRegion& region)
 void Memory::findCodeAllocation(SectionList& sections,
 const Arguments& args)
 {
+    /* store total size of regions */
+    for (auto& r : args.memRegions) {memSize += r.end - r.start + 4;}
+        
     /* get local copies */
     std::vector<MemRegion> regions = args.memRegions;
     std::vector<Section> sortedSections = SectionList(sections);
@@ -56,5 +60,11 @@ const Arguments& args)
         std::sort(regions.begin(), regions.end());
     }
 }
+
+/* total size of memory regions */
+uint32_t Memory::totalSize()
+{
+    return memSize;
+} 
 
 

@@ -61,6 +61,9 @@ namespace Memory
 
     /* store the address from given region for this section */
     void storeAddress(Section&, MemRegion&);
+
+    /* total size of memory regions */
+    uint32_t totalSize();
 }
 
 /* handle creation of linker scripts */
