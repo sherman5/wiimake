@@ -1,6 +1,13 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.3.1] - 2/26/17
+### Added
+
+- display code size info even on error
+
+### Changed
+
 ## [1.3.0] - 2/22/17
 ### Added
 

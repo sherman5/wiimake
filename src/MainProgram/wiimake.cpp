@@ -8,6 +8,8 @@
 #include <iostream>
 #include <algorithm>
 
+static unsigned codeSize = 0;
+
 void run(TokenList& tokens)
 {
    /* look for --save-temps option, erase it if given */ 
@@ -23,11 +25,11 @@ void run(TokenList& tokens)
     /* inject code into iso */
     iso.injectCode(args.staticOverwrites);        
     iso.injectCode(Builder::getZeroedMemory(args));
-    unsigned size = 0;
-    iso.injectCode(Builder::getASM(args, size));
-    std::cout << "lines of code injected: " << size / 4 << std::endl;
+
+    iso.injectCode(Builder::getASM(args, codeSize));
+    std::cout << "lines of code injected: " << codeSize / 4 << std::endl;
     std::cout << "percent of memory used: " << 
-        100.f * (float) size / Memory::totalSize() << std::endl;
+        100.f * (float) codeSize / Memory::totalSize() << std::endl;
 }
 
 int main(int argc, const char** argv)
@@ -57,6 +59,14 @@ int main(int argc, const char** argv)
     {
         /* handle exception */
         std::cout << e.what() << std::endl;
+        if (codeSize > 0 && Memory::totalSize() > 0)
+        { 
+            std::cout << "attempted number of lines of code: "
+                << codeSize / 4 << std::endl;
+
+            std::cout << "attempted percent of memory used: " << 
+                100.f * (float) codeSize / Memory::totalSize() << std::endl;
+        }
         std::cout << Description::usage << std::endl;
     }
 
