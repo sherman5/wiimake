@@ -47,11 +47,11 @@ int main(int argc, const char** argv)
         tokens.erase(pos);
     }    
 
-    /* only two options should remain */
-    INVALID_ARG(tokens.size() != 2, "incorrect number of options");
-
     try
     {
+        /* only two options should remain */
+        INVALID_ARG(tokens.size() != 2, "incorrect number of options");
+
         /* run program */
         run(tokens);
     }

@@ -1,7 +1,14 @@
 # Change Log
 This documents all differences between versions of the program
 
-## [1.3.1] - 3/1/17
+## [1.3.2] - 3/2/17
+### Added
+
+### Changed
+
+- fixed command line options bug
+
+## [1.3.2] - 3/1/17
 ### Added
 
 ### Changed
