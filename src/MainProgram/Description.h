@@ -14,19 +14,15 @@ namespace Description
     "\t linking, and injecting C code into games for the\n"
     "\t Wii/Gamecube. The user must provide a configuration file\n"
     "\t that contains information about the sources and libraries\n"
-    "\t that should be injected, as well as the entry point of the\n"
-    "\t code (function name). In this file, the user must also specify\n"
-    "\t which regions of RAM are available for overwriting, as well\n"
-    "\t as an address where entry point of the code should be injected.\n"
-    "\t Given this information, the program proceeds as follows:\n"
-    "\t (1) compile all source files (2) find sizes of each section of\n"
-    "\t code that needs to be injected - object files from sources and\n"
-    "\t libraries (3) find an arrangement of the code that fits within\n"
-    "\t the memory regions provided by the user in the config file\n"
-    "\t (4) run the linker (5) inject the code into the appropiate\n"
-    "\t addresses. In one command the user can take their raw C files\n"
-    "\t and produce a runnable iso file that has their main function\n"
-    "\t injected at a specified address.\n\n\n"
+    "\t that should be injected, entry points of their code\n"
+    "\t (function names), and which regions of RAM are available for\n"
+    "\t overwriting. Given this information, the program proceeds as\n"
+    "\t follows: (1) compile all source files (2) find sizes of each\n"
+    "\t section of code that needs to be injected (3) find an\n"
+    "\t arrangement of the code that fits within the memory regions\n"
+    "\t provided by the user in the config file (4) run the linker (5)\n"
+    "\t inject the code into the appropiate addresses. In one command the\n"
+    "\t user can take their raw C files and produce a working iso\n\n\n"
     "\t wiimake-isotool is useful for operating on an iso file directly.\n"
     "\t The --read flag allows the user to read any RAM address from the\n"
     "\t iso, which is useful when trying to find the original instruction\n"
@@ -37,7 +33,8 @@ namespace Description
 
     const std::string usage = "\nUsage:\n"
     "wiimake ISO CONFIGFILE [--save-temps]\n"
-    "wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]\n";
+    "wiimake-isotool ISO [--save <file>] [--load <file>]\n"
+    "                    [--read <addr>] [--checksum] \n";
 
     const std::string space = "                            ";
 

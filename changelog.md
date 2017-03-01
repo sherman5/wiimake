@@ -1,6 +1,13 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.3.1] - 3/1/17
+### Added
+
+### Changed
+
+- updated description and usage
+
 ## [1.3.1] - 2/26/17
 ### Added
 
