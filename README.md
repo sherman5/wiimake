@@ -16,6 +16,10 @@ To check if you can run the program, try typing `powerpc-eabi-gcc` in your termi
 
 `powerpc-eabi-gcc: fatal error: no input files` then it has succesfully installed.
 
+### download prebuilt executable for windows
+
+
+
 ### install wiimake from source (requires CMake)
 
 1. download zip file of release
@@ -45,7 +49,8 @@ To check if you can run the program, try typing `powerpc-eabi-gcc` in your termi
 ```
 Usage:
 wiimake ISO CONFIGFILE [--save-temps]
-wiimake-isotool ISO [--save <file>] [--load <file>] [--read <addr>]
+wiimake-isotool ISO [--save <file>] [--load <file>]
+                    [--read <addr>] [--checksum]
 ```
 
 ## wiimake
@@ -152,6 +157,8 @@ The overwrites in this example are known DOL mods for Super Smash Bros Melee v1.
 
 
 ### Config file example from MeleeModdingLibrary
+
+Not neccesarily up to date with the library but it is a valid example for the current version of `wiimake`.
 
 ```
 

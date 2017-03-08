@@ -200,7 +200,6 @@ uint64_t ISO::checkSum()
         sum += HOST_TO_BE(word) * addr;
         addr += 4;
     }
-
     return sum;
 }
 

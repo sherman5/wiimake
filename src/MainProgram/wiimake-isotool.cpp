@@ -7,6 +7,7 @@
 
 void run(TokenList& tokens)
 {
+    //TODO: handle invalid file
     /* create iso handler */
     ISO iso (tokens[0]);
     
