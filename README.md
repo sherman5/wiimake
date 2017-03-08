@@ -18,21 +18,27 @@ To check if you can run the program, try typing `powerpc-eabi-gcc` in your termi
 
 ### download prebuilt executable for windows
 
+1. download the latest wiimake.zip [here](https://github.com/sherman5/wiimake/releases)
 
+2. extract files
+
+3. put `wiimake` and `wiimake-isotool` in your path
+
+4. try `wiimake --version` to see if it's working
 
 ### install wiimake from source (requires CMake)
 
-1. download zip file of release
+1. download the latest source code distribution [here](https://github.com/sherman5/wiimake/releases)
 
 2. unpack
 
-   `tar -xf wiimake-1.3.0.tar.gz`
+   `tar -xf wiimake-1.3.3.tar.gz`
 
 3. make build directory
 
    ```
-    mkdir wiimake-1.3.0/build
-    cd wiimake-1.3.0/build
+    mkdir wiimake-1.3.3/build
+    cd wiimake-1.3.3/build
     ```
    
 4. run these commands to build the program with cmake
@@ -43,6 +49,8 @@ To check if you can run the program, try typing `powerpc-eabi-gcc` in your termi
    make install
    ```
    (`make install` may need to be run with root privileges)
+
+5. try `wiimake --version` to see if it's working
 
 ## Usage
 
