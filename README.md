@@ -18,7 +18,7 @@ To check if you can run the program, try typing `powerpc-eabi-gcc` in your termi
 
 ### download prebuilt executable for windows
 
-1. download the latest wiimake.zip [here](https://github.com/sherman5/wiimake/releases)
+1. download the latest prebuilt_wiimake.zip [here](https://github.com/sherman5/wiimake/releases)
 
 2. extract files
 
