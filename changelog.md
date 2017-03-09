@@ -1,15 +1,22 @@
 # Change Log
 This documents all differences between versions of the program
 
-## [1.3.2] - 3/2/17
-### Added
+## [1.3.4] - 3/9/17
+
+### Changed
+
+- endian agnostic
+- checksum algorithm updated
+- save/load times improved
+- verify iso file before any operations done by isotool
+
+## [1.3.3] - 3/2/17
 
 ### Changed
 
 - fixed command line options bug
 
 ## [1.3.2] - 3/1/17
-### Added
 
 ### Changed
 
@@ -20,8 +27,6 @@ This documents all differences between versions of the program
 
 - display code size info even on error
 
-### Changed
-
 ## [1.3.0] - 2/22/17
 ### Added
 
@@ -29,15 +34,11 @@ This documents all differences between versions of the program
 - keep only core files with --save-temps
 - display percent of memory used
 
-### Changed
-
 ## [1.2.0] - 2/19/17
 ### Added
 
 - output code size
 - use generic function for saving/loading registers
-
-### Changed
 
 ## [1.1.3] - 2/10/17
 ### Added
@@ -46,10 +47,7 @@ This documents all differences between versions of the program
     multiples of 0x4
 - memory regions are zereod out before code is injected
 
-### Changed
-
 ## [1.1.2] - 2/5/17
-### Added
 
 ### Changed
 
@@ -57,7 +55,6 @@ This documents all differences between versions of the program
     offsets in the iso file
 
 ## [1.1.1] - 2/2/17
-### Added
 
 ### Changed
 

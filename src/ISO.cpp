@@ -14,6 +14,10 @@ ISO::ISO(std::string path)
     mFile = new std::fstream(path, std::ios::in | std::ios::out
         | std::ios::binary);
 
+    /* verify iso */
+    RUNTIME_ERROR(read(0x1c, false) != 0xc2339f3d,
+        "not valid Wii/Gamecube ISO");
+
     /* find start of DOL */
     mStartDOL = read(0x0420, false);
 
