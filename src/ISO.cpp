@@ -7,39 +7,29 @@
 #include <algorithm>
 #include <iostream>
 
-/* constructor from file path */
+/* constructor from file path //TODO: check for valid iso (throw error) */
 ISO::ISO(std::string path)
 {
     /* open up file stream */
     mFile = new std::fstream(path, std::ios::in | std::ios::out
         | std::ios::binary);
 
-    /* find DOL start */
-    mFile->seekg(0x0420);
-    mFile->read(reinterpret_cast<char*>(&mStartDOL), sizeof(uint32_t));
-    mStartDOL = HOST_TO_BE(mStartDOL);
+    /* find start of DOL */
+    mStartDOL = read(0x0420, false);
 
     /* populate DOL table */
     uint32_t dol, ram, size;
     for (uint32_t offset = 0; offset < 0x47; offset += 0x04)
     {
-        /* get dol offset */
-        mFile->seekg(mStartDOL + offset);
-        mFile->read(reinterpret_cast<char*>(&dol), sizeof(uint32_t));
-    
-        /* get ram address */
-        mFile->seekg(mStartDOL + offset + 0x48);
-        mFile->read(reinterpret_cast<char*>(&ram), sizeof(uint32_t));
-
-        /* get section size */
-        mFile->seekg(mStartDOL + offset + 0x90);
-        mFile->read(reinterpret_cast<char*>(&size), sizeof(uint32_t));
+        /* get section info */
+        dol  = read(mStartDOL + offset, false);
+        ram  = read(mStartDOL + offset + 0x48, false);
+        size = read(mStartDOL + offset + 0x90, false);
 
         /* add section if non-zero size */
         if (size > 0)
         {
-            mDOLtable.push_back(IsoSection(HOST_TO_BE(dol),
-                HOST_TO_BE(ram), HOST_TO_BE(size)));
+            mDOLtable.push_back(IsoSection(dol, ram, size));
         }
     }
 
@@ -70,20 +60,20 @@ uint32_t ISO::dolOffset(uint32_t address) const
 
     /* find section that contains this address */
     unsigned i = 0;
-    while (address > mDOLtable[i].RAMaddress + mDOLtable[i].size) { ++i;} 
+    while (address > mDOLtable[i].RAMaddress + mDOLtable[i].size) {++i;} 
 
     /* return offset */
     return mStartDOL + mDOLtable[i].DOLoffset
         + address - mDOLtable[i].RAMaddress;
 }
 
-/* read 32-bit address */
-uint32_t ISO::read(uint32_t address) const
+/* issue warnings for unusual addresses */
+void ISO::checkAddress(uint32_t address) const
 {
-    /* check that address is valid */
     if (address > mCodeEnd)
     {
-        throw std::invalid_argument("iso read: RAM address out of range");
+        std::cout << "\n" << std::hex << address << ": this address "
+            "is past the end of the DOL" << std::endl;
     }
     else if (address < 0x80000000)
     {
@@ -91,16 +81,31 @@ uint32_t ISO::read(uint32_t address) const
             " will be interpreted\nas a pure offset in the iso file\n"
             << std::endl;
     }
+    else if (address < mCodeStart)
+    {
+        std::cout << "\n" << std::hex << address << ": this address "
+            "is before the start of the DOL" << std::endl;
+    }
+}
+
+/* read 32-bit address */
+uint32_t ISO::read(uint32_t address, bool userCall) const
+{
+    /* errors/warnings enabled when user making call */
+    if (userCall) {checkAddress(address);}
 
     /* put stream at correct address */
     mFile->seekg(dolOffset(address));
 
-    /* read 32-bits */
-    uint32_t value;
-    mFile->read(reinterpret_cast<char *>(&value), sizeof(uint32_t));
-    
-    /* return value, account for endianess */
-    return HOST_TO_BE(value);
+    /* read 4 bytes, one at a time */
+    IsoValue isoVal;
+    mFile->read(reinterpret_cast<char*>(&isoVal.byte_1), sizeof(uint8_t));
+    mFile->read(reinterpret_cast<char*>(&isoVal.byte_2), sizeof(uint8_t));
+    mFile->read(reinterpret_cast<char*>(&isoVal.byte_3), sizeof(uint8_t));
+    mFile->read(reinterpret_cast<char*>(&isoVal.byte_4), sizeof(uint8_t));
+
+    /* return value */
+    return isoVal.value();
 }
     
 /* read 32-bit address */
@@ -110,43 +115,43 @@ uint32_t ISO::read(std::string address) const
 }
 
 /* write 32-bit value to 32-bit RAM address */
-void ISO::write(uint32_t address, uint32_t value)
+void ISO::write(uint32_t address, uint32_t value, bool userCall)
 {
+    /* errors/warnings enabled when user making call */
+    if (userCall) {checkAddress(address);}
+
     /* put stream at correct address */
     mFile->seekp(dolOffset(address));
 
     /* account for endianess */    
-    value = BE_TO_HOST(value);
+    IsoValue isoVal = IsoValue(value);
 
     /* write value */
-    mFile->write(reinterpret_cast<char *>(&value), sizeof(uint32_t));
+    mFile->write(reinterpret_cast<char*>(&isoVal.byte_1), sizeof(uint8_t));
+    mFile->write(reinterpret_cast<char*>(&isoVal.byte_2), sizeof(uint8_t));
+    mFile->write(reinterpret_cast<char*>(&isoVal.byte_3), sizeof(uint8_t));
+    mFile->write(reinterpret_cast<char*>(&isoVal.byte_4), sizeof(uint8_t));
 }
 
 /* save the current state of the iso file */
 void ISO::saveState(std::string fileName) const
 {
-    /* data vector to write to file */
-    std::vector<uint32_t> data;
-
-    /* first and last address - store at front of data */
-    data.push_back(mCodeStart);
-    data.push_back(mCodeEnd);
-    
-    /* loop through all code */
-    for (uint32_t addr = mCodeStart; addr <= mCodeEnd; addr += 0x04)
-    {
-        /* store instruction */
-        data.push_back(read(addr));
-    }
-    
     /* open save file */
     std::ofstream saveFile(fileName, std::ios::out | std::ios::binary
         | std::ios::trunc);
 
-    /* write data to file */
-    saveFile.write(reinterpret_cast<char *> (&data[0]), data.size()
-        * sizeof(uint32_t));
+    /* write until end of code */
+    mFile->seekg(std::ios::beg);
+    uint32_t endAddr = dolOffset(mCodeEnd) + 4;
+    uint8_t byte;
 
+    /* copy data */
+    for (uint32_t addr = 0; addr < endAddr; addr++)
+    {
+        mFile->read(reinterpret_cast<char*>(&byte), sizeof(uint8_t));
+        saveFile.write(reinterpret_cast<char*>(&byte), sizeof(uint8_t));
+    }
+  
     /* close file */
     saveFile.close();
 }
@@ -156,20 +161,13 @@ void ISO::loadState(std::string fileName)
 {
     /* open up binary file for reading */
     std::ifstream loadFile (fileName, std::ios::in | std::ios::binary);
-    
-    /* first and last address, temp value for reading */
-    uint32_t start, end, value;
-    loadFile.read(reinterpret_cast<char *>(&start), sizeof(uint32_t));
-    loadFile.read(reinterpret_cast<char *>(&end), sizeof(uint32_t));
+    loadFile.seekg(std::ios::beg);
+    mFile->seekg(std::ios::beg);
 
-    /* loop through stored values */
-    for (uint32_t addr = start; addr <= end; addr += 0x04)
+    uint8_t byte = 0;
+    while (loadFile.read(reinterpret_cast<char*>(&byte), sizeof(uint8_t)))
     {
-        /* read in values as (addr, instruction) pairs */
-        loadFile.read(reinterpret_cast<char *>(&value), sizeof(uint32_t));
-       
-        /* write value to iso */    
-        write(addr, value);
+        mFile->write(reinterpret_cast<char*>(&byte), sizeof(uint8_t));
     }
 
     /* close file */
@@ -190,15 +188,14 @@ code)
 /* calculate check sum of iso file */
 uint64_t ISO::checkSum()
 {
-    uint64_t sum = 0, addr = 0;
-    uint32_t word = 0;
-    
+    uint64_t sum = 0;
+    uint8_t addr = 0, byte = 0;
     mFile->seekg(0, std::ios::beg);
 
-    while (mFile->read(reinterpret_cast<char*>(&word), sizeof(word)))
+    while (mFile->read(reinterpret_cast<char*>(&byte), sizeof(uint8_t)))
     {
-        sum += HOST_TO_BE(word) * addr;
-        addr += 4;
+        sum += byte;// * addr;
+        addr += 1;
     }
     return sum;
 }
