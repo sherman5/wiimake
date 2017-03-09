@@ -190,7 +190,7 @@ code)
 }
 
 /* calculate check sum of iso file */
-uint64_t ISO::checkSum()
+uint64_t ISO::checkSum() const
 {
     uint64_t sum = 0, addr = 0;
     uint8_t data[32768];
