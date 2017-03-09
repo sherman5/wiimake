@@ -13,8 +13,5 @@ std::string entry)
     std::string cmd = "powerpc-eabi-ld" + entry + linkerFlags +
         " -o " + name + " --script " + script;
 
-    if (System::runCMD(cmd, true) != 0)
-    {
-        throw std::runtime_error("Linker Error");
-    }
+    RUNTIME_ERROR(System::runCMD(cmd, true) != 0, "Linker Error");
 }

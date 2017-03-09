@@ -34,7 +34,8 @@ FileList includePaths)
     /* iterate through c files */
     for (auto& file : sources)
     {
-        objects.push_back(Compiler::compile(file, compileFlags, includePaths));
+        objects.push_back(Compiler::compile(file, compileFlags,
+            includePaths));
     }
 
     /* return list of objects */

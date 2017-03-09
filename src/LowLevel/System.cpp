@@ -1,6 +1,6 @@
 #include "LowLevel.h"
 
-#ifdef WIIMAKEWINDOWS
+#ifdef WIIMAKE_WINDOWS
 
     #include <windows.h>
     #include <process.h>
