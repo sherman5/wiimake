@@ -188,14 +188,15 @@ code)
 /* calculate check sum of iso file */
 uint64_t ISO::checkSum()
 {
-    uint64_t sum = 0;
-    uint8_t addr = 0, byte = 0;
+    uint64_t sum = 0, addr = 0;
+    uint8_t data[32768];
+    size_t dataSize = 32768 * sizeof(uint8_t);
+
     mFile->seekg(0, std::ios::beg);
 
-    while (mFile->read(reinterpret_cast<char*>(&byte), sizeof(uint8_t)))
+    while (mFile->read(reinterpret_cast<char*>(&data[0]), dataSize))
     {
-        sum += byte;// * addr;
-        addr += 1;
+        for (auto& d : data) { sum += d * addr++; }
     }
     return sum;
 }
