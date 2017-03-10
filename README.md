@@ -32,13 +32,13 @@ To check if you can run the program, try typing `powerpc-eabi-gcc` in your termi
 
 2. unpack
 
-   `tar -xf wiimake-1.3.3.tar.gz`
+   `tar -xf wiimake-1.3.4.tar.gz`
 
 3. make build directory
 
    ```
-    mkdir wiimake-1.3.3/build
-    cd wiimake-1.3.3/build
+    mkdir wiimake-1.3.4/build
+    cd wiimake-1.3.4/build
     ```
    
 4. run these commands to build the program with cmake
