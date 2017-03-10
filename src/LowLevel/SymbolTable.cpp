@@ -43,6 +43,5 @@ std::vector<unsigned> SymbolTable::getSizes(std::string fileName, int num)
 
     /* close file, return vector of sizes */
     file.close();
-    //System::runCMD(System::rm + " sizes.txt");
     return sizes;
 }
