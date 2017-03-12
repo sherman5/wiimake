@@ -1,6 +1,12 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.3.5] - 3/12/17
+
+### Changed
+
+- fixed bug seen with some compilers
+
 ## [1.3.4] - 3/9/17
 
 ### Changed
