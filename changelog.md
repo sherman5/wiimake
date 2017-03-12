@@ -13,7 +13,7 @@ This documents all differences between versions of the program
 
 - endian agnostic
 - checksum algorithm updated
-- save/load times improved
+- save/load times improved (NEW FILES NOT COMPATIBLE WITH OLDER VERSIONS)
 - verify iso file before any operations done by isotool
 
 ## [1.3.3] - 3/2/17
