@@ -25,12 +25,12 @@ struct MemRegion
         end = 4 * floor((double) end / 4.0) - 4;
     }
 
-    bool operator<(const MemRegion& other)
+    bool operator<(const MemRegion& other) const
     {
         return end - start < other.end - other.start;
     }
 
-    bool operator==(const MemRegion& other)
+    bool operator==(const MemRegion& other) const
     {
         return end - start == other.end - other.start;
     }

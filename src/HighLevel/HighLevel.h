@@ -16,8 +16,8 @@ struct Section
     Section(std::string p, uint32_t a) : path(p), address(a) {}
 
     /* used for sorting */
-    bool operator<(const Section& other) { return size < other.size;}
-    bool operator==(const Section& other) { return size == other.size;}
+    bool operator<(const Section& other) const { return size < other.size;}
+    bool operator==(const Section& other) const { return size == other.size;}
 };
 
 typedef std::vector<Section> SectionList;
