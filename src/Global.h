@@ -31,6 +31,7 @@ do { \
 #include <string>
 #include <utility>
 #include <stdint.h>
+#include <exception>
 
 typedef std::vector<std::string> TokenList;
 typedef std::vector<std::string> FileList;
