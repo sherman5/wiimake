@@ -16,11 +16,9 @@ matrix:
   include:
         
     - os: linux
-      env: CMAKE_OPTIONS="-DCMAKE_CXX_COMPILER=/usr/bin/g++"
       compiler: gcc
         
     - os: linux
-      env: CMAKE_OPTIONS="-DCMAKE_CXX_COMPILER=/usr/bin/g++"
       compiler: clang
 
     - os: osx
