@@ -38,10 +38,12 @@ install:
   # Install recent version of CMake  
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      sudo apt-get install software-properties-common
-      sudo add-apt-repository ppa:george-edison55/cmake-3.x
-      sudo apt-get update
-      sudo apt-get upgrade
+      wget http://www.cmake.org/files/v3.0/cmake-3.0.2.tar.gz
+      tar -xf cmake-3.0.2.tar.gz
+      cd cmake-3.2.2
+      ./configure
+      make
+      export PATH=${DEPS_DIR}/cmake-3.0.2/bin:${PATH}
     else
       brew install cmake
       brew upgrade cmake
