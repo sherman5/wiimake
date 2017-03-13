@@ -16,9 +16,11 @@ matrix:
   include:
         
     - os: linux
+      env: CMAKE_OPTIONS="-DCMAKE_CXX_COMPILER=/usr/bin/g++"
       compiler: gcc
         
     - os: linux
+      env: CMAKE_OPTIONS="-DCMAKE_CXX_COMPILER=/usr/bin/g++"
       compiler: clang
 
     - os: osx
@@ -35,15 +37,12 @@ install:
   #- if [[ "${LLVM_VERSION}" == "default" ]]; then LLVM_VERSION=3.9.0; fi
   #- if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
 
-  # Install recent version of CMake  
+  # Install needed version of CMake  
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      wget http://www.cmake.org/files/v3.0/cmake-3.0.2.tar.gz
-      tar -xf cmake-3.0.2.tar.gz
-      cd cmake-3.0.2
-      ./configure
-      make
-      export PATH=${DEPS_DIR}/cmake-3.0.2/bin:${PATH}
+      CMAKE_URL="https://cmake.org/files/v3.0/cmake-3.0.2-Linux-x86_64.tar.gz"
+      mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
     else
       brew install cmake
       brew upgrade cmake
@@ -83,7 +82,7 @@ before_script:
   - cd ${TRAVIS_BUILD_DIR}
   - mkdir build
   - cd build
-  - cmake ..
+  - cmake .. ${CMAKE_OPTIONS}
 
 script:
 
