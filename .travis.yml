@@ -16,13 +16,13 @@ matrix:
   include:
         
     - os: linux
-      compiler: gcc
+      compiler: g++
         
     - os: linux
       compiler: clang
 
     - os: osx
-      compiler: gcc
+      compiler: g++
 
     - os: osx
       compiler: clang
