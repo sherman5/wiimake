@@ -1,6 +1,6 @@
-# This .yml comes from https://github.com/boostorg/hana/blob/master/.travis.yml
+# reference: https://github.com/boostorg/hana/blob/master/.travis.yml
 language: c++
-sudo: false
+sudo: required
 
 addons:
   apt:
