@@ -27,9 +27,9 @@ include_directories ("${PROJECT_BINARY_DIR}")
 # add directory with source files
 add_subdirectory (src)
 
-set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
-set (CPACK_PACKAGE_VERSION_MAJOR "${WiiMake_VERSION_MAJOR}")
-set (CPACK_PACKAGE_VERSION_MINOR "${WiiMake_VERSION_MINOR}")
-include (CPack)
+# set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+# set (CPACK_PACKAGE_VERSION_MAJOR "${WiiMake_VERSION_MAJOR}")
+# set (CPACK_PACKAGE_VERSION_MINOR "${WiiMake_VERSION_MINOR}")
+# include (CPack)
 
 

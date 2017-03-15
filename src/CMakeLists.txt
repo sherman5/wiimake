@@ -34,19 +34,23 @@ target_link_libraries(wiimake-isotool core)
 install (TARGETS wiimake DESTINATION ${CMAKE_INSTALL_PREFIX})
 install (TARGETS wiimake-isotool DESTINATION ${CMAKE_INSTALL_PREFIX})
 
-# add unit tests
-add_executable (testWiiMake ../tests/Runner.cpp
-                            ../tests/testSystem.cpp
-                            ../tests/testConfigFileParser.cpp
-                            ../tests/testISO.cpp
-                            ../tests/testCompiler.cpp
-                            ../tests/testLinker.cpp
-                            ../tests/testLinkerScript.cpp
-                            ../tests/testObjectFile.cpp
-                            ../tests/testSymbolTable.cpp  
-                            ../tests/testMemory.cpp
-                            ../tests/testCodeSections.cpp
-                            ../tests/testBuilder.cpp)
+if (ENABLE_TESTING)
 
-target_link_libraries (testWiiMake core)
-install (TARGETS testWiiMake DESTINATION ${CMAKE_BINARY_DIR})
+    # add unit tests
+    add_executable (testWiiMake ../tests/Runner.cpp
+                                ../tests/testSystem.cpp
+                                ../tests/testConfigFileParser.cpp
+                                ../tests/testISO.cpp
+                                ../tests/testCompiler.cpp
+                                ../tests/testLinker.cpp
+                                ../tests/testLinkerScript.cpp
+                                ../tests/testObjectFile.cpp
+                                ../tests/testSymbolTable.cpp  
+                                ../tests/testMemory.cpp
+                                ../tests/testCodeSections.cpp
+                                ../tests/testBuilder.cpp)
+
+    target_link_libraries (testWiiMake core)
+    install (TARGETS testWiiMake DESTINATION ${CMAKE_BINARY_DIR})
+
+endif()
