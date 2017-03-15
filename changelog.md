@@ -1,7 +1,11 @@
 # Change Log
 This documents all differences between versions of the program
 
-## [1.3.5] - 3/12/17
+## [1.3.5] - 3/15/17
+
+### Added
+
+- Travis CI
 
 ### Changed
 

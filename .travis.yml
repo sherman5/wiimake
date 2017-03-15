@@ -22,9 +22,6 @@ matrix:
       compiler: gcc
 
     - os: linux
-      compiler: gcc
-        
-    - os: linux
       compiler: clang
 
     - os: osx
