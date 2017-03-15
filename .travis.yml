@@ -6,6 +6,8 @@ addons:
   apt:
     packages:
       - g++-6
+    sources: &sources
+      - ubuntu-toolchain-r-test
 
 #cache:
 #  directories:
@@ -33,10 +35,7 @@ install:
   - mkdir -p ${DEPS_DIR} && cd ${DEPS_DIR}
 
   - if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
-
-    # override the compiler
   #- if [[ "${LLVM_VERSION}" == "default" ]]; then LLVM_VERSION=3.9.0; fi
-  #- if [[ "${COMPILER}" != "" ]]; then export CXX=${COMPILER}; fi
 
   # Install needed version of CMake  
   - |
