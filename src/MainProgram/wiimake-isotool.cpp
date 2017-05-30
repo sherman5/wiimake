@@ -29,7 +29,6 @@ void run(TokenList& tokens)
     }
     else if (tokens[1] == "--checksum")
     {
-        INVALID_ARG(tokens.size() != 2, "incorrect number of arguments");
         std::cout << std::hex << iso.checkSum() << std::endl;
     }
     else if (tokens[1] == "--save")
@@ -54,6 +53,9 @@ int main(int argc, const char** argv)
     {
         /* get command line arguments */
         TokenList tokens = CMDparser::getTokens(argc, argv);
+
+        /* at least two arguments are required */
+        INVALID_ARG(tokens.size() < 2, "incorrect number of options");
 
         /* parse meta options */
         CMDparser::parseMetaOptions(tokens);
