@@ -15,7 +15,7 @@ FileList includePaths)
     for (auto& flag : compileFlags) { flags += flag + " ";}    
 
     /* create compile command */
-    std::string cmd = "powerpc-eabi-gcc -c " + default_flags + flags +
+    std::string cmd = "powerpc-eabi-gcc -c " /*+ default_flags*/ + flags +
         includes + file + " -o " + CHANGE_EXT(file, "o");
 
     /* display and run command, throw on error */

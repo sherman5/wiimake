@@ -1,6 +1,15 @@
 # Change Log
 This documents all differences between versions of the program
 
+## [1.5.0] - 9/30/17
+
+### Added
+
+- direct branches
+- linker symbols
+
+### changed
+
 ## [1.3.5] - 3/15/17
 
 ### Added

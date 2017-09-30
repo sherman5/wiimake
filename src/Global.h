@@ -2,10 +2,10 @@
 #define GLOBAL_H
 
 /* define symbol if on windows */
-#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64))
+#if (defined(_WIN16) || defined(_WIN32) || defined(_WIN64) || defined(__MINGW32__))
 
     #define WIIMAKE_WINDOWS
-    
+
 #endif
 
 /* error handling macros */

@@ -49,6 +49,10 @@ namespace ConfigParser
     /* store the fixed symbols variable */
     void storeFixedSymbols(Arguments&, TokenList);
 
+    void storeDirectBranches(Arguments&, TokenList);
+
+    void storeLinkerSymbols(Arguments&, TokenList);
+
     /* verify corect arguments were given in config file */
     void checkArgs(Arguments&);
 }

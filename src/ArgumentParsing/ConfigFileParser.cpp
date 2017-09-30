@@ -125,6 +125,26 @@ void ConfigParser::storeFixedSymbols(Arguments& args, TokenList symbols)
     }
 }
 
+void ConfigParser::storeDirectBranches(Arguments& args, TokenList symbols)
+{
+    for (auto it = symbols.begin(); it != symbols.end(); ++it)
+    {
+        std::string name = *(it);
+        uint32_t addr = stoul(*(++it), nullptr, 16);
+        args.directBranches.push_back(DirectBranch(name, addr));
+    }
+}
+
+void ConfigParser::storeLinkerSymbols(Arguments& args, TokenList symbols)
+{
+    for (auto it = symbols.begin(); it != symbols.end(); ++it)
+    {
+        std::string name = *(it);
+        uint32_t value = stoul(*(++it), nullptr, 16);
+        args.linkerSymbols.push_back(LinkerSymbol(name, value));
+    }
+}
+
 /* store a single variable */
 void ConfigParser::storeVariable(Arguments& args, std::string name,
 TokenList values)
@@ -132,35 +152,41 @@ TokenList values)
     /* find variable name */
     TokenList variables = {"REGIONS", "SOURCES", "LIBRARIES",
         "INCLUDE_PATHS", "COMPILER_FLAGS", "LINKER_FLAGS",
-        "FIXED_SYMBOLS"};
+        "FIXED_SYMBOLS", "DIRECT_BRANCHES", "LINKER_SYMBOLS"};
     
     auto pos = std::find(variables.begin(), variables.end(), name);
 
     /* find correct variable, store accordingly */
     switch (std::distance(variables.begin(), pos))
     {
-        case 0:
+        case 0: // REGIONS
             ConfigParser::storeMemRegions(args, values);
             break;
-        case 1:
+        case 1: // SOURCES
             args.sources = values;
             break;
-        case 2:
+        case 2: // LIBRARIES
             args.libs = values;
             break;
-        case 3:
+        case 3: // INCLUDE_PATHS
             args.includePaths = values;
             break;
-        case 4:
+        case 4: // COMPILER_FLAGS
             args.compileFlags = values;
             break;
-        case 5:
+        case 5: // LINKER_FLAGS
             args.linkFlags = values;
             break;
-        case 6:
+        case 6: // FIXED_SYMBOLS
             ConfigParser::storeFixedSymbols(args, values);
             break;
-        default:
+        case 7: // DIRECT_BRANCHES
+            ConfigParser::storeDirectBranches(args, values);
+            break;
+        case 8: // LINKER_SYMBOLS
+            ConfigParser::storeLinkerSymbols(args, values);
+            break;
+        default: // static overwrites
             ConfigParser::storeStaticOverwrite(args, name, values);
             break;
     }

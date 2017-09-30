@@ -5,7 +5,7 @@ std::string entry)
 {
     /* put all object files and linker flags in individual strings */
     std::string linkerFlags;
-    for (auto& flg : flags) { linkerFlags += " " + flg + " ";}
+    for (auto& flg : flags) {linkerFlags += " " + flg + " ";}
 
     if (!entry.empty()) {entry = " -e " + entry + " ";}
 

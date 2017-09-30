@@ -2,10 +2,15 @@
 
 #include <fstream>
 
-void LinkerScript::CreateSizeScript(SectionList& sections, std::string name)
+void LinkerScript::CreateSizeScript(SectionList& sections, std::string name, Arguments& args)
 {
     /* open up text file, write first line */
     std::ofstream script (name, std::ios::out | std::ios::trunc);
+    
+    for (auto& sym : args.linkerSymbols)
+    {
+        script << sym.name << " = 0;" << std::endl;
+    }
     script << "SECTIONS {" << std::endl;
 
     /* section number */
@@ -26,10 +31,14 @@ void LinkerScript::CreateSizeScript(SectionList& sections, std::string name)
     script.close();
 }
 
-void LinkerScript::CreateFinalScript(SectionList& sections, std::string name)
+void LinkerScript::CreateFinalScript(SectionList& sections, std::string name, Arguments& args)
 {
     /* open up text file, write first line */
     std::ofstream script (name, std::ios::out | std::ios::trunc);
+    for (auto& sym : args.linkerSymbols)
+    {
+        script << sym.name << " = 0x" << std::hex << sym.value << ";" << std::endl;
+    }
     script << "SECTIONS {" << std::endl;
     
     /* section number */

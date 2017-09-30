@@ -1,9 +1,9 @@
-#include "../HighLevel/HighLevel.h"
-#include "../ISO.h"
-#include "../ArgumentParsing/Parser.h"
-#include "../ArgumentParsing/Arguments.h"
+#include "HighLevel.h"
+#include "ISO.h"
+#include "Parser.h"
+#include "Arguments.h"
 #include "Description.h"
-#include "../Global.h"
+#include "Global.h"
 
 #include <iostream>
 #include <algorithm>

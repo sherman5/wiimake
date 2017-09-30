@@ -4,7 +4,7 @@
 #include <algorithm>
 
 #include "Parser.h"
-#include "../MainProgram/Description.h"
+#include "Description.h"
 
 /* return a list of tokens from the command line arguments */
 TokenList CMDparser::getTokens(int argc, const char** argv)

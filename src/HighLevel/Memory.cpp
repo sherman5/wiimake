@@ -16,7 +16,7 @@ void Memory::storeAddress(Section& section, MemRegion& region)
         junkAddress += 0x10000; //jank
     }
     /* don't relocate injection point */
-    else if (section.path.find("inject_point_") == std::string::npos)
+    else if (section.path.find("inject_point_") == std::string::npos && section.path.find("direct_branch_") == std::string::npos)
     {
         /* check if region can contain section */
         RUNTIME_ERROR(section.size + 0x04 > region.end - region.start,

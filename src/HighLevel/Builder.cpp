@@ -14,11 +14,12 @@ ASMcode Builder::getASM(Arguments& args, unsigned& codeSize)
     objects.insert(objects.end(), args.libs.begin(), args.libs.end());
 
     /* remove unnecessary sections from object files */
-    for (auto& obj : objects) { ObjectFile::removeSections(obj);}
+    for (auto& obj : objects) {ObjectFile::removeSections(obj);}
 
     /* add stack setup files (manage branching from game code) */
     SectionList sections;
     Builder::addStackSetup(sections, args);
+    Builder::addDirectBranches(sections, args);
 
     /* get names and sizes of sections */
     CodeSections::storeNames(sections, objects);
@@ -28,7 +29,7 @@ ASMcode Builder::getASM(Arguments& args, unsigned& codeSize)
     Memory::findCodeAllocation(sections, args);
 
     /* create linker script, use addresses in 'sections' */
-    LinkerScript::CreateFinalScript(sections, "linker_script.txt");   
+    LinkerScript::CreateFinalScript(sections, "linker_script.txt", args);   
     
     /* link all object files using the linker script */
     Linker::link("linker_script.txt", "final.out", args.linkFlags);
@@ -92,6 +93,20 @@ void Builder::addStackSetup(SectionList& sections, Arguments& args)
     }
 }
 
+void Builder::addDirectBranches(SectionList& sections, Arguments& args)
+{
+    for (unsigned i = 0; i < args.directBranches.size(); ++i)
+    {
+        std::string db = "direct_branch_" + std::to_string(i);
+        std::ofstream dbStream(db + ".s");
+        dbStream << ".global " + db + "\n" + db + ":\n\tb " + args.directBranches[i].name + "\n";
+        dbStream.close();
+
+        System::runCMD("powerpc-eabi-as " + db + ".s -o " + db + ".o");
+        sections.push_back(Section(db + ".o", args.directBranches[i].address));
+    }   
+}
+
 /* add original instruction, overwrite nop line in code */
 void Builder::addOverwrittenASM(ASMcode& code, Arguments& args,
 SectionList& sections)
@@ -105,13 +120,17 @@ SectionList& sections)
                 return sect.path.find("stack_setup_" + std::to_string(i))
                     != std::string::npos;
             });
-
+        RUNTIME_ERROR(ss == sections.end(), "can't find stack setup"
+            " for symbol " + std::to_string(i));
+ 
         /* find line of code at (stack_setup + 0x24) */
         auto it = std::find_if(code.begin(), code.end(),
             [&](const std::pair<uint32_t, uint32_t>& element)
             {
                 return element.first == ss->address + 0x24;
             });
+        RUNTIME_ERROR(it == code.end(), "can't find overwritten instruction"
+            " for symbol " + std::to_string(i));
 
         /* check that instruction is nop */
         RUNTIME_ERROR((*it).second != 0x60000000, "instruction in stack"
@@ -149,10 +168,10 @@ void Builder::cleanDirectory(bool full)
         "stack_setup_*.o",
         "inject_point_*.s",
         "inject_point_*.o",
+        "direct_branch_*.s",
+        "direct_branch_*.o",
         "preserve_registers.s",
-        "preserve_registers.o",
-        "final.out",
- 
+        "preserve_registers.o"
     };
 
     if (full)
@@ -161,6 +180,7 @@ void Builder::cleanDirectory(bool full)
         files.push_back("size_linker_script.txt");
         files.push_back("linker_script.txt");
         files.push_back("injected_code.txt");
+        files.push_back("final.out");
     }
 
     /* iterate through the vector and run each cmd */

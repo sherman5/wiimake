@@ -10,11 +10,15 @@ set (CORE_SRCS  ArgumentParsing/CommandLineParser.cpp
                 LowLevel/ObjectFile.cpp
                 LowLevel/SymbolTable.cpp
                 LowLevel/System.cpp
-                ISO.cpp)     
+                BinaryFileHandler/ISO.cpp     
+                BinaryFileHandler/md5.cpp)     
 
-set (CORE_HEADERS ArgumentParsing
+set (CORE_HEADERS .
+                  ArgumentParsing
                   HighLevel
-                  LowLevel)
+                  LowLevel
+                  BinaryFileHandler
+                  MainProgram)
 
 # add library containing core files
 add_library (core ${CORE_SRCS})

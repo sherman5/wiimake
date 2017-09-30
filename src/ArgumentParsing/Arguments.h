@@ -45,6 +45,24 @@ struct FixedSymbol
         name(n), address(a), instruction(i) {}
 };
 
+struct LinkerSymbol
+{
+    std::string name = "";
+    uint32_t value = 0;
+
+    LinkerSymbol(std::string n, uint32_t v) : 
+        name(n), value(v) {}
+};
+
+struct DirectBranch
+{
+    std::string name = "";
+    uint32_t address = 0;
+    
+    DirectBranch(std::string n, uint32_t a) :
+        name(n), address(a) {}
+};
+
 struct Arguments
 {
     /* configuration file */
@@ -64,6 +82,10 @@ struct Arguments
 
     /* static overwrites to make */
     std::vector< std::pair<uint32_t, uint32_t> > staticOverwrites;
+
+    std::vector<DirectBranch> directBranches;
+    
+    std::vector<LinkerSymbol> linkerSymbols;
 };
 
 #endif

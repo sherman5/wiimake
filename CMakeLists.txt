@@ -2,7 +2,7 @@
 cmake_minimum_required (VERSION 3.0.2)
 
 # set compiler flags
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic" CACHE STRING "g++ flags")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall -Wextra -pedantic" CACHE STRING "g++ flags")
 
 # link statically
 set(BUILD_SHARED_LIBRARIES OFF)
@@ -13,8 +13,8 @@ project (WiiMake)
 
 # project version
 set (WiiMake_VERSION_MAJOR 1)
-set (WiiMake_VERSION_MINOR 3)
-set (WiiMake_VERSION_REVISION 5)
+set (WiiMake_VERSION_MINOR 5)
+set (WiiMake_VERSION_REVISION 0)
 
 # create header for version number
 configure_file (

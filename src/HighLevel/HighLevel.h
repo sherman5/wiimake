@@ -31,6 +31,8 @@ namespace Builder
     /* add stack setup to call back after code is run */
     void addStackSetup(SectionList&, Arguments&);
 
+    void addDirectBranches(SectionList&, Arguments&);
+
     /* add original instruction, overwrite nop line in code */
     void addOverwrittenASM(ASMcode&, Arguments&, SectionList&);
 
@@ -70,10 +72,10 @@ namespace Memory
 namespace LinkerScript
 {
     /* create script to store sizes of sections */
-    void CreateSizeScript(SectionList&, std::string);
+    void CreateSizeScript(SectionList&, std::string, Arguments&);
 
     /* create linker script to put sections in correct addresses */
-    void CreateFinalScript(SectionList&, std::string);
+    void CreateFinalScript(SectionList&, std::string, Arguments&);
 }
 
 #endif
