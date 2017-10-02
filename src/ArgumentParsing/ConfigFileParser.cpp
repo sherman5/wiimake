@@ -217,6 +217,7 @@ TokenList values)
 /* verify correct arguments were given in config file */
 void ConfigParser::checkArgs(Arguments& args)
 {
-    INVALID_ARG(args.fixedSymbols.empty(), "missing entry point");
+    INVALID_ARG(args.fixedSymbols.empty() && args.directBranches.empty(),
+        "no branches or fixed symbols");
     INVALID_ARG(args.sources.empty(), "no SOURCES (config file)");
 }

@@ -21,8 +21,13 @@ int System::runCMD(std::string cmd, bool display)
     if (display) { std::cout << cmd << std::endl;}
     else { cmd += " 2>&1";} //send stderr to stdout
 
-    FILE* cmdExe = popen(cmd.c_str(), "r");
-    return pclose(cmdExe);
+    #ifdef WIIMAKE_WINDOWS
+        FILE* cmdExe = _popen(cmd.c_str(), "r");
+        return _pclose(cmdExe);
+    #else
+        FILE* cmdExe = popen(cmd.c_str(), "r");
+        return pclose(cmdExe);
+    #endif
 }
 
 

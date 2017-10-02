@@ -160,6 +160,24 @@ void ISO::saveState(std::string fileName) const
     saveFile.close();
 }
 
+#define LCG(x) ((1103515245 * (x) + 12345) % 4294967296)
+uint64_t ISO::checkSumDol() const
+{
+    /* write until end of code */
+    mFile->seekg(std::ios::beg);
+    uint64_t endAddr = dolOffset(mCodeEnd) + 4;
+    uint32_t word = 0;
+    uint64_t sum = 0;
+
+    /* copy data */
+    for (uint64_t addr = 0; addr < endAddr; addr += 4)
+    {
+        mFile->read(reinterpret_cast<char*>(&word), sizeof(uint32_t));
+        sum += LCG(word) * LCG(addr);
+    }
+    return sum;  
+}
+
 /* load code from save file */
 void ISO::loadState(std::string fileName)
 {
@@ -188,28 +206,3 @@ code)
         write(line.first, line.second);
     }
 }
-
-/* calculate check sum of iso file */
-#define BLOCK_SIZE 32768
-#define VALUE(a,b,c,d) ((uint32_t) ((a) * 0x01000000 + (b) * 0x00010000 \
-    + (c) * 0x00000100 + (d)))
-uint64_t ISO::checkSum() const
-{
-    uint64_t sum = 0, addr = 0;
-    uint8_t data[BLOCK_SIZE];
-    size_t dataSize = BLOCK_SIZE * sizeof(uint8_t);
-
-    mFile->seekg(0, std::ios::beg);
-
-    while (mFile->read(reinterpret_cast<char*>(&data[0]), dataSize))
-    {
-        for (unsigned i = 0; i < BLOCK_SIZE; ++i)
-        {
-            sum += addr * VALUE(data[i], data[i+1], data[i+2], data[i+3]);
-            i += 3;
-            addr += 4;
-        }
-    }
-    return sum;
-}
-

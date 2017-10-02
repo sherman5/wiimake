@@ -1,12 +1,14 @@
 # Change Log
 This documents all differences between versions of the program
 
-## [1.5.0] - 9/30/17
+## [1.5.0] - ??
 
 ### Added
 
 - direct branches
 - linker symbols
+- allow for only having direct branches
+- build checksum
 
 ### changed
 

@@ -2,7 +2,7 @@
 cmake_minimum_required (VERSION 3.0.2)
 
 # set compiler flags
-set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -std=c++11 -Wall -Wextra -pedantic" CACHE STRING "g++ flags")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wextra -pedantic -U__STRICT_ANSI__" CACHE STRING "g++ flags")
 
 # link statically
 set(BUILD_SHARED_LIBRARIES OFF)

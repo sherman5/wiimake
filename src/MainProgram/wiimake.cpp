@@ -30,6 +30,7 @@ void run(TokenList& tokens)
     std::cout << "lines of code injected: " << codeSize / 4 << std::endl;
     std::cout << "percent of memory used: " << 
         100.f * (float) codeSize / Memory::totalSize() << std::endl;
+    std::cout << "build checksum: " << std::hex << iso.checkSumDol() << std::endl;
 }
 
 int main(int argc, const char** argv)
