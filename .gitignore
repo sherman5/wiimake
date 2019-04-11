@@ -1,16 +1,5 @@
-*~
-*.iso
-!tests/files/reference.iso
-*.data
-examples/*.o
-examples/lib/*.o
-tests/files/Builder/libtest.a
-tests/files/ISO/test.iso
-tests/files/Builder/lib/*.o
-tests/files/Builder/source/*.o
-tests/files/Compiler/*.o
+wiimake/__pycache__/
+wiimake.egg-info
+src
+tests
 
-build*
-wiimake/*
-wiimake*
-releases/*
