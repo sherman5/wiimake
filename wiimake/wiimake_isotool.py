@@ -61,8 +61,7 @@ def main():
     args = parser.parse_args()
 
     # process command line arguments, dispatch to correct function
-    optional_args = [args.read is not None, args.save, args.load, args.checksum,
-        args.print_dol]
+    optional_args = [args.read, args.save, args.load, args.checksum, args.print_dol]
     if not single_true(optional_args):
         commandLineArgError(parser, "Pass exactly one of --save, --load, --read, --checksum, --print-dol")
     elif args.read is not None:
@@ -81,6 +80,7 @@ def main():
         print(md5(args.file), '', args.file)
 
 def createSaveState(isoFile, saveFile):
+    print("saving file state...")
     dolTable = getDolTable(isoFile)
     dolTable.sort(key=lambda x: x[1])
     lastSection = dolTable[-1]
@@ -91,16 +91,19 @@ def createSaveState(isoFile, saveFile):
             byte = iFile.read(1)
             sFile.write(byte)
             pos += 1
+    print("done")
 
 def loadSaveState(isoFile, saveFile):
-    with open(isoFile, 'ab') as iFile, open(saveFile , 'rb') as sFile:
+    print("restoring file state...")
+    with open(isoFile, 'r+b') as iFile, open(saveFile , 'rb') as sFile:
         iFile.seek(0)
         while True:
             byte = sFile.read(1)
             if byte:
                 iFile.write(byte)
             else:
-                break        
+                break
+    print("done!") 
 
 def getOffset(f, dolTable, memoryAddress):
     dolTable.sort(key=lambda x: x[2])
