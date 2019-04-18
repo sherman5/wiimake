@@ -1,0 +1,15 @@
+/mnt/c/Users/tsherma4/Documents/wiimake/build/CMakeFiles/install/strip.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/CMakeFiles/install/local.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/CMakeFiles/install.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/CMakeFiles/list_install_components.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/CMakeFiles/edit_cache.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/install/strip.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/install/local.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/edit_cache.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/rebuild_cache.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/wiimake-isotool.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/wiimake.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/install.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/list_install_components.dir
+/mnt/c/Users/tsherma4/Documents/wiimake/build/src/CMakeFiles/core.dir

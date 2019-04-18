@@ -1,4 +1,3 @@
-import hashlib
 import argparse
 import sys
 from .iso import Iso
@@ -21,15 +20,6 @@ def single_true(iterable):
     has_true = any(iterator) # stops after true found (or end reached)
     has_another_true = any(iterator)
     return has_true and not has_another_true
-
-# computes md5 checksum
-# https://stackoverflow.com/a/3431838
-def md5(fname):
-    hash_md5 = hashlib.md5()
-    with open(fname, "rb") as f:
-        for chunk in iter(lambda: f.read(16384), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
 
 # exits with an error
 def error(msg):
@@ -71,7 +61,7 @@ def main():
     optional_args = [args.read, args.save, args.load, args.checksum,
         args.print_dol_table, args.zero_out]
     if not single_true(optional_args):
-        commandLineArgError(parser, "too many arguments")
+        commandLineArgError(parser, "must provide exactly one option")
     elif args.read is not None:
         address = int(args.read, 0)
         print(hex(Iso(args.file).read(address)))
@@ -85,7 +75,8 @@ def main():
     elif args.print_dol_table:
         Iso(args.file).dolTable.print()
     elif args.checksum:
-        print(md5(args.file), '', args.file)
+        iso = Iso(args.file)
+        print(iso.md5(), '', iso.file)
 
     
 

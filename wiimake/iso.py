@@ -1,5 +1,7 @@
-from bisect import bisect
+import sys
+import hashlib
 import pandas as pd
+from bisect import bisect
 
 def readFile(file, pos, size=4):
     with open(file, 'rb') as f:
@@ -89,3 +91,19 @@ class Iso():
                     break
         print("done!") 
 
+    def bulkWrite(self, code):
+        with open(self.file, 'r+b') as f:
+            for addr, inst in code.items():
+                inst = inst.to_bytes(4, byteorder='big')
+                pos = self.dolTable.filePos(addr)
+                f.seek(pos)
+                f.write(inst)
+
+    # computes md5 checksum
+    # https://stackoverflow.com/a/3431838
+    def md5(self):
+        hash_md5 = hashlib.md5()
+        with open(self.file, "rb") as f:
+            for chunk in iter(lambda: f.read(16384), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
