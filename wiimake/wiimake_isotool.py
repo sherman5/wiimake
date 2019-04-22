@@ -63,7 +63,10 @@ def main():
     if not single_true(optional_args):
         commandLineArgError(parser, "must provide exactly one option")
     elif args.read is not None:
-        address = int(args.read, 0)
+        try:
+            address = int(args.read, 0)
+        except ValueError:
+            sys.exit("Error: if address if a hex value, it must start with 0x")
         print(hex(Iso(args.file).read(address)))
     elif args.save is not None:
         Iso(args.file).save(args.save)

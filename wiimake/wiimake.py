@@ -1,47 +1,10 @@
 import sys
-import os
 import shutil
 import argparse
-import subprocess
-import copy
 from pathlib import Path
 from .iso import Iso
 from .config_parser import ConfigParser
-from .assembly_code import *
-from .linker_scripts import *
-
-# TODO make deterministic
-
-#### Notes ####
-
-# This is an important note about link order that explains some bugs seen in the
-# past. In particular, it is important to order the object files so library
-# files come at the end of the linker script.
-#
-# Excerpt from "An Introduction to GCC: for the GNU Compilers gcc and g++"
-# by Brian Gough
-# 
-# On Unix-like systems, the traditional behavior of compilers and linkers is to
-# search for external functions from left to right in the object files
-# specified on the command line. This means that the object file which
-# contains the definition of a function should appear after any files which
-# call that function.
-# In this case, the file 'hello_fn.o' containing the function hello should be
-# specified after 'main.o' itself, since main calls hello:
-#   $ gcc main.o hello_fn.o -o hello   (correct order)
-# With some compilers or linkers the opposite ordering would result in an error,
-#   $ cc hello_fn.o main.o -o hello    (incorrect order)
-#   main.o: In function `main':
-#   main.o(.text+0xf): undefined reference to `hello'
-# because there is no object file containing hello after 'main.o'.
-# Most current compilers and linkers will search all object files, regardless
-# of order, but since not all compilers do this it is best to follow the
-# convention of ordering object files from left to right.
-# This is worth keeping in mind if you ever encounter unexpected problems with
-# undefined references, and all the necessary object files appear to be present
-# on the command line.
-
-###############
+from .pipeline import WiimakePipeline
 
 # description for wiimake
 description='''
@@ -56,23 +19,7 @@ the memory regions provided by the user in the config file (4) run the linker
 (5) inject the code into the appropiate addresses. In one command the user can
 take their raw C files and produce a working iso.
 '''
-
-def createFile(str, fname):
-    file = open(fname, 'w')
-    file.write(str)
-    file.close()
-
-def runCmd(cmd, verbose=False, text=True):
-    if verbose:
-        print(''.join([x + ' ' for x in cmd]))
-    return subprocess.run(cmd, universal_newlines=text, stdout=subprocess.PIPE)
-
-def assemble(code, fname):
-    sFile = fname + '.s'
-    oFile = fname + '.o'
-    createFile(code, sFile)
-    runCmd(['powerpc-eabi-as', sFile, '-o', oFile])
-    
+   
 # main function for wiimake
 def main():
     # parse command line arguments
@@ -84,193 +31,28 @@ def main():
         help='wiimake configuration file')
     parser.add_argument('--save-temps', action='store_true',
         help='save temporary build files')
+    parser.add_argument('--verbose', action='store_true',
+        help='provide more verbose output')
     args = parser.parse_args()
+
+    # Startup Message
+    print("\nWiiMake version: 1.0")
+    print("Building Code from", Path(args.config_file).name)
+    print("Injecting in", Path(args.iso_file).name)
+    print("")
 
     # parse configuration file
     config = ConfigParser(args.config_file)
-    #config.print()
+    if args.verbose:
+        config.print()
     
     # run wiimake pipeline to generate code at available addresses in memory
     pipeline = WiimakePipeline(config)
-    pipeline.run()
+    pipeline.run(args.verbose, args.save_temps)
     
     # inject code into iso file
+    print("== Injecting Code into Game ==")
     iso = Iso(args.iso_file)
     iso.bulkWrite(pipeline.getCode())
-    print('build checksum:', iso.md5())
-
-# if x is not divisble by n, round up to nearest multiple of n
-def roundUpToN(x, n):
-    rounded = n * int(x/n)
-    if rounded != x:
-        return rounded + n
-    return x
-
-class ObjectFileSection():
-    def __init__(self, name, address=0):
-        self.name = name
-        self.address = address
-        self.size = 0
-    
-    def __str__(self):
-        return self.name
-
-    def __repr__(self):
-        return str(self)
-
-class WiimakePipeline():
-    def __init__(self, config):
-        self.config = config
-        self.sections = []
-        self.objects = []
-
-    def run(self, verbose=False, keepTempFiles=False):
-        self.verbose = verbose
-        self.createBranchingCode()
-        self.compile()
-        self.cleanUpObjectFiles()
-        self.processObjectFileSections()
-        self.findRegionsForCode()
-        self.linkCode()
-        self.addOverwrittenInstructions()
-        if not keepTempFiles:
-            self.deleteTemporaryFiles()
-
-    def deleteTemporaryFiles(self):
-        os.remove('linker_script.txt')
-        os.remove('final.out')
-        os.remove('sizes.out')
-        os.remove('preserve_registers.s')
-        os.remove('preserve_registers.o')
-        os.remove('injected_code.txt')
-        for i, sym in enumerate(self.config.fixedSymbols):
-            os.remove('inject_point_{n}.s'.format(n=i+1))
-            os.remove('inject_point_{n}.o'.format(n=i+1))
-            os.remove('entry_point_{n}.s'.format(n=i+1))
-            os.remove('entry_point_{n}.o'.format(n=i+1))
-        for f in self.config.sourceFiles:
-            os.remove(Path(f).stem + '.o')
-
-    def createBranchingCode(self):
-        assemble(preserveRegistersAssembly, 'preserve_registers')
-        self.sections.append(ObjectFileSection('preserve_registers.o'))
-       
-        for i, sym in enumerate(self.config.fixedSymbols):
-            injectPointFilename = 'inject_point_{n}'.format(n=i+1)
-            entryPointFilename = 'entry_point_{n}'.format(n=i+1)
-            assemble(injectionPointAssembly.format(num=i+1), injectPointFilename)
-            assemble(branchToEntryPointAssembly.format(num=i+1, symbol=sym),
-                entryPointFilename)
-            self.sections.append(ObjectFileSection(entryPointFilename + '.o'))
-            self.sections.append(ObjectFileSection(injectPointFilename + '.o',
-                int(self.config.fixedSymbols[sym][0], 16)))
-
-    def compile(self):
-        for file in self.config.sourceFiles:
-            cmd = ['powerpc-eabi-gcc']
-            cmd += self.config.compilerFlags
-            cmd += ['-ffunction-sections', '-fdata-sections']
-            cmd += ['-I' + self.config.basedir + x for x in self.config.includePaths]
-            cmd += ['-c', self.config.basedir + file]
-            cmd += ['-o', Path(file).stem + '.o']
-            self.objects += [Path(file).stem + '.o']
-            runCmd(cmd)
-        self.objects += [self.config.basedir + x for x in self.config.libraries]
-
-    def cleanUpObjectFiles(self):
-        for ofile in self.objects:
-            runCmd(['powerpc-eabi-objcopy', '-R', '.comment', ofile])
-
-    def processObjectFileSections(self):
-        self.getSectionNames()
-        self.getSectionSizes()
-        self.sections = [x for x in self.sections if x.size > 0]
-
-    def getSectionNames(self):
-        for ofile in self.objects:
-            cmd = ['powerpc-eabi-objdump', '-D', ofile]
-            res = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-            tokens = str(res.stdout).split()
-            for i in range(len(tokens)):
-                if tokens[i] == "section":
-                    self.sections.append(ObjectFileSection(ofile + ' (' + tokens[i+1].split(':')[0] + ')'))
-
-    def getSectionSizes(self):
-        script = getSizeLinkerScript(self.sections)
-        for i, sym in enumerate(self.config.fixedSymbols):
-            self.link(script, 'inject_point_{n}'.format(n=i+1), 'sizes.out', ["--gc-sections"])
-            cmd = ['powerpc-eabi-readelf', '-s', 'sizes.out']
-            res = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True)
-            for line in res.stdout.split('\n'):
-                if '_sizeof_section_' in line:
-                    ndx = line.find(":")
-                    size = int(line[(ndx+2):(ndx+10)], 16)
-                    size = roundUpToN(size, 4)
-                    ndx = line.find("_sizeof_section_")
-                    section = int(line[(ndx+16):])
-                    self.sections[section-1].size = max(size, self.sections[section-1].size)
-
-    def findRegionsForCode(self):
-        regions = copy.deepcopy(self.config.memoryRegions)
-        sections = self.sections.copy()
-        sections = [x for x in sections if x.address == 0]
-        sections.sort(key=lambda x: x.size, reverse=True)
-        for sec in sections:
-            regions.sort(key=lambda x: x.size, reverse=True)
-            sec.address = regions[0].start # put at beginning of largest section
-            regions[0].start += sec.size + 4 # update the available space
-            if regions[0].start > regions[0].end: # check if space ran out
-                msg = 'ERROR: failed to place code in available regions.\n'
-                msg += 'lines of code to inject: {cLines}\n'
-                msg += 'memory regions total capacity: {mLines}\n'
-                codeSize = sum([x.size for x in self.sections])
-                memSize = sum([r.size for r in self.config.memoryRegions])
-                msg = msg.format(cLines=codeSize//4, mLines=memSize//4)
-                sys.exit(msg)
-            
-    def linkCode(self):
-        script = getFinalLinkerScript(self.sections)
-        self.finalCode = {}
-        txt = ''
-        for i, sym in enumerate(self.config.fixedSymbols):
-            self.link(script, 'inject_point_{n}'.format(n=i+1), 'final.out', ["--gc-sections"])
-            res = runCmd(['powerpc-eabi-objdump', '-D', 'final.out'])
-            for line in res.stdout.split('\n'):
-                txt += line + '\n'
-                if ':' in line:
-                    substr = line.split(":")[0]
-                    if '.' not in substr and '>' not in substr and '_' not in substr:
-                        address = int(substr, 16)
-                        if 'Address' in line:
-                            print("Warning:", line.split(":")[1])
-                        else:
-                            code = line.split()[1:5]
-                            code = int(''.join(code), 16)
-                        if address in self.finalCode.keys():
-                            if self.finalCode[address] != code:
-                                print("ERROR: code mismatch")
-                        self.finalCode[address] = code
-        createFile(txt, 'injected_code.txt')
-
-    def addOverwrittenInstructions(self):
-        for i, sym in enumerate(self.config.fixedSymbols):
-            name = 'entry_point_{n}.o'.format(n=i+1)
-            sec = [x for x in self.sections if x.name == name][0]
-            if self.finalCode[sec.address + 0x24] != 0x60000000:
-                print("ERROR: nop not at overwrite address")
-            code = self.config.fixedSymbols[sym][1]
-            code = int(code, 16)
-            self.finalCode[sec.address + 0x24] = code
-
-    def getCode(self):
-        return self.finalCode
-
-    def link(self, linkerScript, entryPoint, outfile, flags):
-        createFile(linkerScript, 'linker_script.txt')
-        cmd = ['powerpc-eabi-ld', '-o', outfile, '--script', 'linker_script.txt']
-        cmd += flags
-        if entryPoint is not None:
-            cmd += ['-e', entryPoint]
-        cmd += self.config.linkerFlags
-        runCmd(cmd, True)
+    iso.bulkWrite(config.getStaticOverwrites())
 

@@ -55,10 +55,10 @@ class ConfigParser():
         self.sourceFiles = var
 
     def processLibraries(self, name, var):
-        self.libraries = var
+        self.libraries = [self.basedir + x for x in var]
 
     def processIncludes(self, name, var):
-        self.includePaths = var
+        self.includePaths = [self.basedir + x for x in var]
 
     def processCompilerFlags(self, name, var):
         self.compilerFlags = var
@@ -71,14 +71,29 @@ class ConfigParser():
             self.fixedSymbols[var[i]] = [var[i+1], var[i+2]]
 
     def processStaticOverwrite(self, name, var):
-        self.staticOverwrites[name] = var[0]
+        self.staticOverwrites[int('0x' + name, 0)] = int('0x' + var[0], 0)
+
+    def getStaticOverwrites(self):
+        return self.staticOverwrites
 
     def print(self):
-        print(self.staticOverwrites)
-        print(self.fixedSymbols)
-        print(self.linkerFlags)
-        print(self.compilerFlags)
-        print(self.includePaths)
-        print(self.libraries)
-        print(self.sourceFiles)
-        print(self.memoryRegions)
+        print("\n======== Configuration ================\n")
+        print("Compiler: powerpc-eabi-gcc")
+        print("Flags:", ' '.join(self.compilerFlags))
+        print("Linker: powerpc-eabi-ld")
+        print("Flags:", ' '.join(self.linkerFlags))
+        print("Include Paths:")
+        [print(x) for x in self.includePaths]
+        print("Libraries:")
+        [print(x) for x in self.libraries]
+        print("\n======== Available Memory Regions =====\n")
+        [print(x) for x in self.memoryRegions]
+        print("\n======== Static Overwrites ============\n")
+        for k, v in self.staticOverwrites.items():
+            print(hex(v) + ' at address ' + hex(k))
+        print("\n======== Code Entry Points ============\n")
+        for k,v in self.fixedSymbols.items():
+            print(k + '() at address 0x' + v[0])
+        print("\n======== Source Files =================\n")
+        [print(x) for x in self.sourceFiles]
+        print("\n=======================================\n")
