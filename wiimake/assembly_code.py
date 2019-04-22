@@ -1,4 +1,4 @@
-preserveRegistersAssembly='''
+PRESERVE_REGISTERS_ASSEMBLY = '''
 .global backup_reg
 backup_reg:
     subi 1,1,128
@@ -22,13 +22,13 @@ restore_reg:
     blr
 '''
 
-injectionPointAssembly='''
+INJECTION_POINT_ASSEMBLY = '''
 .global inject_point_{num}
 inject_point_{num}:
     b entry_point_{num}
 '''
 
-branchToEntryPointAssembly='''
+BRANCH_TO_ENTRY_POINT_ASSEMBLY = '''
 .global entry_point_{num}
 entry_point_{num}:
     subi 1,1,4

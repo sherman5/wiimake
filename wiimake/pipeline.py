@@ -1,4 +1,4 @@
-# TODO make deterministic
+# TO-DO make deterministic
 
 #### Notes ####
 
@@ -8,7 +8,7 @@
 #
 # Excerpt from "An Introduction to GCC: for the GNU Compilers gcc and g++"
 # by Brian Gough
-# 
+#
 # On Unix-like systems, the traditional behavior of compilers and linkers is to
 # search for external functions from left to right in the object files
 # specified on the command line. This means that the object file which
@@ -32,29 +32,37 @@
 ###############
 
 import os
-import subprocess
+import sys
 import copy
+import subprocess
 from pathlib import Path
-from .assembly_code import *
-from .linker_scripts import *
+from .assembly_code import PRESERVE_REGISTERS_ASSEMBLY
+from .assembly_code import INJECTION_POINT_ASSEMBLY
+from .assembly_code import BRANCH_TO_ENTRY_POINT_ASSEMBLY
+from .linker_scripts import getSizeLinkerScript
+from .linker_scripts import getFinalLinkerScript
 
-def createFile(str, fname):
+def createFile(content, fname):
+    """ write a string to a file """
     file = open(fname, 'w')
-    file.write(str)
+    file.write(content)
     file.close()
 
 def runCmd(cmd, verbose=False, text=True):
+    """ run a shell command as a subprocess """
     if verbose:
         print(''.join([x + ' ' for x in cmd]))
     return subprocess.run(cmd, universal_newlines=text, stdout=subprocess.PIPE)
 
 def assemble(code, fname):
+    """ run assembly code through powerpc-eabi-as """
     sFile = fname + '.s'
     oFile = fname + '.o'
     createFile(code, sFile)
     runCmd(['powerpc-eabi-as', sFile, '-o', oFile])
 
 def link(script, outfile, flags=None, entryPoint=None, verbose=False):
+    """ run powerpc-eabi-ld with the provided linker script """
     createFile(script, 'linker_script.txt')
     cmd = ['powerpc-eabi-ld', '-o', outfile, '--script', 'linker_script.txt']
     if flags is not None:
@@ -63,33 +71,47 @@ def link(script, outfile, flags=None, entryPoint=None, verbose=False):
         cmd += ['-e', entryPoint]
     runCmd(cmd, verbose)
 
-# if x is not divisble by n, round up to nearest multiple of n
 def roundUpToN(x, n):
+    """ if x is not divisble by n, round up to nearest multiple of n """
     rounded = n * int(x/n)
     if rounded != x:
         return rounded + n
     return x
 
 def isLineOfCode(line):
+    """ return True is string represents a line of assembly code in a object file """
     if ':' in line:
         line = line.split(':')[0]
         return '.' not in line and '>' not in line and '_' not in line
     return False
 
-def addToDictonary(d1, d2):
-    for k, v in d2.items():
-        if k in d1.keys():
-            if d1[k] != d2[k]:
+def getCodeFromObjectFile(objdump):
+    """ return a dictionary of assembly code from an object file dump """
+    code = {}
+    for line in objdump:
+        if isLineOfCode(line):
+            address = int(line.split(':')[0], 16)
+            if 'Address' in line:
+                print('Warning:', line.split(':')[1])
+            else:
+                code[address] = int(''.join(line.split()[1:5]), 16)
+    return code
+
+def addToDictonary(dict1, dict2):
+    """ add one dictionary to another, making sure all duplicate items match """
+    for key in dict2.keys():
+        if key in dict1.keys():
+            if dict1[key] != dict2[key]:
                 sys.exit("Error: dictionary value mismatch")
         else:
-            d1[k] = d2[k]
+            dict1[key] = dict2[key]
 
 class ObjectFileSection():
     def __init__(self, name, address=0):
         self.name = name
         self.address = address
         self.size = 0
-    
+
     def __str__(self):
         return self.name
 
@@ -101,6 +123,8 @@ class WiimakePipeline():
         self.config = config
         self.sections = []
         self.objects = []
+        self.finalCode = {}
+        self.verbose = False
 
     def getCode(self):
         return self.finalCode
@@ -119,17 +143,17 @@ class WiimakePipeline():
             self.deleteTemporaryFiles()
 
     def createBranchingCode(self):
-        assemble(preserveRegistersAssembly, 'preserve_registers')
+        assemble(PRESERVE_REGISTERS_ASSEMBLY, 'preserve_registers')
         self.sections.append(ObjectFileSection('preserve_registers.o'))
         for i, sym in enumerate(self.config.fixedSymbols):
             injectPointFilename = 'inject_point_{n}'.format(n=i+1)
             entryPointFilename = 'entry_point_{n}'.format(n=i+1)
-            assemble(injectionPointAssembly.format(num=i+1), injectPointFilename)
-            assemble(branchToEntryPointAssembly.format(num=i+1, symbol=sym),
-                entryPointFilename)
+            assemble(INJECTION_POINT_ASSEMBLY.format(num=i+1), injectPointFilename)
+            assemble(BRANCH_TO_ENTRY_POINT_ASSEMBLY.format(num=i+1, symbol=sym),
+                     entryPointFilename)
             self.sections.append(ObjectFileSection(entryPointFilename + '.o'))
             self.sections.append(ObjectFileSection(injectPointFilename + '.o',
-                int(self.config.fixedSymbols[sym][0], 16)))
+                                                   int(self.config.fixedSymbols[sym][0], 16)))
 
     def compileSourceFiles(self):
         for file in self.config.sourceFiles:
@@ -156,15 +180,15 @@ class WiimakePipeline():
         for ofile in self.objects:
             res = runCmd(['powerpc-eabi-objdump', '-D', ofile])
             tokens = res.stdout.split()
-            for t1, t2 in zip(tokens[:-1], tokens[1:]):
-                if t1 == 'section':
-                    name = ofile + ' (' + t2.split(':')[0] + ')'
+            for token1, token2 in zip(tokens[:-1], tokens[1:]):
+                if token1 == 'section':
+                    name = ofile + ' (' + token2.split(':')[0] + ')'
                     self.sections.append(ObjectFileSection(name))
 
     def getSectionSizes(self):
         print("== Calculating Number of Lines of Code ==")
         script = getSizeLinkerScript(self.sections)
-        for i, sym in enumerate(self.config.fixedSymbols):
+        for i in range(len(self.config.fixedSymbols)):
             flags = ['--gc-sections'] + self.config.linkerFlags
             entry = 'inject_point_{n}'.format(n=i+1)
             link(script, 'sizes.out', flags, entry, self.verbose)
@@ -178,9 +202,9 @@ class WiimakePipeline():
                 size = int(line[(ndx+2):(ndx+10)], 16)
                 size = roundUpToN(size, 4)
                 ndx = line.find("_sizeof_section_")
-                section_id = int(line[(ndx+16):])
-                section_size = max(size, self.sections[section_id - 1].size)
-                self.sections[section_id - 1].size = section_size
+                sectionId = int(line[(ndx+16):])
+                sectionSize = max(size, self.sections[sectionId - 1].size)
+                self.sections[sectionId - 1].size = sectionSize
 
     def findRegionsForCode(self):
         print("== Finding Regions to Inject Code Into ==")
@@ -200,32 +224,20 @@ class WiimakePipeline():
                 memSize = sum([r.size for r in self.config.memoryRegions])
                 msg = msg.format(cLines=codeSize//4, mLines=memSize//4)
                 sys.exit(msg)
-            
+
     def linkCode(self):
         print("== Linking Final Code ==")
         txt = ''
-        self.finalCode = {}
         script = getFinalLinkerScript(self.sections)
-        for i, sym in enumerate(self.config.fixedSymbols):
+        for i in range(len(self.config.fixedSymbols)):
             flags = ['--gc-sections'] + self.config.linkerFlags
             entry = 'inject_point_{n}'.format(n=i+1)
             link(script, 'final.out', flags, entry, self.verbose)
             res = runCmd(['powerpc-eabi-objdump', '-D', 'final.out'])
             txt += res.stdout
-            code = self.getCodeFromObjectFile(res.stdout.split('\n'))
+            code = getCodeFromObjectFile(res.stdout.split('\n'))
             addToDictonary(self.finalCode, code)
         createFile(txt, 'injected_code.txt')
-
-    def getCodeFromObjectFile(self, objdump):
-        code = {}
-        for line in objdump:
-            if isLineOfCode(line):
-                address = int(line.split(':')[0], 16)
-                if 'Address' in line:
-                    print('Warning:', line.split(':')[1])
-                else:
-                    code[address] = int(''.join(line.split()[1:5]), 16)
-        return code               
 
     def addOverwrittenInstructions(self):
         for i, sym in enumerate(self.config.fixedSymbols):
@@ -243,10 +255,10 @@ class WiimakePipeline():
         os.remove('preserve_registers.s')
         os.remove('preserve_registers.o')
         os.remove('injected_code.txt')
-        for i, sym in enumerate(self.config.fixedSymbols):
+        for i in range(len(self.config.fixedSymbols)):
             os.remove('inject_point_{n}.s'.format(n=i+1))
             os.remove('inject_point_{n}.o'.format(n=i+1))
             os.remove('entry_point_{n}.s'.format(n=i+1))
             os.remove('entry_point_{n}.o'.format(n=i+1))
-        for f in self.config.sourceFiles:
-            os.remove(Path(f).stem + '.o')
+        for file in self.config.sourceFiles:
+            os.remove(Path(file).stem + '.o')

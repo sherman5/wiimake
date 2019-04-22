@@ -1,13 +1,13 @@
 import sys
-import shutil
 import argparse
 from pathlib import Path
 from .iso import Iso
 from .config_parser import ConfigParser
 from .pipeline import WiimakePipeline
+from .pipeline import runCmd
 
 # description for wiimake
-description='''
+DESCRIPTION = '''
 wiimake is an automated tool for compiling, allocating, linking, and injecting
 C code into games for the Gamecube/Wii. The user must provide a configuration
 file that contains information about the sources and libraries that should be
@@ -19,24 +19,33 @@ the memory regions provided by the user in the config file (4) run the linker
 (5) inject the code into the appropiate addresses. In one command the user can
 take their raw C files and produce a working iso.
 '''
-   
-# main function for wiimake
+
 def main():
+    """ main function for wiimake """
+
+    # check for powerpc toolchain
+    try:
+        res = runCmd(['powerpc-eabi-gcc', '--version'])
+    except FileNotFoundError:
+        sys.exit("Error: Can't find devkitPPC toolchain")
+    else:
+        line = res.stdout.split('\n')[0]
+        devkitppcVersion = ' '.join(line.split()[1:])
+
     # parse command line arguments
-    parser = argparse.ArgumentParser(description=description)
+    parser = argparse.ArgumentParser(description=DESCRIPTION)
     parser.add_argument('--version', action='version', version='%(prog)s 1.0')
-    parser.add_argument('iso_file',
-        help='Gamecube/Wii .iso file')
-    parser.add_argument('config_file',
-        help='wiimake configuration file')
+    parser.add_argument('iso_file', help='Gamecube/Wii .iso file')
+    parser.add_argument('config_file', help='wiimake configuration file')
     parser.add_argument('--save-temps', action='store_true',
-        help='save temporary build files')
+                        help='save temporary build files')
     parser.add_argument('--verbose', action='store_true',
-        help='provide more verbose output')
+                        help='provide more verbose output')
     args = parser.parse_args()
 
     # Startup Message
     print("\nWiiMake version: 1.0")
+    print("devkitPPC version:", devkitppcVersion)
     print("Building Code from", Path(args.config_file).name)
     print("Injecting in", Path(args.iso_file).name)
     print("")
@@ -45,14 +54,13 @@ def main():
     config = ConfigParser(args.config_file)
     if args.verbose:
         config.print()
-    
+
     # run wiimake pipeline to generate code at available addresses in memory
     pipeline = WiimakePipeline(config)
     pipeline.run(args.verbose, args.save_temps)
-    
+
     # inject code into iso file
     print("== Injecting Code into Game ==")
     iso = Iso(args.iso_file)
     iso.bulkWrite(pipeline.getCode())
     iso.bulkWrite(config.getStaticOverwrites())
-
