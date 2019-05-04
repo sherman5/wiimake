@@ -3,4 +3,5 @@ wiimake.egg-info
 Makefile
 *.out
 *.pyc
+README.html
 
