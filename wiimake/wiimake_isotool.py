@@ -87,7 +87,7 @@ def main():
             code[addr] = 0
         Iso(args.file).bulkWrite(code)
     elif args.print_dol_table:
-        Iso(args.file).dolTable.print()
+        print(Iso(args.file).dolTable)
     elif args.checksum:
         iso = Iso(args.file)
         print(iso.md5(), '', iso.file)

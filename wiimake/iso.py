@@ -49,6 +49,21 @@ class DolTable():
         self.codeStart = min([x.address for x in self.sections if x.address > 0])
         self.codeEnd = self.sections[-1].address + self.sections[-1].size
 
+    def __str__(self):
+        lines = ["Code Start: " + hex(self.codeStart)]
+        lines.append("Code End: " + hex(self.codeEnd))
+        lines.append("Entry Point: " + hex(self.entryPoint))
+        lines.append("BSS Address: " + hex(self.bssAddress))
+        lines.append("BSS Size: " + hex(self.bssSize))
+        f = '{0:>7} {1:>14} {2:>15} {3:>13}'
+        lines.append(f.format('Section', 'File Position', 'Memory Address', 'Section Size'))
+        for x in self.unsortedSections:
+            lines.append(f.format(x.name, hex(x.filePos), hex(x.address), hex(x.size)))
+        return '\n'.join(lines)
+
+    def __repr__(self):
+        return str(self)
+
     def filePos(self, address, verbose=False):
         if self.codeStart <= address <= self.codeEnd:
             if verbose:
@@ -57,17 +72,6 @@ class DolTable():
             section = self.sections[index-1]
             return self.tablePos + section.filePos + address - section.address
         return address # otherwise interpret as a pure file position
-
-    def print(self):
-        print("Code Start:", hex(self.codeStart))
-        print("Code End:", hex(self.codeEnd))
-        print("Entry Point:", hex(self.entryPoint))
-        print("BSS Address:", hex(self.bssAddress))
-        print("BSS Size:", hex(self.bssSize))
-        f = '{0:>7} {1:>14} {2:>15} {3:>13}'
-        print(f.format('Section', 'File Position', 'Memory Address', 'Section Size'))
-        for x in self.unsortedSections:
-            print(f.format(x.name, hex(x.filePos), hex(x.address), hex(x.size)))
 
 class Iso():
     def __init__(self, file):
