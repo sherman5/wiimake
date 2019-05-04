@@ -84,6 +84,13 @@ class ConfigParser():
     def getStaticOverwrites(self):
         return self.staticOverwrites
 
+    def getZeroedMemory(self):
+        code = {}
+        for region in self.memoryRegions:
+            for address in range(region.start, region.end, 4):
+                code[address] = 0
+        return code
+
     def print(self):
         print("\n======== Configuration ================\n")
         print("Compiler: powerpc-eabi-gcc")

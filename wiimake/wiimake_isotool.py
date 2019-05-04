@@ -70,16 +70,20 @@ def main():
         commandLineArgError(parser, "must provide exactly one option")
     elif args.read is not None:
         address = getAddress(args.read)
-        print(hex(Iso(args.file).read(address)))
+        print(hex(Iso(args.file).read(address, True)))
     elif args.save is not None:
+        print("saving file state...")
         Iso(args.file).save(args.save)
+        print("done!")
     elif args.load is not None:
+        print("loading file state...")
         Iso(args.file).load(args.load)
+        print("done!")
     elif args.zero_out is not None:
         code = {}
         start = getAddress(args.zero_out[0])
         end = getAddress(args.zero_out[1])
-        for addr in range(start, end + 4, 4):
+        for addr in range(start, end, 4):
             code[addr] = 0
         Iso(args.file).bulkWrite(code)
     elif args.print_dol_table:

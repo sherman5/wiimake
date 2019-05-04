@@ -7,3 +7,6 @@ install:
 
 lint : 
 	pylint wiimake
+
+test :
+	pytest

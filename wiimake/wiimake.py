@@ -62,5 +62,7 @@ def main():
     # inject code into iso file
     print("== Injecting Code into Game ==")
     iso = Iso(args.iso_file)
-    iso.bulkWrite(pipeline.getCode())
     iso.bulkWrite(config.getStaticOverwrites())
+    iso.bulkWrite(config.getZeroedMemory())
+    iso.bulkWrite(pipeline.getCode())
+    print("lines of code injected:", len(pipeline.getCode()))

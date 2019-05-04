@@ -1,2 +1,0 @@
-/usr/local/wiimake
-/usr/local/wiimake-isotool

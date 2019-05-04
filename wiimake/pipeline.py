@@ -41,6 +41,8 @@ from .assembly_code import INJECTION_POINT_ASSEMBLY
 from .assembly_code import BRANCH_TO_ENTRY_POINT_ASSEMBLY
 from .linker_scripts import getSizeLinkerScript
 from .linker_scripts import getFinalLinkerScript
+from .iso import readFile
+from .iso import writeFile
 
 def createFile(content, fname):
     """ write a string to a file """
@@ -85,10 +87,11 @@ def isLineOfCode(line):
         return '.' not in line and '>' not in line and '_' not in line
     return False
 
-def getCodeFromObjectFile(objdump):
-    """ return a dictionary of assembly code from an object file dump """
+def getCodeFromObjectFile(filename):
+    """ return a dictionary of assembly code from an object file """
     code = {}
-    for line in objdump:
+    res = runCmd(['powerpc-eabi-objdump', '-D', filename])
+    for line in res.stdout.split('\n'):
         if isLineOfCode(line):
             address = int(line.split(':')[0], 16)
             if 'Address' in line:
@@ -97,14 +100,37 @@ def getCodeFromObjectFile(objdump):
                 code[address] = int(''.join(line.split()[1:5]), 16)
     return code
 
+def disassembleSections(filename):
+    dump = {}
+    res = runCmd(['powerpc-eabi-objdump', '-D', filename])
+    for section in res.stdout.split('Disassembly of section wiimake_section_')[1:]:
+        secNumber = int(section.split(':')[0])
+        dump[secNumber] = ''.join(section.split(':')[1:]).strip()
+    return dump
+
 def addToDictonary(dict1, dict2):
     """ add one dictionary to another, making sure all duplicate items match """
     for key in dict2.keys():
         if key in dict1.keys():
             if dict1[key] != dict2[key]:
+                print(dict1[key])
+                print(dict2[key])
                 sys.exit("Error: dictionary value mismatch")
         else:
             dict1[key] = dict2[key]
+
+def addOverwrittenInstruction(elfFile, instruction):
+    sectionHeaderTableStart = readFile(elfFile, 0x20, 4)
+    sectionHeaderSize = readFile(elfFile, 0x2e, 2)
+    # the setup code is in the second section, see WiimakePipeline.createBranchingCode()
+    sectionNum = 2
+    sectionHeaderOffset = sectionHeaderTableStart + sectionNum * sectionHeaderSize
+    sectionOffset = readFile(elfFile, sectionHeaderOffset + 0x10, 4)
+    sectionSize = readFile(elfFile, sectionHeaderOffset + 0x14, 4)
+    instructionOffset = sectionOffset + sectionSize - 0x8 # two lines before end
+    if readFile(elfFile, instructionOffset, 4) != 0x60000000:
+        print("ERROR: nop not at overwrite address")
+    writeFile(elfFile, instruction, instructionOffset)
 
 class ObjectFileSection():
     def __init__(self, name, address=0):
@@ -124,6 +150,7 @@ class WiimakePipeline():
         self.sections = []
         self.objects = []
         self.finalCode = {}
+        self.codeDump = {}
         self.verbose = False
 
     def getCode(self):
@@ -138,7 +165,7 @@ class WiimakePipeline():
         self.processObjectFileSections()
         self.findRegionsForCode()
         self.linkCode()
-        self.addOverwrittenInstructions()
+        self.dumpCodeToFile()
         if not keepTempFiles:
             self.deleteTemporaryFiles()
 
@@ -152,8 +179,9 @@ class WiimakePipeline():
             assemble(BRANCH_TO_ENTRY_POINT_ASSEMBLY.format(num=i+1, symbol=sym),
                      entryPointFilename)
             self.sections.append(ObjectFileSection(entryPointFilename + '.o'))
+            injectAddress = int(self.config.fixedSymbols[sym][0], 16)
             self.sections.append(ObjectFileSection(injectPointFilename + '.o',
-                                                   int(self.config.fixedSymbols[sym][0], 16)))
+                                                   injectAddress))
 
     def compileSourceFiles(self):
         for file in self.config.sourceFiles:
@@ -227,26 +255,22 @@ class WiimakePipeline():
 
     def linkCode(self):
         print("== Linking Final Code ==")
-        txt = ''
         script = getFinalLinkerScript(self.sections)
-        for i in range(len(self.config.fixedSymbols)):
+        for i, sym in enumerate(self.config.fixedSymbols):
             flags = ['--gc-sections'] + self.config.linkerFlags
             entry = 'inject_point_{n}'.format(n=i+1)
             link(script, 'final.out', flags, entry, self.verbose)
-            res = runCmd(['powerpc-eabi-objdump', '-D', 'final.out'])
-            txt += res.stdout
-            code = getCodeFromObjectFile(res.stdout.split('\n'))
-            addToDictonary(self.finalCode, code)
-        createFile(txt, 'injected_code.txt')
+            overwrittenInstruction = int(self.config.fixedSymbols[sym][1], 16)
+            addOverwrittenInstruction('final.out', overwrittenInstruction)
+            addToDictonary(self.codeDump, disassembleSections('final.out'))
+            addToDictonary(self.finalCode, getCodeFromObjectFile('final.out'))
 
-    def addOverwrittenInstructions(self):
-        for i, sym in enumerate(self.config.fixedSymbols):
-            name = 'entry_point_{n}.o'.format(n=i+1)
-            sec = [x for x in self.sections if x.name == name][0]
-            if self.finalCode[sec.address + 0x24] != 0x60000000:
-                print("ERROR: nop not at overwrite address")
-            code = self.config.fixedSymbols[sym][1]
-            self.finalCode[sec.address + 0x24] = int(code, 16)
+    def dumpCodeToFile(self):
+        txtDump = []
+        template = '\n\nDisassembly of section wiimake_section_{num}\n\n{code}'
+        for num, code in sorted(self.codeDump.items()):
+            txtDump.append(template.format(num=num, code=code))
+        createFile(''.join(txtDump), 'injected_code.txt')
 
     def deleteTemporaryFiles(self):
         os.remove('linker_script.txt')
@@ -254,7 +278,6 @@ class WiimakePipeline():
         os.remove('sizes.out')
         os.remove('preserve_registers.s')
         os.remove('preserve_registers.o')
-        os.remove('injected_code.txt')
         for i in range(len(self.config.fixedSymbols)):
             os.remove('inject_point_{n}.s'.format(n=i+1))
             os.remove('inject_point_{n}.o'.format(n=i+1))

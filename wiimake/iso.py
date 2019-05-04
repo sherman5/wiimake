@@ -8,6 +8,12 @@ def readFile(file, pos, size=4):
         f.seek(pos)
         return int.from_bytes(f.read(size), byteorder='big')
 
+def writeFile(file, val, pos, size=4):
+    val = val.to_bytes(size, byteorder='big')
+    with open(file, 'r+b') as f:
+        f.seek(pos)
+        f.write(val)
+
 class DolSection():
     def __init__(self, name, filePos, address, size):
         self.name = name
@@ -72,12 +78,11 @@ class Iso():
         self.file = file
         self.dolTable = DolTable(file)
 
-    def read(self, address):
-        pos = self.dolTable.filePos(address, True)
+    def read(self, address, verbose=False):
+        pos = self.dolTable.filePos(address, verbose)
         return readFile(self.file, pos)
 
     def save(self, saveFile):
-        print("saving file state...")
         with open(self.file, 'rb') as iFile, open(saveFile, 'wb') as sFile:
             pos = 0
             endPos = self.dolTable.filePos(self.dolTable.codeEnd)
@@ -85,10 +90,8 @@ class Iso():
                 byte = iFile.read(1)
                 sFile.write(byte)
                 pos += 1
-        print("done")
 
     def load(self, saveFile):
-        print("loading file state...")
         with open(self.file, 'r+b') as iFile, open(saveFile, 'rb') as sFile:
             iFile.seek(0)
             while True:
@@ -97,7 +100,6 @@ class Iso():
                     iFile.write(byte)
                 else:
                     break
-        print("done!")
 
     def bulkWrite(self, code):
         with open(self.file, 'r+b') as f:
