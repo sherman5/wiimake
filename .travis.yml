@@ -1,20 +1,27 @@
 language: python
 matrix:
   include:
-    - python: 2.7
-      dist: trusty
-      sudo: false
-    - python: 3.4
-      dist: trusty
-      sudo: false
-    - python: 3.5
-      dist: trusty
-      sudo: false
-    - python: 3.6
-      dist: trusty
-      sudo: false
-    - python: 3.7
-      dist: xenial
-      sudo: true
-
+  - python: 2.7
+    dist: trusty
+    sudo: false
+  - python: 3.4
+    dist: trusty
+    sudo: false
+  - python: 3.5
+    dist: trusty
+    sudo: false
+  - python: 3.6
+    dist: trusty
+    sudo: false
+  - python: 3.7
+    dist: xenial
+    sudo: true
 script: pytest
+deploy:
+  provider: pypi
+  user: sherman5
+  password:
+    secure: deEfPT2xnOX1WKR39hCf4MVLpIoAtL5XzBhtswJkzps/uJxAHWZ2sHuDCKLGW/Cbz5gnQGa7PzcV2jd145QApEtjx8ggh7sY9KA3bitV38XLXcYTJA6sktPpteVucpegJmheAGSIcGo8CfprhJNqY3VaJvKQ/7n2RByW/4vDnyd5Lcs+Czo6jZnS1ti4a74Md7X40M8GgzXWqf/fk/2jI6OfKm832ih5oVT0ljuG1xCuX9X1Rx8Mnz0hB9503LXYTHxc/9JITXe6EVSbjxYC/YbMKbT4evZ4SP0wfGRNhzQBamWsGkiVv1peoXISBOTwhSxCE7Jb5iPft4W77EfOe3XDJug+BhxKB6JFguM+/V+kezPOm+GdR0ZFFQCwWxcllSoAoc285eZWW+ToU5m/pKyxH+DsEF9igCQUwOthXh5yJAM6Pdj3hqGl2QjqiSQf6fXeF7N/5QNW7hZ7X2mqojBMBYce+uOFo8eeV3Vt2Jgg+qWPRxQU6U3I+rCfDX25/d1nCt1VZRuSq0Hbn+1lAkFjkdrPp8roiFktsfaNDGScNALLTUd7EDzT5x/kwxvkitvYL+ocBJNFRBSWJst2vpjR0Qo/dnm5imPKo+w+YuINHraICULVU+bVUOOvKDhVvLO7fq0K3KRqD2afvtrSf1pHCXoVtCF70wK27Wpq47s=
+  on:
+    tags: true
+
