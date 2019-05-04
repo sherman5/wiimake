@@ -18,6 +18,7 @@ setup(
     long_description=long_descr,
     author='Tom Sherman',
     author_email='tomsherman159@gmail.com',
+    url='https://github.com/sherman5/wiimake',
     entry_points={
         'console_scripts': [
             'wiimake=wiimake.wiimake:main',
