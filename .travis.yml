@@ -4,6 +4,7 @@ python:
 - '3.4'
 - '3.5'
 - '3.6'
+
 script: pytest
 
 jobs:
@@ -11,8 +12,9 @@ jobs:
   - stage: deploy
     if: tag IS present
     python: 3.5
-    script: "./deploy.sh"
-
-pypi:
-  password:
-    secure: mqTOeuRWRhjJ9MjJ/iGoMUaDNOC/DqR1YcG0drZKO8Y0vZ5z5FFEK/p8qFw5c8Y8iydn7F4nglEnXXUONzR0l1q4PkPgUpaOGya+Ko/GtLPtA1jqul2VPUA5M9FzCqesnWYWhpLBeUzonrIFS+WQBVFgVzWQylhlE/7xQh0zh/iTY9DQFJ6Ou63VBR8P3rpFVuvGZJVa7+KpTNUAtDxxmOhsfnR14anheBaHdf3kjhOLRcYSRdA58xJrrarvPCR7zvTtelBfLv7b4GqBknMa3F3ph/mJR7BEBjrS0zVbfKg9eRYi97x7zx35nOHe+6AJAGvFjDg/0vtddiu+/UA7SDu6YVsZxIHdkdgXoK9nbcp3MDbpHE3s6TNjMTvE562sh5cUZfVJel2sX4aBv2Lq1QwU2N7nr1oa69fwZX3hEh7FpRdSZSBDEWe/Fsho2hTCew/NuTs1Y9dZrU6/LiqEW7j7rFZqJM9qxwEJ0+YwBzjCpdV9yWK+jg0TGJDWo+y7EkJZvzwXUTtv9vDQGDRkXv4/JWqu4PFFMB0v3UWPd5ZZM2/NDv+dzFD7yJ5aIe6JhowDJLjVVvBeRKJl1ViAX0qXa9gnuaRb1PdL0YSlWIZRMdkt08MdNSontME2K6KeKQtBCeOX3JzfgnrUbsexhqUqBSOQQomodK9v0kuVM7I=
+    script: skip
+    deploy:
+      provider: pypi
+      user: sherman5
+      password:
+        secure: MATm73+g5o0qeSIEz/E80a8oCqCk9lb6OSVGLSWY8XXA2obmNFZkeujbaMRt3ylSDXtPq0fhiW1C7yJRDZoi+1Qa2d7Zz6z7YxonRkt9O82mHsdC/qrqOH8GW0RiL3QWkp8X9j+lOQD9F88lEBU3YEV2wb4fz47TCyLVuIqb1pqHOFHDCg+srEMWf33uyOc9yinRKkYWkRThzXiQ35oHP07v95DsIXOchTsEtdHicoqyT2oXPWok66lhZTnKXSoDLhAzePKttFBrAeOj0XtSNck/KOP8BDIsU32ra6bHNsuWdgDALy/lNcfk80T1jiSH+Xd2D1CiVBs/Be7+xtNODtIoPJ7SPNIf2igI7LG5nDtKocGe1Hs+0LHIaqj9exIFwvSSEg09OGog03MrHcotkpyt7dDFLWCoTgoFMSxKT8A5rvGg5CGoxIHDHssL6G5zv8tpeyAQFEsyP/lrBpiajXtDrSuD0ARiZLDdXnzSc7gVgjexipn05uqKCdgF/bshYrcic1Uy+NQ7rHLjCjWR5JomPf9AjiBNO3FXgUhcIeOFQ95TqnlkiWa+D3Zbb0AM9JYeEoXXfS+TWS0aFD/Yvi1/rw7dcK0K0AIrw4kPV34UByfEaJsGXjpxCMHqc7uLLmmda9Ljg2ozQDWmw+GxHu+8MthnVJqwfc/yNQUx8+0=
