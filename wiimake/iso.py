@@ -1,12 +1,12 @@
 import sys
 import hashlib
 from bisect import bisect
-import codecs
+import struct
 
 def readFile(file, pos, size=4):
     with open(file, 'rb') as f:
         f.seek(pos)
-        return int(codecs.encode(f.read(size), 'hex'), 16)
+        return struct.unpack(">I", f.read(size))[0]
 
 def writeFile(file, val, pos, size=4):
     val = val.to_bytes(size, byteorder='big')
@@ -107,7 +107,7 @@ class Iso():
     def bulkWrite(self, code):
         with open(self.file, 'r+b') as f:
             for addr, inst in code.items():
-                inst = inst.to_bytes(4, byteorder='big')
+                inst = struct.pack(">I", inst)
                 pos = self.dolTable.filePos(addr)
                 f.seek(pos)
                 f.write(inst)
