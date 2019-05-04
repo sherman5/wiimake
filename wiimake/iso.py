@@ -1,7 +1,6 @@
 import sys
 import hashlib
 from bisect import bisect
-import pandas as pd
 
 def readFile(file, pos, size=4):
     with open(file, 'rb') as f:
@@ -60,16 +59,15 @@ class DolTable():
         return address # otherwise interpret as a pure file position
 
     def print(self):
-        header = ['Section', 'File Position', 'Memory Address', 'Section Size']
-        table = []
-        for x in self.unsortedSections:
-            table.append([x.name, hex(x.filePos), hex(x.address), hex(x.size)])
         print("Code Start:", hex(self.codeStart))
         print("Code End:", hex(self.codeEnd))
         print("Entry Point:", hex(self.entryPoint))
         print("BSS Address:", hex(self.bssAddress))
         print("BSS Size:", hex(self.bssSize))
-        print(pd.DataFrame(table, columns=header))
+        f = '{0:>7} {1:>14} {2:>15} {3:>13}'
+        print(f.format('Section', 'File Position', 'Memory Address', 'Section Size'))
+        for x in self.unsortedSections:
+            print(f.format(x.name, hex(x.filePos), hex(x.address), hex(x.size)))
 
 class Iso():
     def __init__(self, file):
