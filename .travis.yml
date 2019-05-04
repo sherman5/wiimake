@@ -1,21 +1,18 @@
 language: python
 python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-
+- '2.7'
+- '3.4'
+- '3.5'
+- '3.6'
 script: pytest
 
 jobs:
   include:
-    - stage: deploy
-      if: tag IS present
-      python: 3.5
-      script: skip
-      provider: pypi
-      user: sherman5
-      password:
-        secure: wmZh97kDLlwC8o/JOesYlAL3kzNZXhTpo4K5QhCphkJZO9rhKakQ4rje9n4tR/ezDsC7HYvIyMulXF8vUNUrk/R8Q4Qmr1Agl8Xza/QZuM+HckL7TaOH0n01Lq0n1AsHmbJCORXO+N/ymiziNqz6ndeKOLorkd9aJ4CfRxV9QdQwqi9up+zQSylcnmvsaEwL6QM1m4cayrqW6rtxIrz0R9DAJNSYFKUrChfNmzwzms10GdHbmV+uH1PIwPr/X3zghBHwnxBRDJCW4UoUxN/f/dEAhzL1rxzM2YbHTt/LTqCgdIs08vqhXfAdPEtrCAtvab4RqapDVu7Gj+e57QNV2N69sndjcMsQcUXZ8qvh9LswHu9VEGzSWgPcoNiuEHlJo76laRljzE8bcOC7V9+fTH/L7inRMitsN8tDdsYEF3OR4vW0dPiP/IJIoA86VKNMrJTsOJFe/LwBWfgGx0uwpscKCxNdFPk0BjsJI5llQ9j9oWlZeQECmxxJwKEcwv5vct2OxUqk2+FEWrpzi6f1a+eA6vomCDATHdORPbAg6eisOibDggq8l55sKhK2rwsBJMv14LmeqkUr1+9zVDMujHAfKXduQzLWn5xlh40dUACa5hK2Dx1I9Zc20jlYo1RDjB3wXr3u223Wk4OhQvNz+CLN+lIb0m60Ch5e/y1Vq5E=
-      on:
-        tags: true
+  - stage: deploy
+    if: tag IS present
+    python: 3.5
+    script: "./deploy.sh"
+
+pypi:
+  password:
+    secure: mqTOeuRWRhjJ9MjJ/iGoMUaDNOC/DqR1YcG0drZKO8Y0vZ5z5FFEK/p8qFw5c8Y8iydn7F4nglEnXXUONzR0l1q4PkPgUpaOGya+Ko/GtLPtA1jqul2VPUA5M9FzCqesnWYWhpLBeUzonrIFS+WQBVFgVzWQylhlE/7xQh0zh/iTY9DQFJ6Ou63VBR8P3rpFVuvGZJVa7+KpTNUAtDxxmOhsfnR14anheBaHdf3kjhOLRcYSRdA58xJrrarvPCR7zvTtelBfLv7b4GqBknMa3F3ph/mJR7BEBjrS0zVbfKg9eRYi97x7zx35nOHe+6AJAGvFjDg/0vtddiu+/UA7SDu6YVsZxIHdkdgXoK9nbcp3MDbpHE3s6TNjMTvE562sh5cUZfVJel2sX4aBv2Lq1QwU2N7nr1oa69fwZX3hEh7FpRdSZSBDEWe/Fsho2hTCew/NuTs1Y9dZrU6/LiqEW7j7rFZqJM9qxwEJ0+YwBzjCpdV9yWK+jg0TGJDWo+y7EkJZvzwXUTtv9vDQGDRkXv4/JWqu4PFFMB0v3UWPd5ZZM2/NDv+dzFD7yJ5aIe6JhowDJLjVVvBeRKJl1ViAX0qXa9gnuaRb1PdL0YSlWIZRMdkt08MdNSontME2K6KeKQtBCeOX3JzfgnrUbsexhqUqBSOQQomodK9v0kuVM7I=
