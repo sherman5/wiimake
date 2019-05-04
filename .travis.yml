@@ -1,32 +1,18 @@
-language: python
-matrix:
-  include:
-  - python: 2.7
-    dist: trusty
-    sudo: false
-  - python: 3.4
-    dist: trusty
-    sudo: false
-  - python: 3.5
-    dist: trusty
-    sudo: false
-  - python: 3.6
-    dist: trusty
-    sudo: false
-  - python: 3.7
-    dist: xenial
-    sudo: true
+python:
+  - 2.7
+  - 3.4
+  - 3.5
+  - 3.6
+
 script: pytest
 
 jobs:
   include:
     - stage: deploy
-      script: echo Deploy
+      provider: pypi
+      python: 3.5
       user: sherman5
       password:
         secure: wmZh97kDLlwC8o/JOesYlAL3kzNZXhTpo4K5QhCphkJZO9rhKakQ4rje9n4tR/ezDsC7HYvIyMulXF8vUNUrk/R8Q4Qmr1Agl8Xza/QZuM+HckL7TaOH0n01Lq0n1AsHmbJCORXO+N/ymiziNqz6ndeKOLorkd9aJ4CfRxV9QdQwqi9up+zQSylcnmvsaEwL6QM1m4cayrqW6rtxIrz0R9DAJNSYFKUrChfNmzwzms10GdHbmV+uH1PIwPr/X3zghBHwnxBRDJCW4UoUxN/f/dEAhzL1rxzM2YbHTt/LTqCgdIs08vqhXfAdPEtrCAtvab4RqapDVu7Gj+e57QNV2N69sndjcMsQcUXZ8qvh9LswHu9VEGzSWgPcoNiuEHlJo76laRljzE8bcOC7V9+fTH/L7inRMitsN8tDdsYEF3OR4vW0dPiP/IJIoA86VKNMrJTsOJFe/LwBWfgGx0uwpscKCxNdFPk0BjsJI5llQ9j9oWlZeQECmxxJwKEcwv5vct2OxUqk2+FEWrpzi6f1a+eA6vomCDATHdORPbAg6eisOibDggq8l55sKhK2rwsBJMv14LmeqkUr1+9zVDMujHAfKXduQzLWn5xlh40dUACa5hK2Dx1I9Zc20jlYo1RDjB3wXr3u223Wk4OhQvNz+CLN+lIb0m60Ch5e/y1Vq5E=
       on:
         tags: true
-      python: 3.5
-      dist: trusty
-      sudo: false
