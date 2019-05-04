@@ -2,4 +2,6 @@ wiimake/__pycache__/
 wiimake.egg-info
 src
 tests
+Makefile
+*.out
 
