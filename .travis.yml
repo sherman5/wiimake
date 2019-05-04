@@ -12,7 +12,7 @@ jobs:
   - stage: deploy
     if: tag IS present
     python: 3.5
-    script: skip
+    script: echo "Deploying to PyPI"
     deploy:
       provider: pypi
       user: sherman5
