@@ -10,7 +10,9 @@ script: pytest
 jobs:
   include:
     - stage: deploy
+      if: tag IS present
       python: 3.5
+      script: skip
       provider: pypi
       user: sherman5
       password:
