@@ -5,9 +5,7 @@ from .iso import Iso
 from .config_parser import ConfigParser
 from .pipeline import WiimakePipeline
 from .pipeline import runCmd
-
-# wiimake version
-__version__ = '1.99.0'
+from ._version import __version__
 
 # description for wiimake
 DESCRIPTION = '''
@@ -37,7 +35,7 @@ def main():
 
     # parse command line arguments
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    parser.add_argument('--version', action='version', version='%(prog)s 1.0')
+    parser.add_argument('--version', action='version', version='%(prog)s ' +  __version__)
     parser.add_argument('iso_file', help='Gamecube/Wii .iso file')
     parser.add_argument('config_file', help='wiimake configuration file')
     parser.add_argument('--save-temps', action='store_true',

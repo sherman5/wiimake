@@ -4,4 +4,6 @@ Makefile
 *.out
 *.pyc
 README.html
+build/*
+dist/*
 

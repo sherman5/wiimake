@@ -2,8 +2,8 @@ import re
 from setuptools import setup
 
 version = re.search(
-    '^__version__\s*=\s*"(.*)"',
-    open('wiimake/wiimake.py').read(),
+    '^__version__\s*=\s*\'(.*)\'',
+    open('wiimake/_version.py').read(),
     re.M
     ).group(1)
 
@@ -13,6 +13,7 @@ with open("README.rst", "rb") as f:
 setup(
     name='wiimake',
     version=version,
+    packages=['wiimake'],
     description='Command line tool for building Gamecube/Wii mods',
     long_description=long_descr,
     author='Tom Sherman',
