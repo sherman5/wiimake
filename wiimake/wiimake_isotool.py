@@ -1,6 +1,6 @@
 import argparse
 import sys
-from .iso import Iso
+from wiimake.iso import Iso
 
 # description for wiimake-isotool
 DESCRIPTION = '''

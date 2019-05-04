@@ -1,11 +1,11 @@
 import sys
 import argparse
 from pathlib import Path
-from .iso import Iso
-from .config_parser import ConfigParser
-from .pipeline import WiimakePipeline
-from .pipeline import runCmd
-from ._version import __version__
+from wiimake.iso import Iso
+from wiimake.config_parser import ConfigParser
+from wiimake.pipeline import WiimakePipeline
+from wiimake.pipeline import runCmd
+from wiimake._version import __version__
 
 # description for wiimake
 DESCRIPTION = '''
@@ -23,6 +23,7 @@ take their raw C files and produce a working iso.
 
 def main():
     """ main function for wiimake """
+    print("WiiMake version:", __version__)
 
     # check for powerpc toolchain
     try:
@@ -45,7 +46,6 @@ def main():
     args = parser.parse_args()
 
     # Startup Message
-    print("\nWiiMake version: 1.0")
     print("devkitPPC version:", devkitppcVersion)
     print("Building Code from", Path(args.config_file).name)
     print("Injecting in", Path(args.iso_file).name)

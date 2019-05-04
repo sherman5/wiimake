@@ -3,7 +3,6 @@ date: 2019-5-4
     
     - rewrote software in python
     - easier installation with pip
-    - provided .msi installer
     - cleaned up error handling and user interface
 
 version: 1.3.5

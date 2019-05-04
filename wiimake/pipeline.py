@@ -36,13 +36,13 @@ import sys
 import copy
 import subprocess
 from pathlib import Path
-from .assembly_code import PRESERVE_REGISTERS_ASSEMBLY
-from .assembly_code import INJECTION_POINT_ASSEMBLY
-from .assembly_code import BRANCH_TO_ENTRY_POINT_ASSEMBLY
-from .linker_scripts import getSizeLinkerScript
-from .linker_scripts import getFinalLinkerScript
-from .iso import readFile
-from .iso import writeFile
+from wiimake.assembly_code import PRESERVE_REGISTERS_ASSEMBLY
+from wiimake.assembly_code import INJECTION_POINT_ASSEMBLY
+from wiimake.assembly_code import BRANCH_TO_ENTRY_POINT_ASSEMBLY
+from wiimake.linker_scripts import getSizeLinkerScript
+from wiimake.linker_scripts import getFinalLinkerScript
+from wiimake.iso import readFile
+from wiimake.iso import writeFile
 
 def createFile(content, fname):
     """ write a string to a file """

@@ -57,7 +57,8 @@ class DolTable():
         lines.append("BSS Address: " + hex(self.bssAddress))
         lines.append("BSS Size: " + hex(self.bssSize))
         f = '{0:>7} {1:>14} {2:>15} {3:>13}'
-        lines.append(f.format('Section', 'File Position', 'Memory Address', 'Section Size'))
+        lines.append(f.format('Section', 'File Position', 'Memory Address',
+                              'Section Size'))
         for x in self.unsortedSections:
             lines.append(f.format(x.name, hex(x.filePos), hex(x.address), hex(x.size)))
         return '\n'.join(lines)
