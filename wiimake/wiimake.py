@@ -6,6 +6,9 @@ from .config_parser import ConfigParser
 from .pipeline import WiimakePipeline
 from .pipeline import runCmd
 
+# wiimake version
+__version__ = '1.99.0'
+
 # description for wiimake
 DESCRIPTION = '''
 wiimake is an automated tool for compiling, allocating, linking, and injecting
