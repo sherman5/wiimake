@@ -1,11 +1,12 @@
 import sys
 import hashlib
 from bisect import bisect
+import codecs
 
 def readFile(file, pos, size=4):
     with open(file, 'rb') as f:
         f.seek(pos)
-        return int.from_bytes(f.read(size), byteorder='big')
+        return int(codecs.encode(f.read(size), 'hex'), 16)
 
 def writeFile(file, val, pos, size=4):
     val = val.to_bytes(size, byteorder='big')
