@@ -1,0 +1,75 @@
+version: 2.0.0
+date: 2019-5-4
+    
+    - rewrote software in python
+    - easier installation with pip
+    - provided .msi installer
+    - cleaned up error handling and user interface
+
+version: 1.3.5
+date: 2017-3-15
+
+    - Added Travis CI integration
+    - fixed bug seen with some compilers
+
+version: 1.3.4
+date: 2017-3-9
+
+    - made the program endian agnostic
+    - updated the checksum algorithm
+    - save/load times improved, broke backwards compatibility with save files
+    - added iso verification
+
+version: 1.3.3
+date: 2017-3-2
+
+    - fixed command line options bug
+
+version: 1.3.2
+date: 2017-3-1
+
+    - updated description and usage
+
+version: 1.3.1
+date: 2017-2-26
+
+    - display code size info even on error
+
+version: 1.3.0
+date: 2017-2-22
+
+    - checksum calculation in wiimake-isotool
+    - keep only core files with --save-temps
+    - display percent of memory used
+
+version: 1.2.0
+date: 2017-2-19
+
+    - output code size
+    - use generic function for saving/loading registers
+
+version: 1.1.3
+date: 2017-2-10
+
+    - memory regions given in config file are aligned to multiples of 0x4
+    - memory regions are zereod out before code is injected
+
+version: 1.1.2
+date: 2017-2-5
+
+    - interpret addresses below start of code (in RAM) as pure offsets
+        in the iso file
+
+version: 1.1.1
+date: 2017-2-2
+
+    - fixed bug with section mis-alignment
+
+version: 1.1.0
+date: 2017-2-2
+
+    - user can supply multiple 'fixed symbols'
+    - increased register preservation before branching to fixed symbol
+    - old system of single ENTRY point has been removed 
+
+
