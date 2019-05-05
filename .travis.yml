@@ -18,8 +18,12 @@ jobs:
       password:
         secure: MATm73+g5o0qeSIEz/E80a8oCqCk9lb6OSVGLSWY8XXA2obmNFZkeujbaMRt3ylSDXtPq0fhiW1C7yJRDZoi+1Qa2d7Zz6z7YxonRkt9O82mHsdC/qrqOH8GW0RiL3QWkp8X9j+lOQD9F88lEBU3YEV2wb4fz47TCyLVuIqb1pqHOFHDCg+srEMWf33uyOc9yinRKkYWkRThzXiQ35oHP07v95DsIXOchTsEtdHicoqyT2oXPWok66lhZTnKXSoDLhAzePKttFBrAeOj0XtSNck/KOP8BDIsU32ra6bHNsuWdgDALy/lNcfk80T1jiSH+Xd2D1CiVBs/Be7+xtNODtIoPJ7SPNIf2igI7LG5nDtKocGe1Hs+0LHIaqj9exIFwvSSEg09OGog03MrHcotkpyt7dDFLWCoTgoFMSxKT8A5rvGg5CGoxIHDHssL6G5zv8tpeyAQFEsyP/lrBpiajXtDrSuD0ARiZLDdXnzSc7gVgjexipn05uqKCdgF/bshYrcic1Uy+NQ7rHLjCjWR5JomPf9AjiBNO3FXgUhcIeOFQ95TqnlkiWa+D3Zbb0AM9JYeEoXXfS+TWS0aFD/Yvi1/rw7dcK0K0AIrw4kPV34UByfEaJsGXjpxCMHqc7uLLmmda9Ljg2ozQDWmw+GxHu+8MthnVJqwfc/yNQUx8+0=
       distributions: sdist
+      on:
+        all_branches: true
     deploy:
       provider: releases
       api_key:
         secure: X2qX5aaghCGWT5dHLfWeoUINq2e/BdDd5Lg2mI8I90zuellQqbzkXPpTy9e+uzOTYHUCql9Zv17CrWte7E7ZoIk7ZmEm/waSckcZ/fhyaRiCFRvLHNrd1r/Dmwpoogo0y9PjEdkZPsLJe6wLsLDyjW3dnvODk4JrOaogBVYpWtkY85BBzYRZSlOJDm34kVU1xmPs8/Dm3UQ9Pz9tIl6W/Ftdb9bjIOV1Csl9+fCVPlyWpBck3lNoJW60Gq4HtqUO0bxJnqLO5jJ3MjzupqoLhFP69sVcvjGumbSSwz50tzXk/YVTi5CYnAvtxTPIOcIWPg4qzvGh+xe0vZd1CkB25Tw52xbfx6k2MbkJOLZ2whYh8N9Fb14JLN/ysP+IBUci1QPsJ65suOHnCm+uW5hL/NSBsqLMcTq2t5lIsZnv0gNubZPpQvfSFYqrTYz4+KqEMBEe6QYW7FRx+W4o2d6LHb/oOmVffAi9mqJn9FHE6UryHyA/gtcPkcSVPp1gPm1/oYaTuz/EARSmk35sXRXha/y0XNuZJhk635QBI3/8PI3wsllzmJ1XLKuK45aPqhBQwzXPx7l6HbyuNmTQ1TClc45vTOvCzmjFtw8uBIv3pXxuauLsxBR6oTAw04vdVZ4aIPwz8KRyDllVp0jBajB7W32JXZn7gUTyFunwidxuMCk=
+      on:
+        all_branches: true
 
