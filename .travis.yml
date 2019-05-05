@@ -1,29 +1,43 @@
 language: python
-matrix:
-  include:
-    - python: 2.7
-      dist: trusty
-      sudo: false
-    - python: 3.4
-      dist: trusty
-      sudo: false
-    - python: 3.5
-      dist: trusty
-      sudo: false
-    - python: 3.6
-      dist: trusty
-      sudo: false
-    - python: 3.7
-      dist: xenial
-      sudo: true
-
-script: pytest
 
 jobs:
   include:
+
+  - stage: unit tests
+    script: pytest
+    python: 2.7
+    dist: trusty
+    sudo: false
+
+  - stage: unit tests
+    script: pytest
+    python: 3.4
+    dist: trusty
+    sudo: false
+
+  - stage: unit tests
+    script: pytest
+    python: 3.5
+    dist: trusty
+    sudo: false
+
+  - stage: unit tests
+    script: pytest
+    python: 3.6
+    dist: trusty
+    sudo: false
+
+  - stage: unit tests
+    script: pytest
+    python: 3.7
+    dist: xenial
+    sudo: true
+
   - stage: deploy
     if: tag IS present
     python: 3.5
+    dist: trusty
+    sudo: false
     script: skip
     deploy:
       - provider: pypi
