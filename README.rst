@@ -4,7 +4,7 @@ WiiMake 1.99.18
 Introduction
 ------------
 
-WiiMake is a cross-platform command line tool for building Gamecube/Wii mods written in C. It manages the entire build process, from compiling the C files and arranging the code in the available memory regions of the game, to injecting the file code into the **.iso** file. It also comes with a utility for interacting directly with **.iso** files, to provide an easier workflow when developing mods.
+WiiMake is a cross-platform command line tool for building Gamecube/Wii mods written in C. It manages the entire build process, from compiling the C files and arranging the code in the available memory regions of the game, to injecting the final code into the **.iso** file. It also comes with a utility for interacting directly with **.iso** files, to provide an easier workflow when developing mods.
 
 For an example of this tool being used to build a real project, see the `MeleeModdingLibrary Tutorials`_ which show how to create a simple AI for Super Smash Bros Melee.
 
@@ -75,7 +75,7 @@ WiiMake has two required arguments, **iso_file** which is the path to the **.iso
 
   $ wiimake game.iso config.ini
 
-This command will build and inject a mod into the :code:`game.iso` file based on the settings in the :code:`config.ini` file. Since this command overwrites the :code:`game.iso` file, it's usually a good idea to create a backup. WiiMake also comes with a tool for manipulating an **.iso** file directly, :code:`wiimake-isotool`. This lets us save the original state of the **.iso** file before we overwrite it with our mod. If the configuration file changes significantly, it is usually a good idea to restore the **.iso** file to it's original state before building the mod again. A sample workflow might look like this:
+This command will build and inject a mod into the :code:`game.iso` file based on the settings in the :code:`config.ini` file. Since this command overwrites the :code:`game.iso` file, it's usually a good idea to create a backup. WiiMake also comes with a tool for manipulating an **.iso** file directly, :code:`wiimake-isotool`. This lets you save the original state of the **.iso** file before overwriting it with your mod. If the configuration file changes significantly, it is usually a good idea to restore the **.iso** file to it's original state before building the mod again. A sample workflow might look like this:
 
 ::
 
@@ -141,7 +141,7 @@ will save all the temporary files that are created during the build process. Thi
 WiiMake Configuration File
 --------------------------
 
-The configuration file contains all information about building a mod. The format for this file is the standard **.ini** format where the ';' character starts a comment and the '=' denotes a variable. Lines wrapped in '[]' are section headers and are treated the same way as comments. There are several variables that WiiMake looks for in the configuration file. Each of them is described here and at the end of this section you can find some example configuration files.
+The configuration file contains all information needed to create a mod. The format for this file is the standard **.ini** format where the ';' character starts a comment and the '=' denotes a variable. Lines wrapped in '[]' are section headers and are treated the same way as comments. There are several variables that WiiMake looks for in the configuration file. Each of them is described here and at the end of this section you can find some example configuration files.
 
 **SOURCES**
 
@@ -149,7 +149,7 @@ The configuration file contains all information about building a mod. The format
 
   SOURCES = file1.c file2.c file3.c subfolder/file1.c
 
-This variable tells WiiMake which C files are part of this mod. WiiMake will compile these files and inject the resuling code into the game **.iso**.
+This variable tells WiiMake which C files are part of this mod. WiiMake will compile these files and inject the resuling code into the game **.iso** file.
 
 **REGIONS**
 
@@ -178,7 +178,7 @@ Note: the regions must have the format of **start_address-end_address** with no 
     foo 801a633c 60000000
     bar 801b15cc 38800000
 
-When your code is injected into the available memory regions, it is completely separated from the running game code. There needs to be a point where the game code branches into your code in order for your mod to do anything. This variable specifies the functions in your C files which will serve as entry points to your code. The first value is the name of the function you want as an entry point. The second value is the address where a branch to this function will be inserted. This address depends on what the purpose of your function is. If it is a function that should be called every frame, then you need to find an address in the main game loop. If it is a function that should be called whenever a certain event happens, then you need to find an address in the code that handles that event. The third value is the instruction that is originally at that address in memory. Since this code is part of the actively running game, we can't just overwrite this address and forget about whatever instruction was there. To see the value of an instruction at any memory address, use
+When your code is injected into the available memory regions, it is completely separated from the running game code. There needs to be a point where the game code branches into your code in order for your mod to do anything. This variable specifies the functions in your C files which will serve as entry points to your code. The first value is the name of the function you want as an entry point. The second value is the address where a branch to this function will be inserted. This address depends on what the purpose of your function is. If it is a function that should be called every frame, then you need to find an address in the main game loop. If it is a function that should be called whenever a certain event happens, then you need to find an address in the code that handles that event. The third value is the instruction that is originally at that address in memory. Since this code is part of the actively running game, it can't be overwritten without any consideration for what the original instruction was doing. To see the value of an instruction at any memory address, use
 
 ::
 
@@ -186,7 +186,7 @@ When your code is injected into the available memory regions, it is completely s
   interpreting 0x801a633c as a memory address
   0x7c7f1b78
 
-If you want the game to run as normal you should provide the same value read from the original disc. However, you can also choose to ignore the original instruction be replacing it with a :code:`nop` (60000000). This will effectively make your function overwrite whatever instruction was originally at that address.
+If you want the game to run as normal you should provide the same value read from the original disc. However, you can also choose to ignore the original instruction by replacing it with a :code:`nop` (60000000). This will effectively make your function overwrite whatever instruction was originally at that address.
 
 Before the code branches to an entry point, all the registers are preserved on the stack. Thus, these functions can take input from the game registers, but any return values will be discarded when the registers are restored. If you are unfamiliar with registers and how they are used to pass values to a function, it is always safe to have all entry points have a signature like :code:`void foo()`.
 
