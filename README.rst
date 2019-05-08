@@ -1,4 +1,4 @@
-WiiMake 1.99.18
+WiiMake 1.99.19
 ======================
 
 Introduction
