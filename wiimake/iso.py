@@ -6,7 +6,10 @@ import struct
 def readFile(file, pos, size=4):
     with open(file, 'rb') as f:
         f.seek(pos)
-        return struct.unpack(">I", f.read(size))[0]
+        if size == 4:
+            return struct.unpack(">I", f.read(size))[0]
+        elif size == 2:
+            return struct.unpack(">H", f.read(size))[0]
 
 def writeFile(file, val, pos, size=4):
     val = val.to_bytes(size, byteorder='big')

@@ -1,6 +1,7 @@
 import os
 from shutil import copyfile
 from wiimake.iso import Iso
+from wiimake.iso import readFile
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 ISO_PATH = DIR_PATH + '/test.iso'
@@ -25,6 +26,9 @@ def testIsoRead():
     assert iso.read(0x80377998) == 0x7ee3bb78
     assert iso.read(0x801b15cc) == 0x38800004
     assert iso.read(0x801a633c) == 0x7c7f1b78
+
+def testReadNonStandard():
+    assert readFile(ISO_PATH, 0x422, 2) == 0xe800
 
 def testIsoMd5():
     iso = Iso(ISO_PATH)
