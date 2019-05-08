@@ -36,7 +36,7 @@ def main():
 
     # parse command line arguments
     parser = argparse.ArgumentParser(description=DESCRIPTION)
-    parser.add_argument('--version', action='version', version='%(prog)s ' +  __version__)
+    parser.add_argument('--version', action='version', version='')
     parser.add_argument('iso_file', help='Gamecube/Wii .iso file')
     parser.add_argument('config_file', help='wiimake configuration file')
     parser.add_argument('--save-temps', action='store_true',
