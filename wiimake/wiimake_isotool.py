@@ -55,10 +55,10 @@ def main():
                         help="computes an md5 checksum of the file")
     parser.add_argument("--print-dol-table", action="store_true",
                         help="prints the DOL table of the iso")
-    parser.add_argument("--zero-out", nargs=2, metavar=("address", "size"),
+    parser.add_argument("--zero-out", nargs=2, metavar=("start", "end"),
                         help='''zereos out a section of memory, first argument
-                                is starting address, second argument is number
-                                of bytes to zero out. This is useful when
+                                is starting address, second argument is the
+                                ending address. This is useful when
                                 exploring the effects of overwriting certain
                                 regions of memory''')
     args = parser.parse_args()
