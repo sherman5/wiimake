@@ -46,7 +46,8 @@ class ConfigParser():
             'INCLUDE_PATHS': self.processIncludes,
             'COMPILER_FLAGS': self.processCompilerFlags,
             'LINKER_FLAGS': self.processLinkerFlags,
-            'FIXED_SYMBOLS': self.processFixedSymbols
+            'FIXED_SYMBOLS': self.processFixedSymbols,
+            'ENTRY_POINTS': self.processFixedSymbols
         }
         for start, stop in zip(breaks, breaks[1:] + [len(tokens)]):
             var = tokens[start:stop]
