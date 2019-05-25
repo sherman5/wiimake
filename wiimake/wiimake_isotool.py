@@ -55,6 +55,8 @@ def main():
                         help="computes an md5 checksum of the file")
     parser.add_argument("--print-dol-table", action="store_true",
                         help="prints the DOL table of the iso")
+    parser.add_argument("--dump-dol", action="store_true",
+                        help="dumps the DOL file from the given iso"),
     parser.add_argument("--zero-out", nargs=2, metavar=("start", "end"),
                         help='''zereos out a section of memory, first argument
                                 is starting address, second argument is the
@@ -65,7 +67,7 @@ def main():
 
     # process command line arguments, dispatch to correct function
     optionalArgs = [args.read, args.save, args.load, args.checksum,
-                    args.print_dol_table, args.zero_out]
+                    args.print_dol_table, args.dump_dol, args.zero_out]
     if not singleTrue(optionalArgs):
         commandLineArgError(parser, "must provide exactly one option")
     elif args.read is not None:
@@ -88,6 +90,8 @@ def main():
         Iso(args.file).bulkWrite(code)
     elif args.print_dol_table:
         print(Iso(args.file).dolTable)
+    elif args.dump_dol:
+        Iso(args.file).dumpDolToFile("main.dol")
     elif args.checksum:
         iso = Iso(args.file)
         print(iso.md5(), '', iso.file)

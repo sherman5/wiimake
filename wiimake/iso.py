@@ -108,6 +108,16 @@ class Iso():
                 else:
                     break
 
+    def dumpDolToFile(self, dolFile):
+        with open(self.file, 'rb') as iFile, open(dolFile, 'wb') as dFile:
+            endPos = self.dolTable.filePos(self.dolTable.codeEnd)
+            pos = self.dolTable.tablePos
+            iFile.seek(pos)
+            while pos < endPos:
+                byte = iFile.read(1)
+                dFile.write(byte)
+                pos += 1
+
     def bulkWrite(self, code):
         with open(self.file, 'r+b') as f:
             for addr, inst in code.items():
