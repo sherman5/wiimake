@@ -1,6 +1,5 @@
 wiimake/__pycache__/
 wiimake.egg-info
-Makefile
 *.out
 *.pyc
 README.html
