@@ -42,7 +42,7 @@ Before installing WiiMake, you must have a supported version of Python_ installe
 
   $ python --version
 
-WiiMake works with Python versions **2.7, 3.4, 3.5, 3.6, 3.7**.
+WiiMake works with Python versions **2.7, 3.4, 3.5, 3.6, 3.7, 3.8**.
 
 Installing WiiMake
 ******************
@@ -228,3 +228,4 @@ __ https://github.com/sherman5/MeleeModdingLibrary/blob/master/tutorials/SimpleP
 __ https://github.com/sherman5/MeleeModdingLibrary/blob/master/tutorials/DashDancing/DashDancing.ini
 __ https://github.com/sherman5/MeleeModdingLibrary/blob/master/tutorials/DefensiveAI/DefensiveAI.ini
 .. _MeleeModdingLibrary: https://github.com/sherman5/MeleeModdingLibrary/
+
