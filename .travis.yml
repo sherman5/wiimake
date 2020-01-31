@@ -33,6 +33,12 @@ jobs:
     dist: xenial
     sudo: true
 
+  - stage: unit tests
+    script: pytest
+    python: 3.8
+    dist: xenial
+    sudo: true
+
   - stage: deploy
     if: tag IS present
     python: 3.5
